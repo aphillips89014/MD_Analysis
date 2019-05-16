@@ -194,7 +194,7 @@ public class Readin implements Serializable{
 		long start = System.currentTimeMillis();
 		int maximumID = findMaximumID(file);
 
-		System.out.println("Start File Reading");
+		System.out.println("Start Reading Files");
 		//Scane the whole file
 		while (Scan.hasNextLine()){
 			currentFrame = Scan.nextInt();

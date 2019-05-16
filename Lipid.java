@@ -13,6 +13,9 @@ public class Lipid implements java.io.Serializable {
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
+	float firstOP = 0;
+	float secondOP = 0;
+
 	int[] Neighbors = new int[3];
 
 	Atom firstChain;
@@ -49,6 +52,33 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends checkForNN Method
 
 
+
+	public boolean checkForOP(){
+		boolean result = false;
+
+		if (this.firstOP != 0){
+			result = true;
+		}	//Ends if statement
+
+		return result;
+
+	}	//Ends checkForOP method
+
+
+	public void findOP(){
+
+		float[] first = new float[2];
+		first = firstChain.averageOP(first);		
+		this.firstOP = (first[1] / first[0]);
+	
+		float[] second = new float[2];
+		second = secondChain.averageOP(second);
+		this.secondOP = (second[1] / second[0]);
+
+	}	//Ends average OP method
+
+
+
 	public void assignNN(int index, int value){
 		this.Neighbors[index] = value;
 
@@ -58,9 +88,10 @@ public class Lipid implements java.io.Serializable {
 
 	//Return Various Information
 	public void getInformation(){
-		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
-		this.firstChain.printAllAtoms();
-		this.secondChain.printAllAtoms();
+//		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
+//		this.firstChain.printAllAtoms();
+//		this.secondChain.printAllAtoms();
+		System.out.println(this.firstOP + " " + this.secondOP);
 		System.out.println(Arrays.toString(this.Neighbors));
 		System.out.println("");
 

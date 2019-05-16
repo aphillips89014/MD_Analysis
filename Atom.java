@@ -29,6 +29,21 @@ public class Atom implements Serializable{
 
 	}	//Ends setNext method
 
+
+	public float[] averageOP(float[] array){
+		
+		if (this.OP != 0){
+			array[0]++;
+			array[1] = array[1] + this.OP;
+		}	//Ends if statement
+
+		if (this.next != null){
+			array = this.next.averageOP(array);
+		}	//Ends
+
+		return array;
+	}	//Ends averageOp
+
 	
 	public void printAllAtoms(){
 		System.out.println(this.ID + " " + this.Chain + " " + this.Member + " " + Hydrogen + " " + OP);

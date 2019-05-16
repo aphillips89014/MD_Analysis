@@ -169,10 +169,39 @@ public class Process implements Serializable {
 	}	//Ends CalcualteNN Method
 
 
+	//Take the plateau of a lipid of both chains, then average it and set it as a property of the lipid and re-serialize it.
+	public static void averageOP(Frame Frame, Readin Readin){
+		
+		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+
+		if (OPCalculated){
+			//Do Nothing, you've already calculated the Average OP
+		}	//Ends if statement
+
+		else{
+			int length = Frame.allLipids.length;
+			int frameNumber = Frame.getFrameNumber();
+
+			for (int i = 0; i < length; i++){
+				Frame.allLipids[i].findOP();
+
+			}	//Ends for Loop
+
+			Readin.serializeFrame("falseName", frameNumber, Frame);
+
+		}	//Ends else statement
+	}	//Ends AverageOP method
+
+
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_1.ser";
 		int totalFiles = 0;
+
+		System.out.println("");
+		System.out.println("----------------------------------");
+		System.out.println("Initiated File Processor");
+		System.out.println("");
 
 
 		//Create a bunch of serialized objects so that the memory usage won't be as great.
@@ -195,17 +224,21 @@ public class Process implements Serializable {
 		}	//Ends if statement
 
 
-
-
+		System.out.println("");
 
 
 		long start = System.currentTimeMillis();
-		System.out.println("Started Calculating NN");
+		System.out.println("Begun Various Calculations");
 	
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
 			calculateNN(currentFrame, 10, ReadFile);
+			averageOP(currentFrame, ReadFile);
+
+
+//			currentFrame.allLipids[0].getInformation();
+
 
 		}	//Ends for loop
 
@@ -213,8 +246,9 @@ public class Process implements Serializable {
 		long end = System.currentTimeMillis();
 		long totalTime = (end - start) / 1000;
 
-		System.out.println("Finished NN Calculation in  " + totalTime + " seconds");		
+		System.out.println("Finished Calculation in  " + totalTime + " seconds");		
 
-
+		
+		System.out.println("");
 	}	//Ends Main
 }	//Ends Class Definition
