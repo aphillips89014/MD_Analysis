@@ -1,5 +1,6 @@
 //Lipid Java File
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Lipid implements java.io.Serializable {
 
@@ -11,6 +12,8 @@ public class Lipid implements java.io.Serializable {
 	float Y;
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
+
+	int[] Neighbors = new int[3];
 
 	Atom firstChain;
 	Atom secondChain;
@@ -24,36 +27,50 @@ public class Lipid implements java.io.Serializable {
 		this.firstChain = new Atom(ID, "head", 0, 0, 0);
 		this.secondChain = new Atom(ID, "head", 0, 0, 0);
 
-
-
-		//Temp Stuff
-		if (Name.equals("PDPC")){
-			this.firstChainIdentifier = "3";
-			this.secondChainIdentifier = "2";
-		}
-
-		else if (Name.equals("PSM")){
-			this.firstChainIdentifier = "F";
-			this.secondChainIdentifier = "S";
-		}
-
-
-
 	}	//Ends Constructor
+
+
+	//Checks if Neighbors has been calculated yet.
+	public boolean checkForNN(){
+
+		int sum = 0;
+		int length = this.Neighbors.length;
+		boolean result = false;
+
+		for (int i = 0; i < length; i++){
+			sum = sum + this.Neighbors[i];
+		}	//Ends for loop
+
+		if (sum > 0){
+			result = true;
+		}
+
+		return result;
+	}	//Ends checkForNN Method
+
+
+	public void assignNN(int index, int value){
+		this.Neighbors[index] = value;
+
+	}	//Ends assignNN
+
+
 
 	//Return Various Information
 	public void getInformation(){
 		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
 		this.firstChain.printAllAtoms();
 		this.secondChain.printAllAtoms();
+		System.out.println(Arrays.toString(this.Neighbors));
 		System.out.println("");
 
 
 	} //Ends getInformation method
 
+
+
 	public void assignChainIdentifier(String givenChain){
 
-/*
 		if (this.firstChainIdentifier.equals("null")){
 			this.firstChainIdentifier = givenChain;
 		}	//ends if staetment
@@ -67,9 +84,6 @@ public class Lipid implements java.io.Serializable {
 		else{
 	
 		}	//Ends else statement
-*/
-
-
 	}	//Ends assignChain Method
 
 

@@ -109,56 +109,63 @@ public class Process implements Serializable {
 
 
 
-	public static void calculateNN(Frame currentFrame, PrintStream output, PrintStream console, int searchRadius){
-		
-		int length = currentFrame.allLipids.length;
-		int frame = currentFrame.getFrameNumber();	
+	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin){
+	
+		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
+	
+		if (alreadyCalculated) {
+			//Do nothing, this job has already been done.
+		}	//Ends if statement
 
-		for (int i = 0; i < length; i++){
-			float x = currentFrame.allLipids[i].getX();
-			float y = currentFrame.allLipids[i].getY();
-			String Name = currentFrame.allLipids[i].getName();
+		else{
+			int length = currentFrame.allLipids.length;
+			int frame = currentFrame.getFrameNumber();	
 
-			float xLength = currentFrame.getXLength();
-			float yLength = currentFrame.getYLength();
+			for (int i = 0; i < length; i++){
+				float x = currentFrame.allLipids[i].getX();
+				float y = currentFrame.allLipids[i].getY();
+				String Name = currentFrame.allLipids[i].getName();
 
-			int shiftY = checkBoundary(x, xLength, searchRadius);
-			int shiftX = checkBoundary(y, yLength, searchRadius);
+				float xLength = currentFrame.getXLength();
+				float yLength = currentFrame.getYLength();
 
-
-			int PSM = 0;
-			int PDPC = 0;
-			int CHL1 = 0;
-
-			for (int j = 0; j < length; j++){
-				float x2 = currentFrame.allLipids[j].getX();
-				float y2 = currentFrame.allLipids[j].getY();
-				String Name2 = currentFrame.allLipids[j].getName();
+				int shiftY = checkBoundary(x, xLength, searchRadius);
+				int shiftX = checkBoundary(y, yLength, searchRadius);
 
 
-				x2 = applyPBC(x2, shiftX, xLength);
-				y2 = applyPBC(y2, shiftY, yLength);				
+				int PSM = 0;
+				int PDPC = 0;
+				int CHL1 = 0;
+
+				for (int j = 0; j < length; j++){
+					float x2 = currentFrame.allLipids[j].getX();
+					float y2 = currentFrame.allLipids[j].getY();
+					String Name2 = currentFrame.allLipids[j].getName();
 
 
-				double radius = calculateRadius(x, y, x2, y2);
+					x2 = applyPBC(x2, shiftX, xLength);
+					y2 = applyPBC(y2, shiftY, yLength);				
 
-				if (radius <= searchRadius && radius != 0){
-					if (Name2.equals("PSM")) { PSM++; }
-					else if (Name2.equals("PDPC")) { PDPC++; }
-					else if (Name2.equals("CHL1")) { CHL1++; }
-				}	//Ends if statement
+
+					double radius = calculateRadius(x, y, x2, y2);
+
+					if (radius <= searchRadius && radius != 0){
+						if (Name2.equals("PSM")) { PSM++; }
+						else if (Name2.equals("PDPC")) { PDPC++; }
+						else if (Name2.equals("CHL1")) { CHL1++; }
+					}	//Ends if statement
+				}	//Ends for loop
+
+
+				currentFrame.allLipids[i].assignNN(0, PSM);
+				currentFrame.allLipids[i].assignNN(1, PDPC);
+				currentFrame.allLipids[i].assignNN(2, CHL1);
+				
 			}	//Ends for loop
 
-			//Output to a file
-			System.setOut(output);
+			tempReadin.serializeFrame("falseName", frame, currentFrame);
 
-			System.out.println(frame + " " + Name + " " + i + " " + "PSM" + " " + PSM);
-			System.out.println(frame + " " + Name + " " + i + " " + "PDPC" + " " + PDPC);
-			System.out.println(frame + " " + Name + " " + i + " " + "CHL1" + " " + CHL1);
-
-			System.setOut(console);
-
-		}	//Ends for loop
+		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
 
@@ -189,35 +196,18 @@ public class Process implements Serializable {
 
 
 
-		PrintStream output = null;
-		PrintStream console = null;
-
-		try{
-			output = new PrintStream(new File("NN.dat"));
-			console = System.out;
-		}	//Ends try Statement
-
-		catch(Exception e){
-			System.out.println("Error in Openning Data File");
-			System.out.println(e);
-			System.out.println("");
-
-		}	//Ends catch statement
 
 
-		
+
 		long start = System.currentTimeMillis();
 		System.out.println("Started Calculating NN");
-
 	
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
-			calculateNN(currentFrame, output, console, 10);
+			calculateNN(currentFrame, 10, ReadFile);
+
 		}	//Ends for loop
-
-
-
 
 
 		long end = System.currentTimeMillis();

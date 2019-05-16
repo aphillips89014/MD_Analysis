@@ -72,7 +72,16 @@ public class Readin implements Serializable{
 		return ID;
 	}	//Ends findMaximumId
 
-	public static void serializeFrame(String fileName, Frame Frame){
+	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
+
+		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
+		if (frameNumber < 2000){
+			//Choose an arbitrarily large value such as 2000.
+
+			String frameNumberString = Integer.toString(frameNumber);
+			fileName = "Frames/frame_" + frameNumberString + ".ser";
+
+		}	//Ends if statement
 
 		try{
 			FileOutputStream fileOutput = new FileOutputStream(fileName);
@@ -217,7 +226,7 @@ public class Readin implements Serializable{
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
 					Frame.findLength();
 			
-					serializeFrame(fileName, Frame);
+					serializeFrame(fileName, 9999, Frame);
 
 					//Create new Frame
 					Frame.resetFrame(currentFrame);
@@ -243,7 +252,7 @@ public class Readin implements Serializable{
 			previousFrame = currentFrame;
 		}	//Ends while loop
 
-		serializeFrame(("Frames/frame_" + (totalFiles - 1) + ".ser"), Frame);
+		serializeFrame("falseName", (totalFiles-1), Frame);
 
 		long end = System.currentTimeMillis();
 		long totalTime = (end - start) / 1000;
