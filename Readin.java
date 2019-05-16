@@ -114,7 +114,11 @@ public class Readin implements Serializable{
 		int lastFrame = -1;
 
 		//Scane the whole file
-		while (ID == lastID){
+		boolean keepGoing = true;		
+		int chainCount = 2;
+
+
+		while (keepGoing){
 			currentFrame = Scan.nextInt();
 			Lipid = Scan.next();
 			ID = Scan.nextInt();
@@ -125,16 +129,26 @@ public class Readin implements Serializable{
 
 			Scan.nextLine();
 
-			if (ID == lastID) {
-				thisFrame.allLipids[ID - 1].assignChainIdentifier(Chain);
-				thisFrame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, OP);
+			//The OP file and Coordinate File are different (Coords have only top leaflet).
+			if (ID > 528){
+				//Do Nothing, let the program scan Lines until it reaches a valid point
+			}
 
-//				if (currentFrame != lastFrame){
-//					System.out.println(currentFrame + " " + Lipid + " " + ID + " " + Chain + " " + Member + " " + Hydrogen + " " + OP);
-//					lastFrame = currentFrame;
-//				}	//Ends fi stataement
+			else{
+				//There are two chains, with 3(2) Hydrogen on each. Once we see 3 hydrogen twice then keepGoing is set to false
+				if (Hydrogen == 2){
+					chainCount--;
+					if (chainCount == 0){
+						keepGoing = false;
+					}	//Ends if statemetn
+				}	//Ends if statement
 
-			}	//Ends if statement
+
+				if (ID == lastID){
+					thisFrame.allLipids[ID - 1].assignChainIdentifier(Chain);
+					thisFrame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, OP);
+				}	//Ends if statement
+			}	//Ends else statemetn
 		}	//Ends while loop
 
 		return Scan;
@@ -167,7 +181,6 @@ public class Readin implements Serializable{
 		float Y; 
 	
 		int totalFiles = 0;
-		int counter = 0;
 
 		long start = System.currentTimeMillis();
 		int maximumID = findMaximumID(file);
@@ -185,9 +198,6 @@ public class Readin implements Serializable{
 			//Use these variables as you will.
 
 			if (previousFrame != currentFrame){
-
-				System.out.println("Frame: " + currentFrame + "    counter: " + counter);
-				counter = 0;
 
 				totalFiles++;
 
@@ -217,8 +227,6 @@ public class Readin implements Serializable{
 
 			//Now, assign values to the lipid of interest
 			Frame.createLipid(Lipid, ID, X, Y);
-
-			counter++;
 
 			//Now add OP Data to it.
 			if (Lipid.equals("PSM")){

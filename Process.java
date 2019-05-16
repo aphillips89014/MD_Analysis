@@ -208,17 +208,17 @@ public class Process implements Serializable {
 		
 		long start = System.currentTimeMillis();
 		System.out.println("Started Calculating NN");
+
 	
 		for (int i = 0; i < totalFiles; i++){
-//			Frame currentFrame = ReadFile.getFrame(i);
+			Frame currentFrame = ReadFile.getFrame(i);
 
-//			calculateNN(currentFrame, output, console, 10);
-
-//			System.out.println(currentFrame.getFrameNumber() + " " + currentFrame.allLipids[2].firstChainIdentifier);
-//			currentFrame.allLipids[2].firstChain.printAllAtoms();
-//			System.out.println("");
-
+			calculateNN(currentFrame, output, console, 10);
 		}	//Ends for loop
+
+
+
+
 
 		long end = System.currentTimeMillis();
 		long totalTime = (end - start) / 1000;

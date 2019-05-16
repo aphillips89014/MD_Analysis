@@ -41,6 +41,16 @@ public class Lipid implements java.io.Serializable {
 
 	}	//Ends Constructor
 
+	//Return Various Information
+	public void getInformation(){
+		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
+		this.firstChain.printAllAtoms();
+		this.secondChain.printAllAtoms();
+		System.out.println("");
+
+
+	} //Ends getInformation method
+
 	public void assignChainIdentifier(String givenChain){
 
 /*
