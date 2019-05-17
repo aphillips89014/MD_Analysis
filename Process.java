@@ -193,6 +193,45 @@ public class Process implements Serializable {
 	}	//Ends AverageOP method
 
 
+	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN){
+		
+		int length = Frame.allLipids.length;
+		for (int i = 0; i < length; i++){
+			int currentLipid = Frame.allLipids[i].getIntName();
+			
+			for (int compLipid = 0; compLipid < 3; compLipid++){
+
+				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
+				
+				double firstOP = Frame.allLipids[i].getFirstOP();
+				double secondOP = Frame.allLipids[i].getSecondOP();
+
+				double firstOPSquared = Math.pow(firstOP, 2);
+				double secondOPSquared = Math.pow(secondOP, 2);
+
+				//Add 1 to the NN Count.
+				OPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
+				OPvNN[0][currentLipid][compLipid][1][neighborIndex]++;
+				
+				//Add the OP
+				OPvNN[1][currentLipid][compLipid][0][neighborIndex] = OPvNN[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
+				OPvNN[1][currentLipid][compLipid][1][neighborIndex] = OPvNN[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
+
+				//Add the OP^2
+				OPvNN[2][currentLipid][compLipid][0][neighborIndex] = OPvNN[2][currentLipid][compLipid][0][neighborIndex] + firstOPSquared;
+				OPvNN[2][currentLipid][compLipid][1][neighborIndex] = OPvNN[2][currentLipid][compLipid][1][neighborIndex] + secondOPSquared;
+
+
+
+			}	//Ends for Loop
+
+		}	//Ends for loop
+
+		return OPvNN;
+	}	//Ends OPvNN
+
+
+
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_1.ser";
@@ -229,13 +268,26 @@ public class Process implements Serializable {
 
 		long start = System.currentTimeMillis();
 		System.out.println("Begun Various Calculations");
+
+		//Create an array for calculating various things.
+		double[][][][][] OPvNN = new double[3][3][3][2][20];
+			//Let's describe this 4-d array.
+			//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
+			//Second Index is the current Lipid, for this specifically: PSM (0), PDPC (1), CHL1 (2)
+			//Third Index is the Comparing Lipid, same as before.
+			//Fourth Index is the chain; Sn1 (0), Sn2 (1);
+			//Fifth index is the value we are interested in (# of Neighbors, OP, OP^2).
+				//The index indicates how many Comparing Lipid Neighbors they are.
+
+			//There may be a better way to do this, but this is the simplest in terms of manageable code.
 	
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
 			calculateNN(currentFrame, 10, ReadFile);
 			averageOP(currentFrame, ReadFile);
-
+			
+			OPvNN = findOPvNN(currentFrame, OPvNN);
 
 //			currentFrame.allLipids[0].getInformation();
 
@@ -248,7 +300,19 @@ public class Process implements Serializable {
 
 		System.out.println("Finished Calculation in  " + totalTime + " seconds");		
 
-		
+		System.out.println("");
+		System.out.println("Started Creating Output Files");
+
+		start = System.currentTimeMillis();
+	
+		Readin.createHistogramFiles(OPvNN);
+		Readin.createOPvNNFiles(OPvNN);
+
+		end = System.currentTimeMillis();
+		totalTime = (end - start) / 1000;
+		System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
+
+
 		System.out.println("");
 	}	//Ends Main
 }	//Ends Class Definition

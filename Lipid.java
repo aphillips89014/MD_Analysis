@@ -157,6 +157,19 @@ public class Lipid implements java.io.Serializable {
 
 	}       //Ends addAtom
 
+	
+	//Return a specific integer based off lipid name
+	public int getIntName(){
+		int result = 99;
+		if (this.Name.equals("PSM")) { result = 0; }
+		else if (this.Name.equals("PDPC")) { result = 1; }
+		else if (this.Name.equals("CHL1")) { result = 2; }
+		else { 
+			System.out.println("Incorrect Lipid Name");
+		}	//Ends else statement
+
+		return result;
+	}	//Ends getIntName
 
 
 	public String getName(){
@@ -174,5 +187,13 @@ public class Lipid implements java.io.Serializable {
 	public int getID(){
 		return this.ID;
 	}	//Ends getID Method
+
+	public float getFirstOP(){
+		return this.firstOP;
+	}	//Ends getFirstOP()
+
+	public float getSecondOP(){
+		return this.secondOP;
+	}	//Ends getFirstOP()
 
 }	//Ends Lipid Class Defintion

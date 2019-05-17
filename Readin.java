@@ -3,6 +3,7 @@
 import java.io.*;
 import java.util.Scanner;
 import java.util.Arrays;
+import java.lang.Math;
 
 public class Readin implements Serializable{
 
@@ -101,6 +102,124 @@ public class Readin implements Serializable{
 
 
 	}	//Ends Serialize Frame method
+
+	public static String convertInteger(int x){
+		//Converts a given int to a specific string.
+		String output = "null";
+		
+		if (x == 0) { output = "PSM"; }
+		else if (x == 1) { output = "PDPC"; }
+		else if (x == 2) { output = "CHL1"; }
+
+		return output;
+	}	//Ends convertInteger Method
+
+	//Going to create an output file after manipulating and binning OPvNN
+	public static void createOPvNNFiles(double[][][][][] OPvNN){
+
+		PrintStream console = System.out;
+
+		//Only need it for PSM, and PDPC
+		for (int i = 0; i < 2; i++){
+			String lipid = convertInteger(i);
+			for (int j = 0; j < 3; j++){
+				String compLipid = convertInteger(j);
+
+				for (int chain = 0; chain < 2; chain++){
+					String fileName = "Graphing/OP_NN_" + lipid + "_chain_" + chain + "_" + compLipid + ".dat";				
+
+					try{
+						PrintStream output = new PrintStream(new File(fileName));
+						System.setOut(output);
+
+						//First Sum the array we want to look at.
+						double sum = 0;
+						int length = OPvNN[0][i][j][chain].length;					
+
+						for (int k = 0; k < length; k++){
+							sum = sum + OPvNN[0][i][j][chain][k];
+						}	//Ends for Loop
+						
+						for (int k = 0; k < length; k++){
+							double count = OPvNN[0][i][j][chain][k];
+							double proportion = count / sum;
+							if (proportion <= 0.001){
+								proportion = 0;
+							}	//ends if statement
+
+							double OP = OPvNN[1][i][j][chain][k];
+							double OPSquared = OPvNN[2][i][j][chain][k];
+
+							OP = OP / count;
+							OPSquared = OPSquared / count;
+							
+							double OpAvgSquared = Math.pow(OP, 2);
+			
+							double Deviation = Math.pow((OPSquared - OpAvgSquared), 0.5);
+							
+							//Magnitude of OP
+							if (OP < 0) { OP = OP * -1; }
+
+							if (OP > 0) {
+								System.out.println(k + " " + OP + " " + Deviation + " " + proportion);
+							}
+
+						}	//Ends for loop
+					}	//end try statement
+
+					catch (IOException e){
+						System.out.println("Error in creating Histogram Output File");
+					}	//Ends catch statement
+
+					System.setOut(console);
+				}	//Ends for loop
+			}	//Ends for loop
+		}	//Ends for loop
+	}	//Ends createOutputFiles Methdo
+
+
+
+	//Going to create an output file after manipulating and binning OPvNN
+	public static void createHistogramFiles(double[][][][][] OPvNN){
+
+		PrintStream console = System.out;
+
+		//Only need it for PSM, and PDPC
+		for (int i = 0; i < 2; i++){
+			String lipid = convertInteger(i);
+			for (int j = 0; j < 3; j++){
+				String compLipid = convertInteger(j);
+				String fileName = "Graphing/" + lipid + "_Histogram_" + compLipid + ".dat";				
+
+				try{
+					PrintStream output = new PrintStream(new File(fileName));
+					System.setOut(output);
+
+					//First Sum the array we want to look at.
+					double sum = 0;
+					int length = OPvNN[0][i][j][0].length;					
+
+					for (int k = 0; k < length; k++){
+						sum = sum + OPvNN[0][i][j][0][k];
+					}	//Ends for Loop
+					
+					for (int k = 0; k < length; k++){
+						double count = OPvNN[0][i][j][0][k];
+						double proportion = count / sum;
+						if (proportion > 0.0005){
+							System.out.println(k + " " + proportion);
+						}	//ends if statement
+					}	//Ends for loop
+				}	//end try statement
+
+				catch (IOException e){
+					System.out.println("Error in creating Histogram Output File");
+				}	//Ends catch statement
+
+				System.setOut(console);
+			}	//Ends for loop
+		}	//Ends for loop
+	}	//Ends createOutputFiles Methdo
 
 
 	public static Scanner readOPFile(Scanner Scan, Frame thisFrame, int lastID) throws FileNotFoundException {

@@ -17,6 +17,7 @@ public class Frame implements java.io.Serializable {
 
 	}	//Ends Constructor
 
+
 	public void createLipid(String Name, int ID, float X, float Y){
 		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y);
 
