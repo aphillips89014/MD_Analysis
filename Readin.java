@@ -126,7 +126,7 @@ public class Readin implements Serializable{
 				String compLipid = convertInteger(j);
 
 				for (int chain = 0; chain < 2; chain++){
-					String fileName = "Graphing/OP_NN_" + lipid + "_chain_" + chain + "_" + compLipid + ".dat";				
+					String fileName = "Graphing/Data/OP_NN_" + lipid + "_chain_" + chain + "_" + compLipid + ".dat";				
 
 					try{
 						PrintStream output = new PrintStream(new File(fileName));
@@ -147,6 +147,9 @@ public class Readin implements Serializable{
 								proportion = 0;
 							}	//ends if statement
 
+							proportion = proportion * 100;
+							String stringProportion = String.format("%.2f", proportion);
+
 							double OP = OPvNN[1][i][j][chain][k];
 							double OPSquared = OPvNN[2][i][j][chain][k];
 
@@ -161,9 +164,10 @@ public class Readin implements Serializable{
 							if (OP < 0) { OP = OP * -1; }
 
 							if (OP > 0) {
-								System.out.println(k + " " + OP + " " + Deviation + " " + proportion);
-							}
-
+								if (proportion > 0.3){
+									System.out.println(k + " " + OP + " " + Deviation + " " + stringProportion + "%");
+								}	//Ends if statement
+							}	//Ends if statement
 						}	//Ends for loop
 					}	//end try statement
 
@@ -189,7 +193,7 @@ public class Readin implements Serializable{
 			String lipid = convertInteger(i);
 			for (int j = 0; j < 3; j++){
 				String compLipid = convertInteger(j);
-				String fileName = "Graphing/" + lipid + "_Histogram_" + compLipid + ".dat";				
+				String fileName = "Graphing/Data/" + lipid + "_Histogram_" + compLipid + ".dat";				
 
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
