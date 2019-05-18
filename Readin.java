@@ -1,4 +1,6 @@
 //Readin Java File
+//This class relates to all operations related towards reading/creating files.
+
 
 import java.io.*;
 import java.util.Scanner;
@@ -16,6 +18,8 @@ public class Readin implements Serializable{
 	public static Frame getFrame(int x){
 		String frameNumber = Integer.toString(x);
 		Frame newFrame = null;
+		
+		//There is a specific file, so we get that specific file
 		String fileName = "Frames/frame_" + frameNumber + ".ser";
 
 		try{
@@ -46,8 +50,9 @@ public class Readin implements Serializable{
 
 
 
+	//Search forward in a specific file to find out how many total Molecules in a data file there is.
+		//This method is unique to a specific File Format
 	public static int findMaximumID(File file) throws FileNotFoundException {
-		//Works for specific input, needs to be adjustsed for new files (maybe)
 		boolean keepGoing = true;
 
 		Scanner Scan = new Scanner(file);
@@ -73,6 +78,8 @@ public class Readin implements Serializable{
 		return ID;
 	}	//Ends findMaximumId
 
+
+	//Save an object to the Disk so that it can be accessed at a later dat.
 	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
 
 		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
@@ -98,11 +105,10 @@ public class Readin implements Serializable{
 		catch (IOException e){
 			//Don't do anything, give up.
 		}       //Ends Catch statement
-
-
-
 	}	//Ends Serialize Frame method
 
+
+	//Unique to specific systems
 	public static String convertInteger(int x){
 		//Converts a given int to a specific string.
 		String output = "null";
@@ -113,6 +119,8 @@ public class Readin implements Serializable{
 
 		return output;
 	}	//Ends convertInteger Method
+
+
 
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createOPvNNFiles(double[][][][][] OPvNN){
@@ -226,6 +234,8 @@ public class Readin implements Serializable{
 	}	//Ends createOutputFiles Methdo
 
 
+	//Reads a specific File that is passed in via Scan.
+		//Savves/Creates Atoms to be associated with a speicifc Lipid
 	public static Scanner readOPFile(Scanner Scan, Frame thisFrame, int lastID) throws FileNotFoundException {
 
 		int currentFrame = 0;
@@ -283,11 +293,13 @@ public class Readin implements Serializable{
 			}	//Ends else statemetn
 		}	//Ends while loop
 
+		//Save our place in the file so we dont have to restart from nothing each time we call this function.
 		return Scan;
 	}	//Ends readOPFile method
 
 
-
+	//Read Various Files and create Lipids to be associated with specific Frames.
+		//Unqiue for a specific set of file formats.
 	public static int readFile() throws FileNotFoundException {
 
 		File file = new File("Coordinates.dat");
@@ -375,6 +387,7 @@ public class Readin implements Serializable{
 			previousFrame = currentFrame;
 		}	//Ends while loop
 
+		//Save the last Frame.
 		serializeFrame("falseName", (totalFiles-1), Frame);
 
 		long end = System.currentTimeMillis();

@@ -12,8 +12,11 @@ public class Atom implements Serializable{
 	int Hydrogen;
 	float OP;
 	int ID;
+
+	//Atom is a Node in a Linked List.
 	Atom next = null;
 
+	//Assings some attributes
 	public Atom(int ID, String Chain, int Member, int Hydrogen, float OP){
 		this.ID = ID;
 		this.Chain = Chain;
@@ -24,12 +27,14 @@ public class Atom implements Serializable{
 
 	}	//Ends constructor
 
+	//Set the next value in the Linked List
 	public void setNext(Atom newAtom){
 		this.next = newAtom;
 
 	}	//Ends setNext method
 
-
+	//Iterater through the Linked list and average the OP
+	//Keep track of the total number of iterations in the first index, then the summed value itself in the second index.
 	public float[] averageOP(float[] array){
 		
 		if (this.OP != 0){
@@ -45,6 +50,7 @@ public class Atom implements Serializable{
 	}	//Ends averageOp
 
 	
+	//System for checking debugging
 	public void printAllAtoms(){
 		System.out.println(this.ID + " " + this.Chain + " " + this.Member + " " + Hydrogen + " " + OP);
 	

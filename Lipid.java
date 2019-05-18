@@ -1,10 +1,14 @@
 //Lipid Java File
+
+//Lipids have attributes, such as the location of its Center of Mass, it's averageOP, and the neighbors it has.
+
 import java.io.Serializable;
 import java.util.Arrays;
 
 public class Lipid implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1;
+		//This variable is to help with serialization, won't be used specifically.
 
 	String Name;
 	int ID;
@@ -21,7 +25,7 @@ public class Lipid implements java.io.Serializable {
 	Atom firstChain;
 	Atom secondChain;
 
-
+	//Assign some attributes
 	public Lipid(String Name, int ID, float X, float Y){
 		this.Name = Name;
 		this.ID = ID;
@@ -52,7 +56,7 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends checkForNN Method
 
 
-
+	//Checks if OP has been Calculated yet.
 	public boolean checkForOP(){
 		boolean result = false;
 
@@ -65,6 +69,8 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends checkForOP method
 
 
+	//Average the Order Parameter for the first Chain and the seocnd chain.
+	//averageOP is  recursive so it calls itself until its iterated through each lipid.
 	public void findOP(){
 
 		float[] first = new float[2];
@@ -78,7 +84,7 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends average OP method
 
 
-
+	//Assigns a specific attribute.
 	public void assignNN(int index, int value){
 		this.Neighbors[index] = value;
 
@@ -99,7 +105,7 @@ public class Lipid implements java.io.Serializable {
 	} //Ends getInformation method
 
 
-
+	//Allows the lipid to be defined on the fly instead of having to be defined by hand every time.
 	public void assignChainIdentifier(String givenChain){
 
 		if (this.firstChainIdentifier.equals("null")){
@@ -118,7 +124,7 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends assignChain Method
 
 
-
+	//Creates a specific atom on a specific chain.
 	public void createAtom(String Chain, int Member, int Hydrogen, float OP){
 		Atom thisChain = null;
 		if (Chain.equals(this.firstChainIdentifier)){
@@ -130,13 +136,14 @@ public class Lipid implements java.io.Serializable {
 		}	// Ends else if statement
 
 		else{
-			System.out.println("Shouldn't Happen: " + Chain);
-			System.out.println("1st/2nd: " + this.firstChainIdentifier + " / " + this.secondChainIdentifier + "     Passed: " + Chain);
+			System.out.println("Error in creating atom");
+			//This shouldn't ever happen.
 		}	//Ends else statement
 
-
+		//Create new Atom
 		Atom newAtom = new Atom(this.ID, Chain, Member, Hydrogen, OP);
 		
+		//Add it to a linked list.
 		addAtom(thisChain, newAtom);
 
 	}	//Ends createAtom method
@@ -159,6 +166,8 @@ public class Lipid implements java.io.Serializable {
 
 	
 	//Return a specific integer based off lipid name
+		//this is unique to every system.
+			//May be changed to not be that way later on.
 	public int getIntName(){
 		int result = 99;
 		if (this.Name.equals("PSM")) { result = 0; }

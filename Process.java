@@ -1,10 +1,13 @@
 //Processes Data and Interprets it.
+//Processes very specific data files, check README for more information.
+
 
 import java.util.Arrays;
 import java.io.*;
 import java.lang.Math;
 
 public class Process implements Serializable {
+
 
 	public static boolean checkForFiles(String fileName){
 		//Checks for a specific file, if it exists return true, otherwise return false.
@@ -39,6 +42,13 @@ public class Process implements Serializable {
 		return radius;
 	}	//End calculateRadius Method
 
+
+
+	//For the data sets we are concerned with the points exist in a box. We need to preform a special operation whenever these are within a searchRadius
+	//This method returns 0, -1, or 1. This indicates which boundary it is close to.
+	// 0 --> Not near a boundary
+	// 1 --> Near the right (positive) boundary
+	// -1 --> Near the left (negative) boundary
 	public static int checkBoundary(float point, float length, int searchRadius){
 
 		int result = 0;
@@ -68,12 +78,14 @@ public class Process implements Serializable {
 			result = result * -1;
 		}	//Ends if statement
 
-
 		return result;
 	}	//Ends checkBoundary method
 
 
-	//Shift valid point over by the given Length value
+
+
+	//If a point is within the searchRadius of a Boundary of the box, this function is ran.
+	//This shifts the point to a new location purely for a simpler more accurate calculation.
 	public static float applyPBC(float coordinate, int modifier, float length){
 		//PBC stands for Periodic Boundary Condition
 		//modifier can only be 1, -1, or 0.
@@ -108,9 +120,11 @@ public class Process implements Serializable {
 	}	//Ends applyPBC method
 
 
-
+	
+	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
 	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin){
 	
+		//May already be done, so lets try to skip this lengthy calculation if it is already done.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
 	
 		if (alreadyCalculated) {
@@ -121,6 +135,8 @@ public class Process implements Serializable {
 			int length = currentFrame.allLipids.length;
 			int frame = currentFrame.getFrameNumber();	
 
+			//Find the X and Y for a single point, compare it to every other point.
+				//If it is within a radius of 10 of the first point then it can be defined as a Neighbor, so add 1 to a counter.
 			for (int i = 0; i < length; i++){
 				float x = currentFrame.allLipids[i].getX();
 				float y = currentFrame.allLipids[i].getY();
@@ -132,7 +148,8 @@ public class Process implements Serializable {
 				int shiftY = checkBoundary(x, xLength, searchRadius);
 				int shiftX = checkBoundary(y, yLength, searchRadius);
 
-
+				//These names are unique for a specific system.
+					//Will return at a future data for an easier way of tracking this.
 				int PSM = 0;
 				int PDPC = 0;
 				int CHL1 = 0;
@@ -142,10 +159,8 @@ public class Process implements Serializable {
 					float y2 = currentFrame.allLipids[j].getY();
 					String Name2 = currentFrame.allLipids[j].getName();
 
-
 					x2 = applyPBC(x2, shiftX, xLength);
 					y2 = applyPBC(y2, shiftY, yLength);				
-
 
 					double radius = calculateRadius(x, y, x2, y2);
 
@@ -163,13 +178,16 @@ public class Process implements Serializable {
 				
 			}	//Ends for loop
 
+			//We need to update the frame as we have just done a calculation and more importantly we want to save that calculation.
 			tempReadin.serializeFrame("falseName", frame, currentFrame);
 
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
 
-	//Take the plateau of a lipid of both chains, then average it and set it as a property of the lipid and re-serialize it.
+	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
+		//Use the method findOP to average the OP of all Atoms per Chain
+		//Do this for every lipid, then save these calculation.
 	public static void averageOP(Frame Frame, Readin Readin){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
@@ -192,7 +210,9 @@ public class Process implements Serializable {
 		}	//Ends else statement
 	}	//Ends AverageOP method
 
-
+	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
+		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
+		//This will be done in a large 5d array.
 	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN){
 		
 		int length = Frame.allLipids.length;
@@ -221,10 +241,7 @@ public class Process implements Serializable {
 				OPvNN[2][currentLipid][compLipid][0][neighborIndex] = OPvNN[2][currentLipid][compLipid][0][neighborIndex] + firstOPSquared;
 				OPvNN[2][currentLipid][compLipid][1][neighborIndex] = OPvNN[2][currentLipid][compLipid][1][neighborIndex] + secondOPSquared;
 
-
-
 			}	//Ends for Loop
-
 		}	//Ends for loop
 
 		return OPvNN;
@@ -271,16 +288,23 @@ public class Process implements Serializable {
 
 		//Create an array for calculating various things.
 		double[][][][][] OPvNN = new double[3][3][3][2][20];
-			//Let's describe this 4-d array.
+			//Let's describe this 5-d array.
 			//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
+				//AKA Various Calculations that we will eventually need Simultaneously.
+
 			//Second Index is the current Lipid, for this specifically: PSM (0), PDPC (1), CHL1 (2)
-			//Third Index is the Comparing Lipid, same as before.
+
+			//Third Index is the Comparing Lipid, same as second Index.
+
 			//Fourth Index is the chain; Sn1 (0), Sn2 (1);
+
 			//Fifth index is the value we are interested in (# of Neighbors, OP, OP^2).
 				//The index indicates how many Comparing Lipid Neighbors they are.
 
 			//There may be a better way to do this, but this is the simplest in terms of manageable code.
 	
+
+		//Preform calculations for each Frame.
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
@@ -288,9 +312,6 @@ public class Process implements Serializable {
 			averageOP(currentFrame, ReadFile);
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN);
-
-//			currentFrame.allLipids[0].getInformation();
-
 
 		}	//Ends for loop
 
@@ -303,8 +324,13 @@ public class Process implements Serializable {
 		System.out.println("");
 		System.out.println("Started Creating Output Files");
 
+
+
+
+
 		start = System.currentTimeMillis();
-	
+
+		//Create the output Files	
 		Readin.createHistogramFiles(OPvNN);
 		Readin.createOPvNNFiles(OPvNN);
 

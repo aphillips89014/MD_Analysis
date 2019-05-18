@@ -1,15 +1,23 @@
 //Frame Class
-//Holds every Lipid
+
+//For every Frame there is a N number of Lipids.
+	//This is where we store those Lipids
+
 import java.io.Serializable;
 
 public class Frame implements java.io.Serializable {
+
 	private static final long serialVersionUID = 2;
+	//This variable allows this class to actually be Serialziable. Won't be used directly.
+
 	int frameNumber = 0;
 	Lipid[] allLipids;
 	int totalLipids = 0;
 	float xLength = 0;
 	float yLength = 0;
 
+
+	//Assign the attributes of the class directly from the Constructor.
 	public Frame(int frameNumber, int totalLipids){
 		this.frameNumber = frameNumber;
 		this.allLipids = new Lipid[totalLipids];
@@ -18,10 +26,12 @@ public class Frame implements java.io.Serializable {
 	}	//Ends Constructor
 
 
+	//Create a lipid with the given attributes
 	public void createLipid(String Name, int ID, float X, float Y){
 		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y);
 
 	}	//Ends createLipid Method
+
 
 	public int getFrameNumber(){
 		return this.frameNumber;
@@ -36,6 +46,8 @@ public class Frame implements java.io.Serializable {
 	}	//Ends getYLength method
 
 
+	//Quite literally delete the frame.
+	//Since the frame (before this method is invoked) is always Serialized, if we want to access it we just Un-Serailize it. So we can remove it entirely from our memory. This is done using this method (kind of).
 	public void resetFrame(int frameNumber){
 		this.allLipids = new Lipid[this.totalLipids];
 		this.frameNumber = frameNumber;
@@ -44,6 +56,7 @@ public class Frame implements java.io.Serializable {
 
 	//Find the maximum and minimum x and y lengths for this current frame
 	//Iterate through every lipid and find the maximum x and y values.
+	//This is unique for every frame so it must be calculated every frame.
 	public void findLength(){
 		float maxX = 0;
 		float maxY = 0;
@@ -70,6 +83,4 @@ public class Frame implements java.io.Serializable {
 		this.yLength = (maxY - minY);
 
 	}	//Ends findLength method
-
-
 }	//Ends class defintion
