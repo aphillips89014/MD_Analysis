@@ -119,7 +119,7 @@ public class Process implements Serializable {
 
 	
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
-	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin){
+	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin, String[] lipidNames){
 	
 		//May already be done, so lets try to skip this lengthy calculation if it is already done.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
@@ -147,9 +147,9 @@ public class Process implements Serializable {
 
 				//These names are unique for a specific system.
 					//Will return at a future data for an easier way of tracking this.
-				int PSM = 0;
-				int PDPC = 0;
-				int CHL1 = 0;
+
+				int totalLipids = lipidNames.length;
+				int[] lipidCount = new int[totalLipids];
 
 				for (int j = 0; j < length; j++){
 					float x2 = currentFrame.allLipids[j].getX();
@@ -162,16 +162,24 @@ public class Process implements Serializable {
 					double radius = calculateRadius(x, y, x2, y2);
 
 					if (radius <= searchRadius && radius != 0){
-						if (Name2.equals("PSM")) { PSM++; }
-						else if (Name2.equals("PDPC")) { PDPC++; }
-						else if (Name2.equals("CHL1")) { CHL1++; }
+//						if (Name2.equals("PSM")) { PSM++; }
+//						else if (Name2.equals("PDPC")) { PDPC++; }
+//						else if (Name2.equals("CHL1")) { CHL1++; }
+
+						for (int k = 0; k < totalLipids; k++){
+							if (Name2.equals(lipidNames[k])) { lipidCount[k]++;}
+
+						}	//Ends for loop
 					}	//Ends if statement
 				}	//Ends for loop
 
+				for (int j = 0; j < totalLipids; j++){
+					currentFrame.allLipids[i].assignNN(j, lipidCount[j]);
+				}	//Ends for loop
 
-				currentFrame.allLipids[i].assignNN(0, PSM);
-				currentFrame.allLipids[i].assignNN(1, PDPC);
-				currentFrame.allLipids[i].assignNN(2, CHL1);
+//				currentFrame.allLipids[i].assignNN(0, PSM);
+//				currentFrame.allLipids[i].assignNN(1, PDPC);
+//				currentFrame.allLipids[i].assignNN(2, CHL1);
 				
 			}	//Ends for loop
 
@@ -211,13 +219,13 @@ public class Process implements Serializable {
 	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
-	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN){
+	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
 		
 		int length = Frame.allLipids.length;
 		int totalLipids = OPvNN[0].length;
 
 		for (int i = 0; i < length; i++){
-			int currentLipid = Frame.allLipids[i].getIntName();
+			int currentLipid = Frame.allLipids[i].getIntName(lipidNames);
 			
 			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
@@ -257,10 +265,7 @@ public class Process implements Serializable {
 	
 		//Lets create some variables that will be used intermittenly.
 		
-		int totalLipids = 3;
 		int searchRadius = 10;
-
-
 
 		System.out.println("");
 		System.out.println("----------------------------------");
@@ -268,12 +273,29 @@ public class Process implements Serializable {
 		System.out.println("");
 
 
+		long start = System.currentTimeMillis();
+		System.out.println("Started Reading Files");
+
+		String[] lipidNames = new String[1];
+		int totalLipids = lipidNames.length;
+
+		try{
+			lipidNames = ReadFile.findLipidNames();
+			totalLipids = lipidNames.length;
+		}	//Ends try statement
+
+		catch(FileNotFoundException e){
+			System.out.println("Cannot find Coordinates.dat");
+		}	//Ends catch statement
+
+
+
 		//Create a bunch of serialized objects so that the memory usage won't be as great.
 		//If the files already exist then find out how many there are.
 		boolean filesExist = checkForFiles(fileName);
 		if (!filesExist) {
 			try{
-				totalFiles = ReadFile.readFile();
+				totalFiles = ReadFile.readFile(lipidNames);
 
 			}	//Ends try Statement
 
@@ -287,6 +309,11 @@ public class Process implements Serializable {
 			totalFiles = new File("Frames/").list().length;
 		}	//Ends if statement
 
+		long end = System.currentTimeMillis();
+		long totalTime = (end - start) / 1000;
+
+		System.out.println("Finished Reading File in " + totalTime + " seconds.");
+
 
 		System.out.println("");
 
@@ -296,7 +323,7 @@ public class Process implements Serializable {
 
 
 
-		long start = System.currentTimeMillis();
+		start = System.currentTimeMillis();
 		System.out.println("Begun Various Calculations");
 
 		//Create an array for calculating various things.
@@ -321,30 +348,28 @@ public class Process implements Serializable {
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
-			calculateNN(currentFrame, searchRadius, ReadFile);
+			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
 			averageOP(currentFrame, ReadFile);
 			
-			OPvNN = findOPvNN(currentFrame, OPvNN);
+			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
 
 		}	//Ends for loop
 
 
-		long end = System.currentTimeMillis();
-		long totalTime = (end - start) / 1000;
+		end = System.currentTimeMillis();
+		totalTime = (end - start) / 1000;
 
 		System.out.println("Finished Calculation in  " + totalTime + " seconds");		
 
+
+
 		System.out.println("");
 		System.out.println("Started Creating Output Files");
-
-
-
-
 		start = System.currentTimeMillis();
 
 		//Create the output Files	
-		Readin.createHistogramFiles(OPvNN);
-		Readin.createOPvNNFiles(OPvNN);
+		Readin.createHistogramFiles(OPvNN, lipidNames);
+		Readin.createOPvNNFiles(OPvNN, lipidNames);
 
 		end = System.currentTimeMillis();
 		totalTime = (end - start) / 1000;

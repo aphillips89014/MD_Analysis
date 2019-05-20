@@ -20,19 +20,23 @@ public class Lipid implements java.io.Serializable {
 	float firstOP = 0;
 	float secondOP = 0;
 
-	int[] Neighbors = new int[3];
+	int[] Neighbors;
 
 	Atom firstChain;
 	Atom secondChain;
 
 	//Assign some attributes
-	public Lipid(String Name, int ID, float X, float Y){
+	public Lipid(String Name, int ID, float X, float Y, String[] lipidNames){
 		this.Name = Name;
 		this.ID = ID;
 		this.X = X;
 		this.Y = Y;
 		this.firstChain = new Atom(ID, "head", 0, 0, 0);
 		this.secondChain = new Atom(ID, "head", 0, 0, 0);
+
+		int length = lipidNames.length;
+		this.Neighbors = new int[length];
+
 
 	}	//Ends Constructor
 
@@ -168,14 +172,22 @@ public class Lipid implements java.io.Serializable {
 	//Return a specific integer based off lipid name
 		//this is unique to every system.
 			//May be changed to not be that way later on.
-	public int getIntName(){
+	public int getIntName(String[] lipidNames){
 		int result = 99;
-		if (this.Name.equals("PSM")) { result = 0; }
-		else if (this.Name.equals("PDPC")) { result = 1; }
-		else if (this.Name.equals("CHL1")) { result = 2; }
-		else { 
-			System.out.println("Incorrect Lipid Name");
-		}	//Ends else statement
+
+		int length = lipidNames.length;
+
+		for (int i = 0; i < length; i++){
+			if (this.Name.equals(lipidNames[i])) { result = i; }
+
+		}	//ends for loop
+
+//		if (this.Name.equals("PSM")) { result = 0; }
+//		else if (this.Name.equals("PDPC")) { result = 1; }
+//		else if (this.Name.equals("CHL1")) { result = 2; }
+//		else { 
+//			System.out.println("Incorrect Lipid Name");
+//		}	//Ends else statement
 
 		return result;
 	}	//Ends getIntName

@@ -9,6 +9,8 @@ import java.lang.Math;
 
 public class Readin implements Serializable{
 
+	String[] lipidNames;
+
 	public Readin(){
 
 	}	//Ends Constructor
@@ -78,6 +80,97 @@ public class Readin implements Serializable{
 		return ID;
 	}	//Ends findMaximumId
 
+	//Parse forward through the file we are interested in
+		//Find each lipid in the systme by searching through the first frame.
+	public static String[] findLipidNames() throws FileNotFoundException {
+		boolean keepGoing = true;
+
+		File file = new File("Coordinates.dat");
+		Scanner Scan = new Scanner(file);
+		Scan.useDelimiter(" ");
+
+		int currentFrame = 0;
+		String lipidName = "";
+
+		//Because we don't want to introduce vectors we will be forced to use a somewhat inefficent method
+		//Errors will occur if you have more than 10 lipid types
+		String[] lipidNames = new String[10];
+
+		while (keepGoing){
+			currentFrame = Scan.nextInt();
+			
+			if (currentFrame != 0) {
+				keepGoing = false;
+			}	//Ends if statement
+
+			else{
+				lipidName = Scan.next();
+				lipidNames = addName(lipidName, lipidNames);
+
+				Scan.nextLine();
+			}	//Ends else statement
+		}	//ends while loop
+
+		lipidNames = assignLipidNames(lipidNames);
+
+		return lipidNames;
+	}	//Ends findLipidNames
+
+
+	//Add a name to a string array.
+	public static String[] addName(String name, String[] array){
+
+		int length = array.length;
+		boolean keepGoing = true;
+		int i = 0;
+
+		while(keepGoing){
+			if (i == length){
+				keepGoing = false;
+				System.out.println("Too Many Lipids, Adjust the default lipidNames in Readin.java");
+			}	//Ends if statement
+
+			else if (array[i] == null){
+				array[i] = name;
+				keepGoing = false;
+			}	//Ends if statement
+
+			else if (array[i].equals(name)){
+				//Name already exists in the array, no need to add it.
+				keepGoing = false;				
+			}	//Ends if statement
+	
+			else{
+				i++;
+			}	//Ends else statement
+		}	//Ends while loop
+
+
+		return array;
+	}	//Ends addName method
+
+	//Take a larger array and condense it to a smaller size.	
+	public static String[] assignLipidNames(String[] array){
+		int length = array.length;
+		int realLength = 0;
+
+		for (int i = 0; i < length; i++){
+			if (!(array[i] == null)){
+				//If the array is NOT null.
+				realLength++;
+			}
+		}	//ends for loop
+
+		String[] lipidNames = new String[realLength];
+
+		for (int i = 0; i < realLength; i++){
+			lipidNames[i] = array[i];
+
+		}	//Ends for loop
+
+		return lipidNames;
+	}	//Ends if statement
+
 
 	//Save an object to the Disk so that it can be accessed at a later dat.
 	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
@@ -109,13 +202,10 @@ public class Readin implements Serializable{
 
 
 	//Unique to specific systems
-	public static String convertInteger(int x){
+	public static String convertInteger(int x, String[] lipidNames){
 		//Converts a given int to a specific string.
 		String output = "null";
-		
-		if (x == 0) { output = "PSM"; }
-		else if (x == 1) { output = "PDPC"; }
-		else if (x == 2) { output = "CHL1"; }
+		output = lipidNames[x];		
 
 		return output;
 	}	//Ends convertInteger Method
@@ -123,7 +213,7 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createOPvNNFiles(double[][][][][] OPvNN){
+	public static void createOPvNNFiles(double[][][][][] OPvNN, String[] lipidNames){
 
 		PrintStream console = System.out;
 
@@ -131,11 +221,11 @@ public class Readin implements Serializable{
 
 		//Iterate through second index
 		for (int i = 0; i < totalLipids-1; i++){
-			String lipid = convertInteger(i);
+			String lipid = convertInteger(i, lipidNames);
 
 			//Iterate through third index
 			for (int j = 0; j < totalLipids; j++){
-				String compLipid = convertInteger(j);
+				String compLipid = convertInteger(j, lipidNames);
 
 				//Iterate through fourth index
 				for (int chain = 0; chain < 2; chain++){
@@ -202,18 +292,18 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createHistogramFiles(double[][][][][] OPvNN){
+	public static void createHistogramFiles(double[][][][][] OPvNN, String[] lipidNames){
 
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
 		//iterate through second index
 		for (int i = 0; i < totalLipids; i++){
-			String lipid = convertInteger(i);
+			String lipid = convertInteger(i, lipidNames);
 
 			//iterate through third index
 			for (int j = 0; j < totalLipids; j++){
-				String compLipid = convertInteger(j);
+				String compLipid = convertInteger(j, lipidNames);
 
 				String fileName = "Graphing/Data/" + lipid + "_Histogram_" + compLipid + ".dat";				
 
@@ -292,6 +382,7 @@ public class Readin implements Serializable{
 
 			else{
 				//There are two chains, with 3(2) Hydrogen on each. Once we see 3 hydrogen twice then keepGoing is set to false
+				//AKA this detects terminal Methyls.
 				if (Hydrogen == 2){
 					chainCount--;
 					if (chainCount == 0){
@@ -314,7 +405,7 @@ public class Readin implements Serializable{
 
 	//Read Various Files and create Lipids to be associated with specific Frames.
 		//Unqiue for a specific set of file formats.
-	public static int readFile() throws FileNotFoundException {
+	public static int readFile(String[] lipidNames) throws FileNotFoundException {
 
 		File file = new File("Coordinates.dat");
 		Scanner Scan = new Scanner(file);
@@ -341,9 +432,10 @@ public class Readin implements Serializable{
 		int totalFiles = 0;
 
 		long start = System.currentTimeMillis();
+
+		//Probe Forward
 		int maximumID = findMaximumID(file);
 
-		System.out.println("Start Reading Files");
 		//Scane the whole file
 		while (Scan.hasNextLine()){
 			currentFrame = Scan.nextInt();
@@ -384,8 +476,9 @@ public class Readin implements Serializable{
 			}	//Ends if statement	
 
 			//Now, assign values to the lipid of interest
-			Frame.createLipid(Lipid, ID, X, Y);
+			Frame.createLipid(Lipid, ID, X, Y, lipidNames);
 
+			//Wont need this when we stop using OP files
 			//Now add OP Data to it.
 			if (Lipid.equals("PSM")){
 				Scan_1 = readOPFile(Scan_1, Frame, ID);	
@@ -403,11 +496,6 @@ public class Readin implements Serializable{
 
 		//Save the last Frame.
 		serializeFrame("falseName", (totalFiles-1), Frame);
-
-		long end = System.currentTimeMillis();
-		long totalTime = (end - start) / 1000;
-
-		System.out.println("Finished Reading File in  " + totalTime + " seconds");
 		
 		return totalFiles;
 	}	//Ends ReadFile

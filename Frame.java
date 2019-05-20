@@ -27,8 +27,8 @@ public class Frame implements java.io.Serializable {
 
 
 	//Create a lipid with the given attributes
-	public void createLipid(String Name, int ID, float X, float Y){
-		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y);
+	public void createLipid(String Name, int ID, float X, float Y, String[] lipidNames){
+		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y, lipidNames);
 
 	}	//Ends createLipid Method
 
