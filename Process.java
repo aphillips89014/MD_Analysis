@@ -38,7 +38,6 @@ public class Process implements Serializable {
 		double radius = dxDiff + dyDiff;
 		radius = Math.pow(radius, 0.5);
 
-
 		return radius;
 	}	//End calculateRadius Method
 
@@ -59,7 +58,6 @@ public class Process implements Serializable {
 			negative = true;
 			point = point * -1;
 		}	//Ends if statement
-
 
 		//This equation makes the point negative if it is outside the searchRadius, and makes it positive if it is within the SearchRadius
 		//Only works is point and searchRadius are less than length
@@ -83,8 +81,7 @@ public class Process implements Serializable {
 
 
 
-
-	//If a point is within the searchRadius of a Boundary of the box, this function is ran.
+	//If a point is within the searchRadius of a Boundary of the box, this function is executed.
 	//This shifts the point to a new location purely for a simpler more accurate calculation.
 	public static float applyPBC(float coordinate, int modifier, float length){
 		//PBC stands for Periodic Boundary Condition
@@ -210,16 +207,19 @@ public class Process implements Serializable {
 		}	//Ends else statement
 	}	//Ends AverageOP method
 
+
 	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
 	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN){
 		
 		int length = Frame.allLipids.length;
+		int totalLipids = OPvNN[0].length;
+
 		for (int i = 0; i < length; i++){
 			int currentLipid = Frame.allLipids[i].getIntName();
 			
-			for (int compLipid = 0; compLipid < 3; compLipid++){
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
 				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
 				
@@ -254,6 +254,14 @@ public class Process implements Serializable {
 		String fileName = "Frames/frame_1.ser";
 		int totalFiles = 0;
 
+	
+		//Lets create some variables that will be used intermittenly.
+		
+		int totalLipids = 3;
+		int searchRadius = 10;
+
+
+
 		System.out.println("");
 		System.out.println("----------------------------------");
 		System.out.println("Initiated File Processor");
@@ -283,11 +291,16 @@ public class Process implements Serializable {
 		System.out.println("");
 
 
+
+
+
+
+
 		long start = System.currentTimeMillis();
 		System.out.println("Begun Various Calculations");
 
 		//Create an array for calculating various things.
-		double[][][][][] OPvNN = new double[3][3][3][2][20];
+		double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][20];
 			//Let's describe this 5-d array.
 			//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
 				//AKA Various Calculations that we will eventually need Simultaneously.
@@ -308,7 +321,7 @@ public class Process implements Serializable {
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
-			calculateNN(currentFrame, 10, ReadFile);
+			calculateNN(currentFrame, searchRadius, ReadFile);
 			averageOP(currentFrame, ReadFile);
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN);
@@ -323,7 +336,6 @@ public class Process implements Serializable {
 
 		System.out.println("");
 		System.out.println("Started Creating Output Files");
-
 
 
 

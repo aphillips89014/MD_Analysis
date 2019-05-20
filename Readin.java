@@ -127,13 +127,20 @@ public class Readin implements Serializable{
 
 		PrintStream console = System.out;
 
-		//Only need it for PSM, and PDPC
-		for (int i = 0; i < 2; i++){
+		int totalLipids = OPvNN[0].length;
+
+		//Iterate through second index
+		for (int i = 0; i < totalLipids-1; i++){
 			String lipid = convertInteger(i);
-			for (int j = 0; j < 3; j++){
+
+			//Iterate through third index
+			for (int j = 0; j < totalLipids; j++){
 				String compLipid = convertInteger(j);
 
+				//Iterate through fourth index
 				for (int chain = 0; chain < 2; chain++){
+
+					//Create a file specifically for this
 					String fileName = "Graphing/Data/OP_NN_" + lipid + "_chain_" + chain + "_" + compLipid + ".dat";				
 
 					try{
@@ -147,7 +154,10 @@ public class Readin implements Serializable{
 						for (int k = 0; k < length; k++){
 							sum = sum + OPvNN[0][i][j][chain][k];
 						}	//Ends for Loop
-						
+
+
+						//Then find the proportion that the values in the array given occur.
+							//Then find the standard Deviation of this.						
 						for (int k = 0; k < length; k++){
 							double count = OPvNN[0][i][j][chain][k];
 							double proportion = count / sum;
@@ -195,12 +205,16 @@ public class Readin implements Serializable{
 	public static void createHistogramFiles(double[][][][][] OPvNN){
 
 		PrintStream console = System.out;
+		int totalLipids = OPvNN[0].length;
 
-		//Only need it for PSM, and PDPC
-		for (int i = 0; i < 2; i++){
+		//iterate through second index
+		for (int i = 0; i < totalLipids; i++){
 			String lipid = convertInteger(i);
-			for (int j = 0; j < 3; j++){
+
+			//iterate through third index
+			for (int j = 0; j < totalLipids; j++){
 				String compLipid = convertInteger(j);
+
 				String fileName = "Graphing/Data/" + lipid + "_Histogram_" + compLipid + ".dat";				
 
 				try{
