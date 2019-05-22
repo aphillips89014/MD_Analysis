@@ -1,16 +1,13 @@
 Need multiple files and directories when this is ran.
 
-Wherever you run it, you need three Data Files:
+Wherever you run it, you need one Data Files:
 	A Coordinates File
 		Organized Like:
-			Frame LipidName MoleculeID X Y
+			Frame LipidName MoleculeID ChainIdentifier Element Member Hydrogen X Y Z
 
-	OP File for one lipid
-		Organized Like:
-			Frame LipidName MoleculeID ChainIdentifier CarbonIndex HydrogenNumber OrderParameter
+			Where new lipids are defined as:
+				Frame Lipid MoleculeID Null Null -1 -1 X Y Z
 
-	OP File for another lipid
-		Organized in the Same way 
 
 
 You also need Two Directories and one Sub Directory
