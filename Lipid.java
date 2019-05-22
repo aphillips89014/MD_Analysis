@@ -14,11 +14,12 @@ public class Lipid implements java.io.Serializable {
 	int ID;
 	float X;
 	float Y;
+	float Z;
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
-	float firstOP = 0;
-	float secondOP = 0;
+	double firstOP = 0;
+	double secondOP = 0;
 
 	int[] Neighbors;
 
@@ -26,13 +27,14 @@ public class Lipid implements java.io.Serializable {
 	Atom secondChain;
 
 	//Assign some attributes
-	public Lipid(String Name, int ID, float X, float Y, String[] lipidNames){
+	public Lipid(String Name, int ID, float X, float Y, float Z, String[] lipidNames){
 		this.Name = Name;
 		this.ID = ID;
 		this.X = X;
 		this.Y = Y;
-		this.firstChain = new Atom(ID, "head", 0, 0, 0);
-		this.secondChain = new Atom(ID, "head", 0, 0, 0);
+		this.Z = Z;
+		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
+		this.secondChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 
 		int length = lipidNames.length;
 		this.Neighbors = new int[length];
@@ -77,11 +79,15 @@ public class Lipid implements java.io.Serializable {
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
 	public void findOP(){
 
-		float[] first = new float[2];
+		double[] first = new double[2];
+
+		firstChain.calculateOP(0, 0, 0);
 		first = firstChain.averageOP(first);		
 		this.firstOP = (first[1] / first[0]);
 	
-		float[] second = new float[2];
+		double[] second = new double[2];
+
+		secondChain.calculateOP(0,0,0);
 		second = secondChain.averageOP(second);
 		this.secondOP = (second[1] / second[0]);
 
@@ -98,11 +104,11 @@ public class Lipid implements java.io.Serializable {
 
 	//Return Various Information
 	public void getInformation(){
-//		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
-//		this.firstChain.printAllAtoms();
-//		this.secondChain.printAllAtoms();
+		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
+		this.firstChain.printAllAtoms();
+		this.secondChain.printAllAtoms();
 		System.out.println(this.firstOP + " " + this.secondOP);
-		System.out.println(Arrays.toString(this.Neighbors));
+//		System.out.println(Arrays.toString(this.Neighbors));
 		System.out.println("");
 
 
@@ -129,7 +135,7 @@ public class Lipid implements java.io.Serializable {
 
 
 	//Creates a specific atom on a specific chain.
-	public void createAtom(String Chain, int Member, int Hydrogen, float OP){
+	public void createAtom(String Chain, int Member, int Hydrogen, String Name, float X, float Y, float Z){
 		Atom thisChain = null;
 		if (Chain.equals(this.firstChainIdentifier)){
 			thisChain = this.firstChain;
@@ -145,13 +151,40 @@ public class Lipid implements java.io.Serializable {
 		}	//Ends else statement
 
 		//Create new Atom
-		Atom newAtom = new Atom(this.ID, Chain, Member, Hydrogen, OP);
-		
-		//Add it to a linked list.
-		addAtom(thisChain, newAtom);
+		Atom newAtom = new Atom(this.ID, Chain, Member, Hydrogen, Name, X, Y, Z);
+	
+		if (!(Name.equals("H"))){
+			//If it is NOT Hydrogen.
+	
+			//Add it to a linked list.
+			addAtom(thisChain, newAtom);
+		}	//Ends if statement
 
+		else{
+			//If it IS Hydrogen.
+
+			addHydrogen(thisChain, newAtom);
+
+
+		}	//ends else statement
 	}	//Ends createAtom method
 
+	public void addHydrogen(Atom head, Atom newAtom){
+		
+		if (head == null){
+			System.out.println("Add Hydrogen has been passed a null head");
+		}	//Ends if statement
+
+		//Make sure we are looking at the correct carbon
+		if ((head.getMember()) != newAtom.getMember()){
+			addHydrogen(head.next, newAtom);
+		}	//ends addHydrogen
+
+		else{
+			//We found the correct Carbon
+			head.setNextHydrogen(newAtom);
+		}	//Ends else statement
+	}	//ends addHydrogen
 
 
 	//Add a newAtom to the head of a Linked List
@@ -182,13 +215,6 @@ public class Lipid implements java.io.Serializable {
 
 		}	//ends for loop
 
-//		if (this.Name.equals("PSM")) { result = 0; }
-//		else if (this.Name.equals("PDPC")) { result = 1; }
-//		else if (this.Name.equals("CHL1")) { result = 2; }
-//		else { 
-//			System.out.println("Incorrect Lipid Name");
-//		}	//Ends else statement
-
 		return result;
 	}	//Ends getIntName
 
@@ -209,11 +235,11 @@ public class Lipid implements java.io.Serializable {
 		return this.ID;
 	}	//Ends getID Method
 
-	public float getFirstOP(){
+	public double getFirstOP(){
 		return this.firstOP;
 	}	//Ends getFirstOP()
 
-	public float getSecondOP(){
+	public double getSecondOP(){
 		return this.secondOP;
 	}	//Ends getFirstOP()
 

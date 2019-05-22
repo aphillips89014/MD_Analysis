@@ -184,7 +184,7 @@ public class Process implements Serializable {
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
 		//Use the method findOP to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static void averageOP(Frame Frame, Readin Readin){
+	public static void getOP(Frame Frame, Readin Readin){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -250,9 +250,9 @@ public class Process implements Serializable {
 
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
-		String fileName = "Frames/frame_1.ser";
+		String fileName = "Frames/frame_0.ser";
 		int totalFiles = 0;
-
+		boolean firstFrameOnly = false;
 	
 		//Lets create some variables that will be used intermittenly.
 		
@@ -286,7 +286,7 @@ public class Process implements Serializable {
 		boolean filesExist = checkForFiles(fileName);
 		if (!filesExist) {
 			try{
-				totalFiles = ReadFile.readFile(lipidNames);
+				totalFiles = ReadFile.readFile(lipidNames, firstFrameOnly);
 
 			}	//Ends try Statement
 
@@ -334,15 +334,18 @@ public class Process implements Serializable {
 
 			//There may be a better way to do this, but this is the simplest in terms of manageable code.
 	
+		if (firstFrameOnly) { totalFiles = 1; }
 
 		//Preform calculations for each Frame.
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
 			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-			averageOP(currentFrame, ReadFile);
+			getOP(currentFrame, ReadFile);
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
+//			currentFrame.allLipids[240].getInformation();
+
 
 		}	//Ends for loop
 

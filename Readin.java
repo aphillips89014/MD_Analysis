@@ -220,7 +220,7 @@ public class Readin implements Serializable{
 		int totalLipids = OPvNN[0].length;
 
 		//Iterate through second index
-		for (int i = 0; i < totalLipids-1; i++){
+		for (int i = 0; i < totalLipids; i++){
 			String lipid = convertInteger(i, lipidNames);
 
 			//Iterate through third index
@@ -338,87 +338,13 @@ public class Readin implements Serializable{
 	}	//Ends createOutputFiles Methdo
 
 
-	//Reads a specific File that is passed in via Scan.
-		//Savves/Creates Atoms to be associated with a speicifc Lipid
-	public static Scanner readOPFile(Scanner Scan, Frame thisFrame, int lastID) throws FileNotFoundException {
-
-		int currentFrame = 0;
-		String Lipid;
-		int ID = lastID;
-		String Chain;
-		int Member;
-		int Hydrogen;
-		float OP;
-	
-		//We can ignore Frame
-		//We can ignore Lipid
-		// ( ID - 1 ) Tells us what spot in the array the current lipid is.
-		// Everything else is a specific atom.
-		//Every new line is a new atom.
-
-
-		int lastFrame = -1;
-
-		//Scane the whole file
-		boolean keepGoing = true;		
-		int chainCount = 2;
-
-
-		while (keepGoing){
-			currentFrame = Scan.nextInt();
-			Lipid = Scan.next();
-			ID = Scan.nextInt();
-			Chain = Scan.next();
-			Member = Scan.nextInt();
-			Hydrogen = Scan.nextInt();
-			OP = Scan.nextFloat();
-
-			Scan.nextLine();
-
-			//The OP file and Coordinate File are different (Coords have only top leaflet).
-			if (ID > 528){
-				//Do Nothing, let the program scan Lines until it reaches a valid point
-			}
-
-			else{
-				//There are two chains, with 3(2) Hydrogen on each. Once we see 3 hydrogen twice then keepGoing is set to false
-				//AKA this detects terminal Methyls.
-				if (Hydrogen == 2){
-					chainCount--;
-					if (chainCount == 0){
-						keepGoing = false;
-					}	//Ends if statemetn
-				}	//Ends if statement
-
-
-				if (ID == lastID){
-					thisFrame.allLipids[ID - 1].assignChainIdentifier(Chain);
-					thisFrame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, OP);
-				}	//Ends if statement
-			}	//Ends else statemetn
-		}	//Ends while loop
-
-		//Save our place in the file so we dont have to restart from nothing each time we call this function.
-		return Scan;
-	}	//Ends readOPFile method
-
-
 	//Read Various Files and create Lipids to be associated with specific Frames.
 		//Unqiue for a specific set of file formats.
-	public static int readFile(String[] lipidNames) throws FileNotFoundException {
+	public static int readFile(String[] lipidNames, boolean firstFrameOnly) throws FileNotFoundException {
 
 		File file = new File("Coordinates.dat");
 		Scanner Scan = new Scanner(file);
-
-		File file_1 = new File("OP_PSM.dat");
-		File file_2 = new File("OP_PDPC.dat");
-		
-		Scanner Scan_1 = new Scanner(file_1);
-		Scanner Scan_2 = new Scanner(file_2);
-
 		Scan.useDelimiter(" ");
-		Scan_1.useDelimiter(" ");
-		Scan_2.useDelimiter(" ");
 
 		Frame Frame = new Frame(9999, 1);
 
@@ -426,8 +352,13 @@ public class Readin implements Serializable{
 		int previousFrame = 1000;
 		String Lipid;
 		int ID;
+		String Chain;
+		String Element;
+		int Member;
+		int Hydrogen;
 		float X;
 		float Y; 
+		float Z;
 	
 		int totalFiles = 0;
 
@@ -435,15 +366,28 @@ public class Readin implements Serializable{
 
 		//Probe Forward
 		int maximumID = findMaximumID(file);
+		
+		boolean keepGoing = true;
+
 
 		//Scane the whole file
-		while (Scan.hasNextLine()){
+		while (keepGoing){
 			currentFrame = Scan.nextInt();
 			Lipid = Scan.next();
 			ID = Scan.nextInt();
+			Chain = Scan.next();
+			Element = Scan.next();
+			Member = Scan.nextInt();
+			Hydrogen = Scan.nextInt();
 			X = Scan.nextFloat();
 			Y = Scan.nextFloat();
+			Z = Scan.nextFloat();
 			Scan.nextLine();
+			
+			if (!(Scan.hasNextLine())) {
+				keepGoing = false;
+			}	//Ends if statement
+
 
 			//Use these variables as you will.
 
@@ -459,6 +403,10 @@ public class Readin implements Serializable{
 				}	//ends if statement
 
 				else{
+					if (firstFrameOnly == true){
+						keepGoing = false;
+					}	//Ends if statement					
+
 					//Serialize Old Frame
 					//Create new Frame
 					String frameString = Integer.toString(previousFrame);
@@ -475,20 +423,26 @@ public class Readin implements Serializable{
 				}	//Ends else statement
 			}	//Ends if statement	
 
-			//Now, assign values to the lipid of interest
-			Frame.createLipid(Lipid, ID, X, Y, lipidNames);
+			//Now, assign values to the item it corresponds to.
 
-			//Wont need this when we stop using OP files
-			//Now add OP Data to it.
-			if (Lipid.equals("PSM")){
-				Scan_1 = readOPFile(Scan_1, Frame, ID);	
+			if ( (Chain.equals("null")) && (Element.equals("null")) ){
+				//New lipid identifiers have no chain or element			
+				Frame.createLipid(Lipid, ID, X, Y, Z, lipidNames);
 			}	//Ends if statement
 
+			else if ( (Hydrogen == -1) ){
+				//This implies that it is either Carbon or a special element.
+				Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
+				Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
-			else if (Lipid.equals("PDPC")){
-				Scan_2 = readOPFile(Scan_2, Frame, ID);
+			}	//Ends if statment
 
-			}	//ends else if statement
+			else {
+				//It must be a Hydrogen in this case.
+				Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+
+
+			}	//Ends else statement
 
 
 			previousFrame = currentFrame;
