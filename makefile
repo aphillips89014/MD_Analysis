@@ -6,6 +6,7 @@ clean:
 fullClean:
 	rm -f *.class
 	rm -f Frames/*
+	rm -f Graphing/Data/*
 
 run: Process
 	java Process

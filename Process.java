@@ -162,10 +162,6 @@ public class Process implements Serializable {
 					double radius = calculateRadius(x, y, x2, y2);
 
 					if (radius <= searchRadius && radius != 0){
-//						if (Name2.equals("PSM")) { PSM++; }
-//						else if (Name2.equals("PDPC")) { PDPC++; }
-//						else if (Name2.equals("CHL1")) { CHL1++; }
-
 						for (int k = 0; k < totalLipids; k++){
 							if (Name2.equals(lipidNames[k])) { lipidCount[k]++;}
 
@@ -176,11 +172,6 @@ public class Process implements Serializable {
 				for (int j = 0; j < totalLipids; j++){
 					currentFrame.allLipids[i].assignNN(j, lipidCount[j]);
 				}	//Ends for loop
-
-//				currentFrame.allLipids[i].assignNN(0, PSM);
-//				currentFrame.allLipids[i].assignNN(1, PDPC);
-//				currentFrame.allLipids[i].assignNN(2, CHL1);
-				
 			}	//Ends for loop
 
 			//We need to update the frame as we have just done a calculation and more importantly we want to save that calculation.
