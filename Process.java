@@ -145,9 +145,6 @@ public class Process implements Serializable {
 				int shiftY = checkBoundary(x, xLength, searchRadius);
 				int shiftX = checkBoundary(y, yLength, searchRadius);
 
-				//These names are unique for a specific system.
-					//Will return at a future data for an easier way of tracking this.
-
 				int totalLipids = lipidNames.length;
 				int[] lipidCount = new int[totalLipids];
 
@@ -246,13 +243,28 @@ public class Process implements Serializable {
 		return OPvNN;
 	}	//Ends OPvNN
 
+	public static void countLipids(Lipid[] allLipids, String[] lipidNames){
+		
+		int length = allLipids.length;
+		int[] totalLipids = new int[lipidNames.length];
+
+		for (int i = 0; i < length; i++){
+			int currentLipid = allLipids[i].getIntName(lipidNames);
+			totalLipids[currentLipid]++;
+
+		}	//ends for loop
+
+		System.out.println(Arrays.toString(totalLipids));
+
+	}	//Ends countLipids Method
+
 
 
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_0.ser";
 		int totalFiles = 0;
-		boolean firstFrameOnly = false;
+		boolean firstFrameOnly = true;
 	
 		//Lets create some variables that will be used intermittenly.
 		
@@ -340,15 +352,18 @@ public class Process implements Serializable {
 		for (int i = 0; i < totalFiles; i++){
 			Frame currentFrame = ReadFile.getFrame(i);
 
-			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-			getOP(currentFrame, ReadFile);
+//			countLipids(currentFrame.allLipids, lipidNames);
+
+//			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
+//			getOP(currentFrame, ReadFile);
 			
-			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
-//			currentFrame.allLipids[240].getInformation();
+//			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
+//			currentFrame.allLipids[1].getInformation();
 
 
 		}	//Ends for loop
 
+		System.out.println(Arrays.toString(lipidNames));
 
 		end = System.currentTimeMillis();
 		totalTime = (end - start) / 1000;

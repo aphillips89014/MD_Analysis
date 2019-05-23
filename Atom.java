@@ -54,9 +54,28 @@ public class Atom implements Serializable{
 	}	//ends setNextHydrogen method
 
 
+	public double computeOP(float x1, float y1, float z1, float x2, float y2, float z2){
+
+		double xDiff = Math.pow((x1 - x2), 2);
+		double yDiff = Math.pow((y1 - y2), 2);
+		double zDiff = Math.pow((z1 - z2), 2);
+
+		double magnitude = Math.pow((xDiff + yDiff + zDiff), 0.5);
+		double cosTheta = zDiff / magnitude;
+	
+		cosTheta = Math.pow(cosTheta, 2);
+		
+		double OP = (3*cosTheta - 1 ) / 2;
+		return OP;
+	}	//Ends computeOP method
+
+
+
 	//Calculate the OP using the second order legrange polynomial. and some unseen algebra.
 	public void calculateOP(float carbonX, float carbonY, float carbonZ){
-
+		
+		//These first couple of if statements are for Atomistic Simulations only.
+		
 		if ((this.Name.equals("C"))) {
 			this.nextHydrogen.calculateOP(this.X, this.Y, this.Z);
 
@@ -70,28 +89,21 @@ public class Atom implements Serializable{
 			}	//Ends if statement
 		}	//Ends if statement
 
+
+
+
+
 		else if (this.Name.equals("H")) {
-			float hydrogenX = this.X;
-			float hydrogenY = this.Y;
-			float hydrogenZ = this.Z;
-
-			double xDiff = Math.pow((carbonX - hydrogenX), 2);
-			double yDiff = Math.pow((carbonY - hydrogenY), 2);
-			double zDiff = Math.pow((carbonZ - hydrogenZ), 2);
-
-			double magnitude = Math.pow((xDiff + yDiff + zDiff), 0.5);
-			double cosTheta = zDiff / magnitude;
-		
-			cosTheta = Math.pow(cosTheta, 2);
-			
-			double OP = (3*cosTheta - 1 ) / 2;
-			this.OP = OP;
+			this.OP = computeOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
 
 			if (this.nextHydrogen != null){
 				this.nextHydrogen.calculateOP(carbonX, carbonY, carbonZ);
 			}	//Ends if statement
 		}	//Ends if statement
 		
+
+
+
 		//Skip over the head
 		else if (this.Name.equals("head")){
 			if (this.next != null){
@@ -99,6 +111,26 @@ public class Atom implements Serializable{
 			}	//Ends if statement
 		}	//Ends if statement
 
+
+		//Now we have some "Special" Order parameters
+
+
+		//First the OP for Cholesterol in Atomistic Simualations
+			//Its the OP between C3 and H3
+		else if (this.Name.equals("H3")) {
+			//Next item is always C3
+			this.OP = computeOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+
+		}	//Ends if statement
+
+
+
+		//Iterate through the linked list until we find a suitable value
+		else{
+			if (this.next != null){
+				this.next.calculateOP(0,0,0);
+			}	//ends if statement
+		}	//ends else statement
 
 	}	//Ends calculateOP
 
@@ -155,6 +187,10 @@ public class Atom implements Serializable{
 	public int getMember(){
 		return this.Member;
 	}	//Ends getMember Method
+
+	public double getOP(){
+		return this.OP;
+	}	//Ends getOP
 
 
 }	//Ends class definitiom
