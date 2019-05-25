@@ -210,6 +210,50 @@ public class Readin implements Serializable{
 		return output;
 	}	//Ends convertInteger Method
 
+	public static void createThicknessFiles(int[][] Thickness, String[] lipidNames){
+		PrintStream console = System.out;
+		
+		int totalLipids = lipidNames.length;
+		int length = Thickness[0].length;
+		int sum = 0;
+
+		for (int i = 0; i < totalLipids; i++){
+
+			for (int j = 0; j < length; j++){
+				sum = sum + Thickness[i][j];
+			}	//Ends for loop
+
+			//Now we ignore lipids without phosphates.
+			if (sum > 1){
+				String fileName = "Graphing/Data/" + lipidNames[i] + "_Thickness.dat";
+
+				try{
+					PrintStream output = new PrintStream(new File(fileName));
+					System.setOut(output);
+
+					for (int j = 0; j < length; j++){
+						float binSpot = (float) j;
+						binSpot = (binSpot/10) - 40;
+						int count = Thickness[i][j];
+						String firstValue = String.format("%.1f", binSpot);
+						System.out.println(firstValue + " " + count);
+
+					}	//Ends for loop
+				}	//Ends try statement
+
+				catch (IOException e){
+					System.setOut(console);
+					System.out.println("Error in Creating " + fileName);
+					System.out.println(e);
+				}	//Ends catch
+
+			}	//Ends if statement
+
+		}	//Ends for loop
+
+		System.setOut(console);
+	}	//Ends createThicknessFile
+
 
 
 	//Going to create an output file after manipulating and binning OPvNN
@@ -432,8 +476,16 @@ public class Readin implements Serializable{
 
 			else if ( (Hydrogen == -1) ){
 				//This implies that it is either Carbon or a special element.
-				Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
-				Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+				if (Element.equals("C")) {
+
+					Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
+					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+				}	//Ends if statemenet
+			
+				else if (Element.equals("P")){
+					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+
+				}	//ends if statement
 
 			}	//Ends if statment
 

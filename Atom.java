@@ -54,7 +54,7 @@ public class Atom implements Serializable{
 	}	//ends setNextHydrogen method
 
 
-	public double computeOP(float x1, float y1, float z1, float x2, float y2, float z2){
+	public static double computeOP(float x1, float y1, float z1, float x2, float y2, float z2){
 
 		double xDiff = Math.pow((x1 - x2), 2);
 		double yDiff = Math.pow((y1 - y2), 2);
@@ -90,9 +90,6 @@ public class Atom implements Serializable{
 		}	//Ends if statement
 
 
-
-
-
 		else if (this.Name.equals("H")) {
 			this.OP = computeOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
 
@@ -101,8 +98,6 @@ public class Atom implements Serializable{
 			}	//Ends if statement
 		}	//Ends if statement
 		
-
-
 
 		//Skip over the head
 		else if (this.Name.equals("head")){
@@ -131,7 +126,6 @@ public class Atom implements Serializable{
 				this.next.calculateOP(0,0,0);
 			}	//ends if statement
 		}	//ends else statement
-
 	}	//Ends calculateOP
 
 	
@@ -168,7 +162,22 @@ public class Atom implements Serializable{
 		return array;
 	}	//Ends averageOp
 
-	
+	public double findPhosphateThickness(){
+		double result = 0;
+		if ((this.Name).equals("P")){
+			result = this.Z;
+
+		}	//Ends if statement
+
+		else if (this.next != null){
+			result = this.next.findPhosphateThickness();
+
+		}	//Ends if statement
+
+		return result;
+	}	//Ends findPhosphateThickness	
+
+
 	//System for checking debugging
 	public void printAllAtoms(){
 		System.out.println(this.ID + " " + this.Chain + " " + this.Name + " " + this.Member + " " + this.Hydrogen + " " + this.X + " " + this.Y + " " + this.Z + " " + this.OP);

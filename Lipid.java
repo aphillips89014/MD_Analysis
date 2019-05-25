@@ -26,6 +26,9 @@ public class Lipid implements java.io.Serializable {
 	Atom firstChain;
 	Atom secondChain;
 
+	//Special atoms such as Phosphourous
+	Atom specialAtoms;
+
 	//Assign some attributes
 	public Lipid(String Name, int ID, float X, float Y, float Z, String[] lipidNames){
 		this.Name = Name;
@@ -35,6 +38,7 @@ public class Lipid implements java.io.Serializable {
 		this.Z = Z;
 		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 		this.secondChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
+		this.specialAtoms = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 
 		int length = lipidNames.length;
 		this.Neighbors = new int[length];
@@ -105,8 +109,10 @@ public class Lipid implements java.io.Serializable {
 	public void getInformation(){
 //		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
 		this.firstChain.printAllAtoms();
-		this.secondChain.printAllAtoms();
-		System.out.println(this.firstOP + " " + this.secondOP);
+//		this.secondChain.printAllAtoms();
+		this.specialAtoms.printAllAtoms();
+
+//		System.out.println(this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
 		System.out.println("");
 
@@ -152,23 +158,26 @@ public class Lipid implements java.io.Serializable {
 		//Create new Atom
 		Atom newAtom = new Atom(this.ID, Chain, Member, Hydrogen, Name, X, Y, Z);
 	
-		if (!(Name.equals("H"))){
-			//If it is NOT Hydrogen.
-	
+		if (Name.equals("C")){
 			//Add it to a linked list.
+
 			addAtom(thisChain, newAtom);
 		}	//Ends if statement
 
-		else{
-			//If it IS Hydrogen.
-
+		else if (Name.equals("H")) {
 			addHydrogen(thisChain, newAtom);
 
+		}	//Ends if statement
 
-		}	//ends else statement
+		else if (Name.equals("P")) {
+			addAtom(this.specialAtoms, newAtom);	
+
+		}	//Ends if statement
+
+
 	}	//Ends createAtom method
 
-	public void addHydrogen(Atom head, Atom newAtom){
+	public static void addHydrogen(Atom head, Atom newAtom){
 		
 		if (head == null){
 			System.out.println("Add Hydrogen has been passed a null head");
@@ -187,7 +196,7 @@ public class Lipid implements java.io.Serializable {
 
 
 	//Add a newAtom to the head of a Linked List
-	public void addAtom(Atom head, Atom newAtom){
+	public static void addAtom(Atom head, Atom newAtom){
 		if (head != null){
 			newAtom.setNext(head.next);
 			head.setNext(newAtom);
@@ -216,6 +225,14 @@ public class Lipid implements java.io.Serializable {
 
 		return result;
 	}	//Ends getIntName
+
+	public double getPhosphateThickness(){
+		double result = 0;
+		result = this.specialAtoms.findPhosphateThickness();
+		
+		return result;
+
+	}	//Ends getPhosphateThickness
 
 
 	public String getName(){

@@ -259,6 +259,26 @@ public class Process implements Serializable {
 	}	//Ends countLipids Method
 
 
+	public static int[][] calculateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
+		int length = Thickness.length;
+		int totalLipids = currentFrame.allLipids.length;
+
+		for (int i = 0; i < totalLipids; i++){
+			int lipid = currentFrame.allLipids[i].getIntName(lipidNames);
+			double Z = currentFrame.allLipids[i].getPhosphateThickness();
+
+			if (Z != 0){
+				Z = Z + 40;
+				int index = (int) Math.round(Z * 10);
+				Thickness[lipid][index]++;
+			}	//Ends if statement
+		}	//Ends for loop
+
+		return Thickness;
+	}	//Ends calculateThickness 
+
+
+
 
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
@@ -346,6 +366,12 @@ public class Process implements Serializable {
 
 			//There may be a better way to do this, but this is the simplest in terms of manageable code.
 	
+		int[][] Thickness = new int[totalLipids][800];
+			//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
+			//Second Index are the bins.
+				//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.
+
+
 		if (firstFrameOnly) { totalFiles = 1; }
 
 		//Preform calculations for each Frame.
@@ -354,12 +380,13 @@ public class Process implements Serializable {
 
 //			countLipids(currentFrame.allLipids, lipidNames);
 
-//			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-//			getOP(currentFrame, ReadFile);
+			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
+			getOP(currentFrame, ReadFile);
 			
-//			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
-//			currentFrame.allLipids[1].getInformation();
+			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
+			Thickness = calculateThickness(currentFrame, Thickness, lipidNames);
 
+//			currentFrame.allLipids[0].getInformation();
 
 		}	//Ends for loop
 
@@ -379,7 +406,7 @@ public class Process implements Serializable {
 		//Create the output Files	
 		Readin.createHistogramFiles(OPvNN, lipidNames);
 		Readin.createOPvNNFiles(OPvNN, lipidNames);
-
+		Readin.createThicknessFiles(Thickness, lipidNames);
 		end = System.currentTimeMillis();
 		totalTime = (end - start) / 1000;
 		System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
