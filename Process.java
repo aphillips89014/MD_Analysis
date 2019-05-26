@@ -260,7 +260,6 @@ public class Process implements Serializable {
 
 
 	public static int[][] calculateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
-		int length = Thickness.length;
 		int totalLipids = currentFrame.allLipids.length;
 
 		for (int i = 0; i < totalLipids; i++){
@@ -278,13 +277,57 @@ public class Process implements Serializable {
 	}	//Ends calculateThickness 
 
 
+	//PCL Stands for Project Chain Length, it a a measurement of the height of each carbon on a carbon chain.
+		//For this program it can be a simple binning algorithm.
+	public static double[][][][] calculatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
+		int totalLipids = currentFrame.allLipids.length;
+
+		for (int i = 0; i < totalLipids; i++){
+			//Skip any lipid that does not have 2 chains.
+				//Because of how chains are assigned we only need to check the second chain	
+			if ((currentFrame.allLipids[i].secondChainIdentifier).equals("null")) {
+				//Do Nothing, basically skip this lipid
+			}	//ends if statement
+
+			else {
+				int currentLipid = currentFrame.allLipids[i].getIntName(lipidNames);
+				Atom firstChain = currentFrame.allLipids[i].firstChain;
+				Atom secondChain = currentFrame.allLipids[i].secondChain;
+
+				while (firstChain != null){
+					int Member = firstChain.getMember();
+					double Z = firstChain.Z;
+
+					PCL[0][currentLipid][0][Member]++;
+					PCL[1][currentLipid][0][Member] = PCL[1][currentLipid][0][Member] + Z;
+					PCL[2][currentLipid][0][Member] = PCL[2][currentLipid][0][Member] + (Z * Z);
+
+					firstChain = firstChain.next;
+				}	//Ends while loop
+
+				while (secondChain != null){
+					int Member = secondChain.getMember();
+					double Z = secondChain.Z;
+
+					PCL[0][currentLipid][1][Member]++;
+					PCL[1][currentLipid][1][Member] = PCL[1][currentLipid][1][Member] + Z;
+					PCL[2][currentLipid][1][Member] = PCL[2][currentLipid][1][Member] + (Z * Z);
+
+					secondChain = secondChain.next;
+				}	//Ends while loop
+			}	//ends else statement
+		}	//Ends for loop
+
+		return PCL;
+	}	//Ends calculate PCL
+
 
 
 	public static void main(String[] args){
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_0.ser";
 		int totalFiles = 0;
-		boolean firstFrameOnly = false;
+		boolean firstFrameOnly = true;
 	
 		//Lets create some variables that will be used intermittenly.
 		
@@ -370,6 +413,13 @@ public class Process implements Serializable {
 			//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
 			//Second Index are the bins.
 				//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.
+		
+		double[][][][] PCL = new double[3][totalLipids][2][30];
+			//First index can be: Number of Occurance (0), PCL (1), or PCL^2 (2)
+			//Second index is the current lipid
+			//Third index is the chain, since there are only 2 chains we can assign an exact value
+			//Fourht index relates to carbon index, we overestimate this just to be extremely safe.
+
 
 
 		if (firstFrameOnly) { totalFiles = 1; }
@@ -385,6 +435,7 @@ public class Process implements Serializable {
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
 			Thickness = calculateThickness(currentFrame, Thickness, lipidNames);
+			PCL = calculatePCL(currentFrame, PCL, lipidNames);
 
 //			currentFrame.allLipids[0].getInformation();
 
@@ -407,6 +458,7 @@ public class Process implements Serializable {
 		Readin.createHistogramFiles(OPvNN, lipidNames);
 		Readin.createOPvNNFiles(OPvNN, lipidNames);
 		Readin.createThicknessFiles(Thickness, lipidNames);
+		Readin.createPCLFiles(PCL, lipidNames);
 		end = System.currentTimeMillis();
 		totalTime = (end - start) / 1000;
 		System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	

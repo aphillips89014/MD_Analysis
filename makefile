@@ -8,5 +8,8 @@ fullClean:
 	rm -f Frames/*
 	rm -f Graphing/Data/*
 
+dataClean:
+	rm -f Graphing/Data/*
+
 run: Process
 	java Process

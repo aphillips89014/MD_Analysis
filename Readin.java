@@ -256,6 +256,90 @@ public class Readin implements Serializable{
 
 
 
+	public static void createPCLFiles(double[][][][] PCL, String[] lipidNames){
+		PrintStream console = System.out;
+		
+		int totalLipids = lipidNames.length;
+	 	double sum = 0;
+		int length = PCL[0][0][1].length;
+
+		for (int i = 0; i < totalLipids; i++){
+			sum = 0;
+			for (int j = 0; j < length; j++){
+				sum = sum + PCL[0][i][1][j];
+			}	//Ends for loop
+
+			//Now we ignore lipids without phosphates.
+			if (sum > 1){
+				String fileName0 = "Graphing/Data/" + lipidNames[i] + "_chain_0_PCL.dat";
+				String fileName1 = "Graphing/Data/" + lipidNames[i] + "_chain_1_PCL.dat";
+
+				try{
+					PrintStream output0 = new PrintStream(new File(fileName0));
+					PrintStream output1 = new PrintStream(new File(fileName1));
+
+					double count = 0;
+					double carbonLength = 0;
+					double squaredLength = 0;
+					double deviation = 0;
+
+
+					for (int j = 0; j < length; j++){
+						System.setOut(console);
+
+						count = PCL[0][i][0][j];
+						if (count > 0) {
+							if (j != 0) {
+								carbonLength = PCL[1][i][0][j] / count;
+								squaredLength = PCL[2][i][0][j] / count;
+	
+								deviation = findDeviation(carbonLength, squaredLength);
+									
+								System.setOut(output0);
+								System.out.println(j + " " + carbonLength + " " + deviation);
+							}	//Ends if statement
+						}	// ends if statement
+
+
+						count = PCL[0][i][1][j];
+						if (count > 0) {
+							if (j != 0) {
+								carbonLength = PCL[1][i][1][j] / count;
+								squaredLength = PCL[2][i][1][j] / count;
+	
+								deviation = findDeviation(carbonLength, squaredLength);
+								
+								System.setOut(output1);
+								System.out.println(j + " " + carbonLength + " " + deviation);
+							}	//Ends if statement
+						}	// ends if statement
+					}	//Ends for loop
+				}	//Ends try statement
+
+				catch (IOException e){
+					System.setOut(console);
+					System.out.println("Error in Creating " + fileName0);
+					System.out.println("Error in Creating " + fileName1);
+					System.out.println(e);
+				}	//Ends catch
+			}	//Ends if statement
+		}	//Ends for loop
+
+		System.setOut(console);
+	}	//ends createPCLFiles Method
+
+	//Finds Standard Deviation
+	public static double findDeviation(double value, double squaredValue){
+		value = value * value;
+
+		double deviation = squaredValue - value;
+	
+		deviation = Math.pow(deviation, 0.5);
+
+		return deviation;
+	}	//ends find Deviation Method
+
+
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createOPvNNFiles(double[][][][][] OPvNN, String[] lipidNames){
 
