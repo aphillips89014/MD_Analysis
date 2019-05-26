@@ -85,7 +85,7 @@ public class Readin implements Serializable{
 	public static String[] findLipidNames() throws FileNotFoundException {
 		boolean keepGoing = true;
 
-		File file = new File("Coordinates.dat");
+		File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
 		Scanner Scan = new Scanner(file);
 		Scan.useDelimiter(" ");
 
@@ -386,7 +386,7 @@ public class Readin implements Serializable{
 		//Unqiue for a specific set of file formats.
 	public static int readFile(String[] lipidNames, boolean firstFrameOnly) throws FileNotFoundException {
 
-		File file = new File("Coordinates.dat");
+		File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
 		Scanner Scan = new Scanner(file);
 		Scan.useDelimiter(" ");
 

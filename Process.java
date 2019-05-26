@@ -284,7 +284,7 @@ public class Process implements Serializable {
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_0.ser";
 		int totalFiles = 0;
-		boolean firstFrameOnly = true;
+		boolean firstFrameOnly = false;
 	
 		//Lets create some variables that will be used intermittenly.
 		
@@ -390,7 +390,7 @@ public class Process implements Serializable {
 
 		}	//Ends for loop
 
-		System.out.println(Arrays.toString(lipidNames));
+//		System.out.println(Arrays.toString(lipidNames));
 
 		end = System.currentTimeMillis();
 		totalTime = (end - start) / 1000;

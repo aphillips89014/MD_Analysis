@@ -61,7 +61,7 @@ public class Atom implements Serializable{
 		double zDiff = Math.pow((z1 - z2), 2);
 
 		double magnitude = Math.pow((xDiff + yDiff + zDiff), 0.5);
-		double cosTheta = zDiff / magnitude;
+		double cosTheta = (z1 - z2) / magnitude;
 	
 		cosTheta = Math.pow(cosTheta, 2);
 		
