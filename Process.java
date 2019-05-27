@@ -181,7 +181,7 @@ public class Process implements Serializable {
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
 		//Use the method findOP to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static void getOP(Frame Frame, Readin Readin){
+	public static double[][][][][] getOP(Frame Frame, Readin Readin, double[][][][][] OP, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -192,15 +192,87 @@ public class Process implements Serializable {
 		else{
 			int length = Frame.allLipids.length;
 			int frameNumber = Frame.getFrameNumber();
+			int totalMembers = OP[0][0][0][0].length;
+			int totalChains = OP[0][0].length;
 
 			for (int i = 0; i < length; i++){
 				Frame.allLipids[i].findOP();
+
+				int lipidNumber = Frame.allLipids[i].getIntName(lipidNames);
+				Atom carbonAtom = Frame.allLipids[i].firstChain;
+
+				while (carbonAtom != null) {
+					
+					double currentOP = carbonAtom.getOP();
+
+					if (currentOP != 0) {
+						int member = carbonAtom.getMember();
+
+						OP[0][lipidNumber][0][0][member]++;
+						OP[1][lipidNumber][0][0][member] = OP[1][lipidNumber][0][0][member] + currentOP;
+						OP[2][lipidNumber][0][0][member] = OP[2][lipidNumber][0][0][member] + (currentOP * currentOP);
+
+
+						Atom hydrogenAtom = carbonAtom.nextHydrogen;
+						int currentHydrogen = 1;
+
+						while (hydrogenAtom != null){
+							currentOP = hydrogenAtom.getOP();
+					
+							OP[0][lipidNumber][0][currentHydrogen][member]++;
+							OP[1][lipidNumber][0][currentHydrogen][member] = OP[1][lipidNumber][0][currentHydrogen][member] + currentOP;
+							OP[2][lipidNumber][0][currentHydrogen][member] = OP[2][lipidNumber][0][currentHydrogen][member] + (currentOP * currentOP);
+							currentHydrogen++;
+							hydrogenAtom = hydrogenAtom.nextHydrogen;
+						}	//Ends while loop
+					}	//Ends if statement
+				
+					carbonAtom = carbonAtom.next;
+
+				}	//Ends while loop
+
+				carbonAtom = Frame.allLipids[i].secondChain;
+
+				while (carbonAtom != null) {
+					
+					double currentOP = carbonAtom.getOP();
+
+					if (currentOP != 0) {
+						int member = carbonAtom.getMember();
+
+						OP[0][lipidNumber][1][0][member]++;
+						OP[1][lipidNumber][1][0][member] = OP[1][lipidNumber][1][0][member] + currentOP;
+						OP[2][lipidNumber][1][0][member] = OP[2][lipidNumber][1][0][member] + (currentOP * currentOP);
+
+
+						Atom hydrogenAtom = carbonAtom.nextHydrogen;
+						int currentHydrogen = 1;
+
+						while (hydrogenAtom != null){
+							currentOP = hydrogenAtom.getOP();
+					
+							OP[0][lipidNumber][1][currentHydrogen][member]++;
+							OP[1][lipidNumber][1][currentHydrogen][member] = OP[1][lipidNumber][1][currentHydrogen][member] + currentOP;
+							OP[2][lipidNumber][1][currentHydrogen][member] = OP[2][lipidNumber][1][currentHydrogen][member] + (currentOP * currentOP);
+							currentHydrogen++;
+							hydrogenAtom = hydrogenAtom.nextHydrogen;
+						}	//Ends while loop
+					}	//Ends if statement
+				
+					carbonAtom = carbonAtom.next;
+
+				}	//Ends while loop
+
+
+
 
 			}	//Ends for Loop
 
 			Readin.serializeFrame("falseName", frameNumber, Frame);
 
 		}	//Ends else statement
+
+		return OP;
 	}	//Ends AverageOP method
 
 
@@ -327,7 +399,7 @@ public class Process implements Serializable {
 		Readin ReadFile = new Readin();
 		String fileName = "Frames/frame_0.ser";
 		int totalFiles = 0;
-		boolean firstFrameOnly = true;
+		boolean firstFrameOnly = false;
 	
 		//Lets create some variables that will be used intermittenly.
 		
@@ -392,6 +464,16 @@ public class Process implements Serializable {
 		start = System.currentTimeMillis();
 		System.out.println("Begun Various Calculations");
 
+		double[][][][][] OP = new double[3][totalLipids][2][4][30];
+			//First Index is Count (0), Avg (1), Squared Average (2)
+			//Second index is current Lipid
+			//Third index is Chain One (0), Two (1),
+			//Fourth index is the corresponding OP
+				//Carbon/CarbonBead/CHOL OP (0)
+				//H1,H2,H3 (1,2,3)
+			//Fifth index is carbon index.
+
+
 		//Create an array for calculating various things.
 		double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][20];
 			//Let's describe this 5-d array.
@@ -431,7 +513,7 @@ public class Process implements Serializable {
 //			countLipids(currentFrame.allLipids, lipidNames);
 
 			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-			getOP(currentFrame, ReadFile);
+			OP = getOP(currentFrame, ReadFile, OP, lipidNames);
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
 			Thickness = calculateThickness(currentFrame, Thickness, lipidNames);
@@ -456,6 +538,7 @@ public class Process implements Serializable {
 
 		//Create the output Files	
 		Readin.createHistogramFiles(OPvNN, lipidNames);
+		Readin.createOrderParameterFiles(OP, lipidNames);
 		Readin.createOPvNNFiles(OPvNN, lipidNames);
 		Readin.createThicknessFiles(Thickness, lipidNames);
 		Readin.createPCLFiles(PCL, lipidNames);

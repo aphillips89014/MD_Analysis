@@ -210,6 +210,77 @@ public class Readin implements Serializable{
 		return output;
 	}	//Ends convertInteger Method
 
+	public static void createOrderParameterFiles(double[][][][][] OP, String[] lipidNames){
+		PrintStream console = System.out;
+	
+		int totalLipids = lipidNames.length;
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			for (int currentChain = 0; currentChain < 2; currentChain++){
+				//Check to see if there is valid data.
+				double sum = 0;
+				int length = OP[0][currentLipid][currentChain][0].length;
+				for (int i = 0; i < length; i++){
+					sum = sum + OP[0][currentLipid][currentChain][0][i];
+
+				}	//ends for loop
+
+				if (sum > 0){
+					String fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP.dat";
+
+					try{
+						PrintStream output = new PrintStream(new File(fileName));
+						System.setOut(output);
+
+						for (int i = 0; i < length; i++){
+							double count = OP[0][currentLipid][currentChain][0][i];
+
+							if (count > 0) {
+								double currentOP = OP[1][currentLipid][currentChain][0][i] / count;
+								double squaredOP = OP[2][currentLipid][currentChain][0][i] / count;
+
+								double deviation = findDeviation(currentOP, squaredOP);
+								
+								System.out.println(i + " " + currentOP + " " + squaredOP);
+
+							}	//Ends if statement
+						}	//Ends for loop
+
+						fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP_H.dat";
+						PrintStream output2 = new PrintStream(new File(fileName));
+						System.setOut(output2);
+
+						for (int currentHydrogen = 1; currentHydrogen < 4; currentHydrogen++){
+							for (int i = 0; i < length; i++){
+								double count = OP[0][currentLipid][currentChain][currentHydrogen][i];
+
+								if (count > 0) {
+									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / count;
+									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / count;
+
+									double deviation = findDeviation(currentOP, squaredOP);
+									
+									System.out.println(i + " " + currentOP + " " + squaredOP);
+
+								}	//Ends if statement
+							}	//Ends for loop
+						}	//Ends for loop
+
+					}	//Ends try statement
+
+					catch (IOException e){
+						System.setOut(console);
+						System.out.println("Error in Creating " + fileName);
+						System.out.println(e);
+					}	//Ends catch
+				}	//Ends if statement
+			}	//Ends for loop
+		}	//Ends for loop
+
+		System.setOut(console);
+
+	}	//Ends createOrderParameterFiles method
+
 	public static void createThicknessFiles(int[][] Thickness, String[] lipidNames){
 		PrintStream console = System.out;
 		
