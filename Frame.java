@@ -13,8 +13,8 @@ public class Frame implements java.io.Serializable {
 	int frameNumber = 0;
 	Lipid[] allLipids;
 	int totalLipids = 0;
-	float xLength = 0;
-	float yLength = 0;
+	double xLength = 0;
+	double yLength = 0;
 
 
 	//Assign the attributes of the class directly from the Constructor.
@@ -27,7 +27,7 @@ public class Frame implements java.io.Serializable {
 
 
 	//Create a lipid with the given attributes
-	public void createLipid(String Name, int ID, float X, float Y, float Z, String[] lipidNames){
+	public void createLipid(String Name, int ID, double X, double Y, double Z, String[] lipidNames){
 		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y, Z, lipidNames);
 
 	}	//Ends createLipid Method
@@ -37,11 +37,11 @@ public class Frame implements java.io.Serializable {
 		return this.frameNumber;
 	}	//Ends getFrameNumber method
 
-	public float getXLength(){
+	public double getXLength(){
 		return this.xLength;
 	}	//ends getXLength method
 
-	public float getYLength(){
+	public double getYLength(){
 		return this.yLength;
 	}	//Ends getYLength method
 
@@ -58,13 +58,13 @@ public class Frame implements java.io.Serializable {
 	//Iterate through every lipid and find the maximum x and y values.
 	//This is unique for every frame so it must be calculated every frame.
 	public void findLength(){
-		float maxX = 0;
-		float maxY = 0;
-		float minX = 0;
-		float minY = 0;
+		double maxX = 0;
+		double maxY = 0;
+		double minX = 0;
+		double minY = 0;
 
-		float x = 0;
-		float y = 0;
+		double x = 0;
+		double y = 0;
 
 		int length = this.allLipids.length;
 

@@ -23,10 +23,10 @@ public class Process implements Serializable {
 
 	
 	//Find the length (radius) between two points
-	public static double calculateRadius(float firstX, float firstY, float secondX, float secondY){
+	public static double calculateRadius(double firstX, double firstY, double secondX, double secondY){
 		
-		float xDiff = (firstX - secondX);
-		float yDiff = (firstY - secondY);
+		double xDiff = (firstX - secondX);
+		double yDiff = (firstY - secondY);
 
 		double dxDiff = xDiff;
 		double dyDiff = yDiff;
@@ -48,10 +48,10 @@ public class Process implements Serializable {
 	// 0 --> Not near a boundary
 	// 1 --> Near the right (positive) boundary
 	// -1 --> Near the left (negative) boundary
-	public static int checkBoundary(float point, float length, int searchRadius){
+	public static int checkBoundary(double point, double length, int searchRadius){
 
 		int result = 0;
-		float halfLength = length / 2;
+		double halfLength = length / 2;
 		boolean negative = false;
 
 		if (point < 0) {
@@ -83,11 +83,11 @@ public class Process implements Serializable {
 
 	//If a point is within the searchRadius of a Boundary of the box, this function is executed.
 	//This shifts the point to a new location purely for a simpler more accurate calculation.
-	public static float applyPBC(float coordinate, int modifier, float length){
+	public static double applyPBC(double coordinate, int modifier, double length){
 		//PBC stands for Periodic Boundary Condition
 		//modifier can only be 1, -1, or 0.
 
-		float result = coordinate;
+		double result = coordinate;
 	
 		//If the modifier is 0 then dont do a thing.
 
@@ -135,12 +135,12 @@ public class Process implements Serializable {
 			//Find the X and Y for a single point, compare it to every other point.
 				//If it is within a radius of 10 of the first point then it can be defined as a Neighbor, so add 1 to a counter.
 			for (int i = 0; i < length; i++){
-				float x = currentFrame.allLipids[i].getX();
-				float y = currentFrame.allLipids[i].getY();
+				double x = currentFrame.allLipids[i].getX();
+				double y = currentFrame.allLipids[i].getY();
 				String Name = currentFrame.allLipids[i].getName();
 
-				float xLength = currentFrame.getXLength();
-				float yLength = currentFrame.getYLength();
+				double xLength = currentFrame.getXLength();
+				double yLength = currentFrame.getYLength();
 
 				int shiftY = checkBoundary(x, xLength, searchRadius);
 				int shiftX = checkBoundary(y, yLength, searchRadius);
@@ -149,8 +149,8 @@ public class Process implements Serializable {
 				int[] lipidCount = new int[totalLipids];
 
 				for (int j = 0; j < length; j++){
-					float x2 = currentFrame.allLipids[j].getX();
-					float y2 = currentFrame.allLipids[j].getY();
+					double x2 = currentFrame.allLipids[j].getX();
+					double y2 = currentFrame.allLipids[j].getY();
 					String Name2 = currentFrame.allLipids[j].getName();
 
 					x2 = applyPBC(x2, shiftX, xLength);

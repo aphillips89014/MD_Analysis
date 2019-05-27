@@ -12,9 +12,9 @@ public class Atom implements Serializable{
 	String Name;
 	int Member;
 	int Hydrogen;
-	float X;
-	float Y;
-	float Z;
+	double X;
+	double Y;
+	double Z;
 	double OP;
 	int ID;
 
@@ -23,7 +23,7 @@ public class Atom implements Serializable{
 	Atom nextHydrogen = null;
 
 	//Assings some attributes
-	public Atom(int ID, String Chain, int Member, int Hydrogen, String Name, float X, float Y, float Z){
+	public Atom(int ID, String Chain, int Member, int Hydrogen, String Name, double X, double Y, double Z){
 		this.ID = ID;
 		this.Chain = Chain;
 		this.Member = Member;
@@ -54,7 +54,7 @@ public class Atom implements Serializable{
 	}	//ends setNextHydrogen method
 
 
-	public static double computeOP(float x1, float y1, float z1, float x2, float y2, float z2){
+	public static double computeOP(double x1, double y1, double z1, double x2, double y2, double z2){
 
 		double xDiff = Math.pow((x1 - x2), 2);
 		double yDiff = Math.pow((y1 - y2), 2);
@@ -72,7 +72,7 @@ public class Atom implements Serializable{
 
 
 	//Calculate the OP using the second order legrange polynomial. and some unseen algebra.
-	public void calculateOP(float carbonX, float carbonY, float carbonZ){
+	public void calculateOP(double carbonX, double carbonY, double carbonZ){
 		
 		//These first couple of if statements are for Atomistic Simulations only.
 		

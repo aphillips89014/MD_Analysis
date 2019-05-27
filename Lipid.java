@@ -12,9 +12,9 @@ public class Lipid implements java.io.Serializable {
 
 	String Name;
 	int ID;
-	float X;
-	float Y;
-	float Z;
+	double X;
+	double Y;
+	double Z;
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
@@ -30,7 +30,7 @@ public class Lipid implements java.io.Serializable {
 	Atom specialAtoms;
 
 	//Assign some attributes
-	public Lipid(String Name, int ID, float X, float Y, float Z, String[] lipidNames){
+	public Lipid(String Name, int ID, double X, double Y, double Z, String[] lipidNames){
 		this.Name = Name;
 		this.ID = ID;
 		this.X = X;
@@ -140,7 +140,7 @@ public class Lipid implements java.io.Serializable {
 
 
 	//Creates a specific atom on a specific chain.
-	public void createAtom(String Chain, int Member, int Hydrogen, String Name, float X, float Y, float Z){
+	public void createAtom(String Chain, int Member, int Hydrogen, String Name, double X, double Y, double Z){
 		Atom thisChain = null;
 		if (Chain.equals(this.firstChainIdentifier)){
 			thisChain = this.firstChain;
@@ -239,11 +239,11 @@ public class Lipid implements java.io.Serializable {
 		return this.Name;
 	}	//Ends getName Method
 
-	public float getX(){
+	public double getX(){
 		return this.X;
 	}	//Ends getX Method
 
-	public float getY(){
+	public double getY(){
 		return this.Y;
 	}	//Ends getY Methdo
 

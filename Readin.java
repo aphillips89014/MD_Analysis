@@ -555,9 +555,9 @@ public class Readin implements Serializable{
 		String Element;
 		int Member;
 		int Hydrogen;
-		float X;
-		float Y; 
-		float Z;
+		double X;
+		double Y; 
+		double Z;
 	
 		int totalFiles = 0;
 
@@ -578,9 +578,9 @@ public class Readin implements Serializable{
 			Element = Scan.next();
 			Member = Scan.nextInt();
 			Hydrogen = Scan.nextInt();
-			X = Scan.nextFloat();
-			Y = Scan.nextFloat();
-			Z = Scan.nextFloat();
+			X = Scan.nextDouble();
+			Y = Scan.nextDouble();
+			Z = Scan.nextDouble();
 			Scan.nextLine();
 			
 			if (!(Scan.hasNextLine())) {
