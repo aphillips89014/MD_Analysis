@@ -22,102 +22,6 @@ public class Process implements Serializable {
 	}	//Ends checkForFiles method
 
 	
-	//Find the length (radius) between two points
-	public static double calculateRadius(double firstX, double firstY, double secondX, double secondY){
-		
-		double xDiff = (firstX - secondX);
-		double yDiff = (firstY - secondY);
-
-		double dxDiff = xDiff;
-		double dyDiff = yDiff;
-
-		dxDiff = Math.pow(dxDiff, 2);
-		dyDiff = Math.pow(dyDiff, 2);
-
-
-		double radius = dxDiff + dyDiff;
-		radius = Math.pow(radius, 0.5);
-
-		return radius;
-	}	//End calculateRadius Method
-
-
-
-	//For the data sets we are concerned with the points exist in a box. We need to preform a special operation whenever these are within a searchRadius
-	//This method returns 0, -1, or 1. This indicates which boundary it is close to.
-	// 0 --> Not near a boundary
-	// 1 --> Near the right (positive) boundary
-	// -1 --> Near the left (negative) boundary
-	public static int checkBoundary(double point, double length, int searchRadius){
-
-		int result = 0;
-		double halfLength = length / 2;
-		boolean negative = false;
-
-		if (point < 0) {
-			negative = true;
-			point = point * -1;
-		}	//Ends if statement
-
-		//This equation makes the point negative if it is outside the searchRadius, and makes it positive if it is within the SearchRadius
-		//Only works is point and searchRadius are less than length
-		point = point - (length - searchRadius);
-
-		if (point < 0) {
-			result = 0;
-		}	//Ends if statement
-
-		else{
-			result = 1;
-		}	//Ends else statement
-
-
-		if (negative == true){
-			result = result * -1;
-		}	//Ends if statement
-
-		return result;
-	}	//Ends checkBoundary method
-
-
-
-	//If a point is within the searchRadius of a Boundary of the box, this function is executed.
-	//This shifts the point to a new location purely for a simpler more accurate calculation.
-	public static double applyPBC(double coordinate, int modifier, double length){
-		//PBC stands for Periodic Boundary Condition
-		//modifier can only be 1, -1, or 0.
-
-		double result = coordinate;
-	
-		//If the modifier is 0 then dont do a thing.
-
-		if (modifier != 0){
-			if (coordinate < 0){
-				if (modifier == 1){
-					result = result + length;
-				}	//Ends if statement
-				
-				else if (modifier == -1){
-					//Do nothing.
-				}	//Ends if statement
-			}	//Ends if statement
-
-			else if (coordinate >= 0){
-				if (modifier == -1){
-					result = result - length;
-				}	//Ends if statement
-
-				else if (modifier == 1){
-					//Do Nothing
-				}	//Ends if statement
-			}	//Ends if statement
-		}	//Eends if statement
-
-		return result;
-	}	//Ends applyPBC method
-
-
-	
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
 	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin, String[] lipidNames){
 	
@@ -142,8 +46,8 @@ public class Process implements Serializable {
 				double xLength = currentFrame.getXLength();
 				double yLength = currentFrame.getYLength();
 
-				int shiftY = checkBoundary(x, xLength, searchRadius);
-				int shiftX = checkBoundary(y, yLength, searchRadius);
+				int shiftY = Mathematics.checkBoundary(x, xLength, searchRadius);
+				int shiftX = Mathematics.checkBoundary(y, yLength, searchRadius);
 
 				int totalLipids = lipidNames.length;
 				int[] lipidCount = new int[totalLipids];
@@ -153,10 +57,10 @@ public class Process implements Serializable {
 					double y2 = currentFrame.allLipids[j].getY();
 					String Name2 = currentFrame.allLipids[j].getName();
 
-					x2 = applyPBC(x2, shiftX, xLength);
-					y2 = applyPBC(y2, shiftY, yLength);				
+					x2 = Mathematics.applyPBC(x2, shiftX, xLength);
+					y2 = Mathematics.applyPBC(y2, shiftY, yLength);				
 
-					double radius = calculateRadius(x, y, x2, y2);
+					double radius = Mathematics.calculateRadius(x, y, x2, y2);
 
 					if (radius <= searchRadius && radius != 0){
 						for (int k = 0; k < totalLipids; k++){
@@ -514,6 +418,7 @@ public class Process implements Serializable {
 
 			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
 			OP = getOP(currentFrame, ReadFile, OP, lipidNames);
+
 			
 			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
 			Thickness = calculateThickness(currentFrame, Thickness, lipidNames);

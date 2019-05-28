@@ -239,7 +239,7 @@ public class Readin implements Serializable{
 								double currentOP = OP[1][currentLipid][currentChain][0][i] / count;
 								double squaredOP = OP[2][currentLipid][currentChain][0][i] / count;
 
-								double deviation = findDeviation(currentOP, squaredOP);
+								double deviation = Mathematics.findDeviation(currentOP, squaredOP);
 								
 								System.out.println(i + " " + currentOP + " " + squaredOP);
 
@@ -258,7 +258,7 @@ public class Readin implements Serializable{
 									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / count;
 									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / count;
 
-									double deviation = findDeviation(currentOP, squaredOP);
+									double deviation = Mathematics.findDeviation(currentOP, squaredOP);
 									
 									System.out.println(i + " " + currentOP + " " + squaredOP);
 
@@ -364,7 +364,7 @@ public class Readin implements Serializable{
 								carbonLength = PCL[1][i][0][j] / count;
 								squaredLength = PCL[2][i][0][j] / count;
 	
-								deviation = findDeviation(carbonLength, squaredLength);
+								deviation = Mathematics.findDeviation(carbonLength, squaredLength);
 									
 								System.setOut(output0);
 								System.out.println(j + " " + carbonLength + " " + deviation);
@@ -378,7 +378,7 @@ public class Readin implements Serializable{
 								carbonLength = PCL[1][i][1][j] / count;
 								squaredLength = PCL[2][i][1][j] / count;
 	
-								deviation = findDeviation(carbonLength, squaredLength);
+								deviation = Mathematics.findDeviation(carbonLength, squaredLength);
 								
 								System.setOut(output1);
 								System.out.println(j + " " + carbonLength + " " + deviation);
@@ -398,17 +398,6 @@ public class Readin implements Serializable{
 
 		System.setOut(console);
 	}	//ends createPCLFiles Method
-
-	//Finds Standard Deviation
-	public static double findDeviation(double value, double squaredValue){
-		value = value * value;
-
-		double deviation = squaredValue - value;
-	
-		deviation = Math.pow(deviation, 0.5);
-
-		return deviation;
-	}	//ends find Deviation Method
 
 
 	//Going to create an output file after manipulating and binning OPvNN

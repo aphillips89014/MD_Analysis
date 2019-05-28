@@ -1,5 +1,5 @@
-Process: Atom.java Lipid.java Frame.java Readin.java Process.java
-	javac Atom.java Lipid.java Frame.java Readin.java Process.java
+Process: Mathematics.java Atom.java Lipid.java Frame.java Readin.java Process.java
+	javac Mathematics.java Atom.java Lipid.java Frame.java Readin.java Process.java
 clean:
 	rm -f *.class
 	

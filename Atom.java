@@ -54,23 +54,6 @@ public class Atom implements Serializable{
 	}	//ends setNextHydrogen method
 
 
-	public static double computeOP(double x1, double y1, double z1, double x2, double y2, double z2){
-
-		double xDiff = Math.pow((x1 - x2), 2);
-		double yDiff = Math.pow((y1 - y2), 2);
-		double zDiff = Math.pow((z1 - z2), 2);
-
-		double magnitude = Math.pow((xDiff + yDiff + zDiff), 0.5);
-		double cosTheta = (z1 - z2) / magnitude;
-	
-		cosTheta = Math.pow(cosTheta, 2);
-		
-		double OP = (3*cosTheta - 1 ) / 2;
-		return OP;
-	}	//Ends computeOP method
-
-
-
 	//Calculate the OP using the second order legrange polynomial. and some unseen algebra.
 	public void calculateOP(double carbonX, double carbonY, double carbonZ){
 		
@@ -91,7 +74,7 @@ public class Atom implements Serializable{
 
 
 		else if (this.Name.equals("H")) {
-			this.OP = computeOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
+			this.OP = Mathematics.computeOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
 
 			if (this.nextHydrogen != null){
 				this.nextHydrogen.calculateOP(carbonX, carbonY, carbonZ);
@@ -114,7 +97,7 @@ public class Atom implements Serializable{
 			//Its the OP between C3 and H3
 		else if (this.Name.equals("H3")) {
 			//Next item is always C3
-			this.OP = computeOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.OP = Mathematics.computeOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
 
 		}	//Ends if statement
 
