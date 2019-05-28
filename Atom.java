@@ -171,9 +171,7 @@ public class Atom implements Serializable{
 	
 		if (this.nextHydrogen != null){
 			this.nextHydrogen.printAllAtoms();
-		}
-
-
+		}	//Ends if statement
 	}	//Ends printAllAtoms
 
 	public int getMember(){
@@ -183,6 +181,4 @@ public class Atom implements Serializable{
 	public double getOP(){
 		return this.OP;
 	}	//Ends getOP
-
-
 }	//Ends class definitiom

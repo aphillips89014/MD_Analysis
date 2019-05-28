@@ -9,22 +9,14 @@ import java.lang.Math;
 
 public class Readin implements Serializable{
 
-	String[] lipidNames;
-
-	public Readin(){
-
-	}	//Ends Constructor
-
 	//Save an object to the Disk so that it can be accessed at a later dat.
 	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
 
 		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
-		if (frameNumber < 2000){
+		if (frameNumber < 8888){
 			//Choose an arbitrarily large value such as 2000.
-
 			String frameNumberString = Integer.toString(frameNumber);
 			fileName = "Frames/frame_" + frameNumberString + ".ser";
-
 		}	//Ends if statement
 
 		try{
@@ -39,7 +31,7 @@ public class Readin implements Serializable{
 		}       //Ends try statement
 
 		catch (IOException e){
-			//Don't do anything, give up.
+			System.out.println("Frame could not be Serialized");
 		}       //Ends Catch statement
 	}	//Ends Serialize Frame method
 
@@ -61,8 +53,7 @@ public class Readin implements Serializable{
 			
 			objectInput.close();
 			file.close();
-
-		}
+		}	//Ends try Statement
 
 		catch(ClassNotFoundException e){
 			System.out.println("Frame Class not Found.");
@@ -73,7 +64,6 @@ public class Readin implements Serializable{
 			System.out.println("Issue occured accessing " + fileName);
 			System.out.println(e);
 			System.out.println("");
-
 		}	//Ends catch statement
 
 		return newFrame;
@@ -123,36 +113,45 @@ public class Readin implements Serializable{
 
 	//Parse forward through the file we are interested in
 		//Find each lipid in the systme by searching through the first frame.
-	public static String[] findLipidNames() throws FileNotFoundException {
+	public static String[] findLipidNames(){
 		boolean keepGoing = true;
 
-		File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
-		Scanner Scan = new Scanner(file);
-		Scan.useDelimiter(" ");
+		String[] lipidNames = {"null"};
+		try{
 
-		int currentFrame = 0;
-		String lipidName = "";
+			File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
+			Scanner Scan = new Scanner(file);
+			Scan.useDelimiter(" ");
 
-		//Because we don't want to introduce vectors we will be forced to use a somewhat inefficent method
-		//Errors will occur if you have more than 10 lipid types
-		String[] lipidNames = new String[10];
+			int currentFrame = 0;
+			String lipidName = "";
 
-		while (keepGoing){
-			currentFrame = Scan.nextInt();
-			
-			if (currentFrame != 0) {
-				keepGoing = false;
-			}	//Ends if statement
+			//Because we don't want to introduce vectors we will be forced to use a somewhat inefficent method
+			//Errors will occur if you have more than 10 lipid types
+			lipidNames = new String[10];
 
-			else{
-				lipidName = Scan.next();
-				lipidNames = addName(lipidName, lipidNames);
+			while (keepGoing){
+				currentFrame = Scan.nextInt();
+				
+				if (currentFrame != 0) {
+					keepGoing = false;
+				}	//Ends if statement
 
-				Scan.nextLine();
-			}	//Ends else statement
-		}	//ends while loop
+				else{
+					lipidName = Scan.next();
+					lipidNames = addName(lipidName, lipidNames);
 
-		lipidNames = assignLipidNames(lipidNames);
+					Scan.nextLine();
+				}	//Ends else statement
+			}	//ends while loop
+
+			lipidNames = assignLipidNames(lipidNames);
+
+		}	//Ends Try Statement
+
+		catch(IOException e) {
+			System.out.println("Error in Accessing Coordinates.dat");
+		}	//Ends catch statement
 
 		return lipidNames;
 	}	//Ends findLipidNames
@@ -244,7 +243,7 @@ public class Readin implements Serializable{
 
 								double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 								
-								System.out.println(i + " " + currentOP + " " + squaredOP);
+								System.out.println(i + " " + currentOP + " " + deviation);
 
 							}	//Ends if statement
 						}	//Ends for loop
@@ -263,7 +262,7 @@ public class Readin implements Serializable{
 
 									double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 									
-									System.out.println(i + " " + currentOP + " " + squaredOP);
+									System.out.println(i + " " + currentOP + " " + deviation);
 
 								}	//Ends if statement
 							}	//Ends for loop
@@ -292,7 +291,6 @@ public class Readin implements Serializable{
 		int sum = 0;
 
 		for (int i = 0; i < totalLipids; i++){
-
 			for (int j = 0; j < length; j++){
 				sum = sum + Thickness[i][j];
 			}	//Ends for loop
@@ -320,11 +318,8 @@ public class Readin implements Serializable{
 					System.out.println("Error in Creating " + fileName);
 					System.out.println(e);
 				}	//Ends catch
-
 			}	//Ends if statement
-
 		}	//Ends for loop
-
 		System.setOut(console);
 	}	//Ends createThicknessFile
 
@@ -337,92 +332,68 @@ public class Readin implements Serializable{
 	 	double sum = 0;
 		int length = PCL[0][0][1].length;
 
-		for (int i = 0; i < totalLipids; i++){
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			sum = 0;
-			for (int j = 0; j < length; j++){
-				sum = sum + PCL[0][i][1][j];
+			for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
+				sum = sum + PCL[0][currentLipid][1][carbonIndex];
 			}	//Ends for loop
 
-			//Now we ignore lipids without phosphates.
+			//Now we ignore lipids without 2 chains
 			if (sum > 1){
-				String fileName0 = "Graphing/Data/" + lipidNames[i] + "_chain_0_PCL.dat";
-				String fileName1 = "Graphing/Data/" + lipidNames[i] + "_chain_1_PCL.dat";
+				for (int chainCount = 0; chainCount < 2; chainCount++) {
+					String fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + chainCount + "_PCL.dat";
 
-				try{
-					PrintStream output0 = new PrintStream(new File(fileName0));
-					PrintStream output1 = new PrintStream(new File(fileName1));
+					try{
+						PrintStream output = new PrintStream(new File(fileName));
 
-					double count = 0;
-					double carbonLength = 0;
-					double squaredLength = 0;
-					double deviation = 0;
+						for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
+							System.setOut(console);
+						
+							double count = PCL[0][currentLipid][chainCount][carbonIndex];
+							if (count > 0) {
+								if (carbonIndex != 0) {
+									double carbonLength = PCL[1][currentLipid][chainCount][carbonIndex] / count;
+									double squaredLength = PCL[2][currentLipid][chainCount][carbonIndex] / count;
+		
+									double deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
+										
+									System.setOut(output);
+									System.out.println(carbonIndex + " " + carbonLength + " " + deviation);
+								}	//Ends if statement
+							}	// ends if statement
+						}	//Ends for loop
+					}	//Ends try statement
 
-
-					for (int j = 0; j < length; j++){
+					catch (IOException e){
 						System.setOut(console);
-
-						count = PCL[0][i][0][j];
-						if (count > 0) {
-							if (j != 0) {
-								carbonLength = PCL[1][i][0][j] / count;
-								squaredLength = PCL[2][i][0][j] / count;
-	
-								deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
-									
-								System.setOut(output0);
-								System.out.println(j + " " + carbonLength + " " + deviation);
-							}	//Ends if statement
-						}	// ends if statement
-
-
-						count = PCL[0][i][1][j];
-						if (count > 0) {
-							if (j != 0) {
-								carbonLength = PCL[1][i][1][j] / count;
-								squaredLength = PCL[2][i][1][j] / count;
-	
-								deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
-								
-								System.setOut(output1);
-								System.out.println(j + " " + carbonLength + " " + deviation);
-							}	//Ends if statement
-						}	// ends if statement
-					}	//Ends for loop
-				}	//Ends try statement
-
-				catch (IOException e){
-					System.setOut(console);
-					System.out.println("Error in Creating " + fileName0);
-					System.out.println("Error in Creating " + fileName1);
-					System.out.println(e);
-				}	//Ends catch
+						System.out.println("Error in Creating " + fileName);
+						System.out.println(e);
+					}	//Ends catch
+				}	//Ends for Loop
 			}	//Ends if statement
 		}	//Ends for loop
-
 		System.setOut(console);
 	}	//ends createPCLFiles Method
 
 
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createOPvNNFiles(double[][][][][] OPvNN, String[] lipidNames){
-
 		PrintStream console = System.out;
-
 		int totalLipids = OPvNN[0].length;
 
 		//Iterate through second index
-		for (int i = 0; i < totalLipids; i++){
-			String lipid = Mathematics.IntToLipid(i, lipidNames);
+		for (int lipid = 0; lipid < totalLipids; lipid++){
+			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
 
 			//Iterate through third index
-			for (int j = 0; j < totalLipids; j++){
-				String compLipid = Mathematics.IntToLipid(j, lipidNames);
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
 
 				//Iterate through fourth index
 				for (int chain = 0; chain < 2; chain++){
 
 					//Create a file specifically for this
-					String fileName = "Graphing/Data/OP_NN_" + lipid + "_chain_" + chain + "_" + compLipid + ".dat";				
+					String fileName = "Graphing/Data/OP_NN_" + lipidName + "_chain_" + chain + "_" + compLipidName + ".dat";
 
 					try{
 						PrintStream output = new PrintStream(new File(fileName));
@@ -430,18 +401,19 @@ public class Readin implements Serializable{
 
 						//First Sum the array we want to look at.
 						double sum = 0;
-						int length = OPvNN[0][i][j][chain].length;					
+						int length = OPvNN[0][lipid][compLipid][chain].length;					
 
-						for (int k = 0; k < length; k++){
-							sum = sum + OPvNN[0][i][j][chain][k];
+						for (int neighbors = 0; neighbors < length; neighbors++){
+							sum = sum + OPvNN[0][lipid][compLipid][chain][neighbors];
 						}	//Ends for Loop
 
 
 						//Then find the proportion that the values in the array given occur.
 							//Then find the standard Deviation of this.						
-						for (int k = 0; k < length; k++){
-							double count = OPvNN[0][i][j][chain][k];
+						for (int neighbors = 0; neighbors < length; neighbors++){
+							double count = OPvNN[0][lipid][compLipid][chain][neighbors];
 							double proportion = count / sum;
+
 							if (proportion <= 0.001){
 								proportion = 0;
 							}	//ends if statement
@@ -449,22 +421,16 @@ public class Readin implements Serializable{
 							proportion = proportion * 100;
 							String stringProportion = String.format("%.2f", proportion);
 
-							double OP = OPvNN[1][i][j][chain][k];
-							double OPSquared = OPvNN[2][i][j][chain][k];
-
-							OP = OP / count;
-							OPSquared = OPSquared / count;
-							
-							double OpAvgSquared = Math.pow(OP, 2);
-			
-							double Deviation = Math.pow((OPSquared - OpAvgSquared), 0.5);
+							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / count;
+							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / count;
+							double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
 							
 							//Magnitude of OP
 							if (OP < 0) { OP = OP * -1; }
 
 							if (OP > 0) {
 								if (proportion > 0.3){
-									System.out.println(k + " " + OP + " " + Deviation + " " + stringProportion + "%");
+									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 								}	//Ends if statement
 							}	//Ends if statement
 						}	//Ends for loop
@@ -473,7 +439,6 @@ public class Readin implements Serializable{
 					catch (IOException e){
 						System.out.println("Error in creating Histogram Output File");
 					}	//Ends catch statement
-
 					System.setOut(console);
 				}	//Ends for loop
 			}	//Ends for loop
@@ -481,22 +446,20 @@ public class Readin implements Serializable{
 	}	//Ends createOutputFiles Methdo
 
 
-
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createNNFiles(double[][][][][] OPvNN, String[] lipidNames){
-
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
 		//iterate through second index
-		for (int i = 0; i < totalLipids; i++){
-			String lipid = Mathematics.IntToLipid(i, lipidNames);
+		for (int lipid = 0; lipid < totalLipids; lipid++){
+			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
 
 			//iterate through third index
-			for (int j = 0; j < totalLipids; j++){
-				String compLipid = Mathematics.IntToLipid(j, lipidNames);
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
 
-				String fileName = "Graphing/Data/" + lipid + "_Histogram_" + compLipid + ".dat";				
+				String fileName = "Graphing/Data/" + lipidName + "_Histogram_" + compLipidName + ".dat";				
 
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
@@ -504,17 +467,18 @@ public class Readin implements Serializable{
 
 					//First Sum the array we want to look at.
 					double sum = 0;
-					int length = OPvNN[0][i][j][0].length;					
+					int length = OPvNN[0][lipid][compLipid][0].length;					
 
-					for (int k = 0; k < length; k++){
-						sum = sum + OPvNN[0][i][j][0][k];
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						sum = sum + OPvNN[0][lipid][compLipid][0][neighbors];
 					}	//Ends for Loop
 					
-					for (int k = 0; k < length; k++){
-						double count = OPvNN[0][i][j][0][k];
+					//Divide each count by the sum so we can find a proportion.
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						double count = OPvNN[0][lipid][compLipid][0][neighbors];
 						double proportion = count / sum;
 						if (proportion > 0.0005){
-							System.out.println(k + " " + proportion);
+							System.out.println(neighbors + " " + proportion);
 						}	//ends if statement
 					}	//Ends for loop
 				}	//end try statement
@@ -531,9 +495,9 @@ public class Readin implements Serializable{
 
 	//Read Various Files and create Lipids to be associated with specific Frames.
 		//Unqiue for a specific set of file formats.
-	public static int readFile(String[] lipidNames, boolean firstFrameOnly) throws FileNotFoundException {
+	public static int readFile(String[] lipidNames, boolean firstFrameOnly, String fileName) throws FileNotFoundException {
 
-		File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
+		File file = new File(fileName);
 		Scanner Scan = new Scanner(file);
 		Scan.useDelimiter(" ");
 
@@ -553,13 +517,10 @@ public class Readin implements Serializable{
 	
 		int totalFiles = 0;
 
-		long start = System.currentTimeMillis();
-
 		//Probe Forward
 		int maximumID = findMaximumID(file);
 		
 		boolean keepGoing = true;
-
 
 		//Scane the whole file
 		while (keepGoing){
@@ -579,11 +540,7 @@ public class Readin implements Serializable{
 				keepGoing = false;
 			}	//Ends if statement
 
-
-			//Use these variables as you will.
-
 			if (previousFrame != currentFrame){
-
 				totalFiles++;
 
 				//New Frame is required to be made.
@@ -601,7 +558,7 @@ public class Readin implements Serializable{
 					//Serialize Old Frame
 					//Create new Frame
 					String frameString = Integer.toString(previousFrame);
-					String fileName = "Frames/frame_" + frameString + ".ser";
+					fileName = "Frames/frame_" + frameString + ".ser";
 	
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
 					Frame.findDimensions();
@@ -610,7 +567,6 @@ public class Readin implements Serializable{
 
 					//Create new Frame
 					Frame.resetFrame(currentFrame);
-
 				}	//Ends else statement
 			}	//Ends if statement	
 
@@ -633,16 +589,13 @@ public class Readin implements Serializable{
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//ends if statement
-
 			}	//Ends if statment
 
 			else {
 				//It must be a Hydrogen in this case.
 				Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
-
 			}	//Ends else statement
-
 
 			previousFrame = currentFrame;
 		}	//Ends while loop

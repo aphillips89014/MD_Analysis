@@ -13,9 +13,8 @@ public class Mathematics{
 		double xDiff = (firstX - secondX);
 		double yDiff = (firstY - secondY);
 
-
-		xDiff = Math.pow(xDiff, 2);
-		yDiff = Math.pow(yDiff, 2);
+		xDiff = xDiff * xDiff;
+		yDiff = yDiff * yDiff;
 
 		double radius = xDiff + yDiff;
 		radius = Math.pow(radius, 0.5);
@@ -144,8 +143,4 @@ public class Mathematics{
 
 		return result;
 	}       //Ends LipidToInt
-
-
-
-
 }	//Ends class Defintion

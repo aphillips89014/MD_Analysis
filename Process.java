@@ -9,7 +9,7 @@ import java.lang.Math;
 public class Process implements Serializable {
 	
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
-	public static void generateNN(Frame currentFrame, int searchRadius, Readin Readin, String[] lipidNames){
+	public static void generateNN(Frame currentFrame, int searchRadius, String[] lipidNames){
 	
 		//May already be done, so lets try to skip this lengthy calculation if it is already done.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
@@ -70,7 +70,7 @@ public class Process implements Serializable {
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
 		//Use the method setOP to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static double[][][][][] generateOP(Frame Frame, Readin Readin, double[][][][][] OP, String[] lipidNames){
+	public static double[][][][][] generateOP(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -89,73 +89,52 @@ public class Process implements Serializable {
 
 				String lipidName = Frame.allLipids[i].getName();
 				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
-				Atom carbonAtom = Frame.allLipids[i].firstChain;
+				Atom currentAtom = Frame.allLipids[i].firstChain;
 
-				while (carbonAtom != null) {
+				boolean keepGoing = true;
+				int chainCount = 0;
+
+				//Now we will Bin all the data in one spot so analysis can be done.
+				while (keepGoing) {
 					
-					double currentOP = carbonAtom.getOP();
+					if (currentAtom == null) {
+						chainCount++;
+						currentAtom = Frame.allLipids[i].secondChain;						
 
-					if (currentOP != 0) {
-						int member = carbonAtom.getMember();
+						if (chainCount == 2) {
+							keepGoing = false;
+						}	//ends if statement
 
-						OP[0][lipidNumber][0][0][member]++;
-						OP[1][lipidNumber][0][0][member] = OP[1][lipidNumber][0][0][member] + currentOP;
-						OP[2][lipidNumber][0][0][member] = OP[2][lipidNumber][0][0][member] + (currentOP * currentOP);
-
-
-						Atom hydrogenAtom = carbonAtom.nextHydrogen;
-						int currentHydrogen = 1;
-
-						while (hydrogenAtom != null){
-							currentOP = hydrogenAtom.getOP();
-					
-							OP[0][lipidNumber][0][currentHydrogen][member]++;
-							OP[1][lipidNumber][0][currentHydrogen][member] = OP[1][lipidNumber][0][currentHydrogen][member] + currentOP;
-							OP[2][lipidNumber][0][currentHydrogen][member] = OP[2][lipidNumber][0][currentHydrogen][member] + (currentOP * currentOP);
-							currentHydrogen++;
-							hydrogenAtom = hydrogenAtom.nextHydrogen;
-						}	//Ends while loop
 					}	//Ends if statement
-				
-					carbonAtom = carbonAtom.next;
 
-				}	//Ends while loop
+					else {
+						double currentOP = currentAtom.getOP();
 
-				carbonAtom = Frame.allLipids[i].secondChain;
+						if (currentOP != 0) {
+							int member = currentAtom.getMember();
 
-				while (carbonAtom != null) {
+							OP[0][lipidNumber][chainCount][0][member]++;
+							OP[1][lipidNumber][chainCount][0][member] = OP[1][lipidNumber][chainCount][0][member] + currentOP;
+							OP[2][lipidNumber][chainCount][0][member] = OP[2][lipidNumber][chainCount][0][member] + (currentOP * currentOP);
+
+
+							Atom hydrogenAtom = currentAtom.nextHydrogen;
+							int currentHydrogen = 1;
+
+							while (hydrogenAtom != null){
+								currentOP = hydrogenAtom.getOP();
+						
+								OP[0][lipidNumber][chainCount][currentHydrogen][member]++;
+								OP[1][lipidNumber][chainCount][currentHydrogen][member] = OP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
+								OP[2][lipidNumber][chainCount][currentHydrogen][member] = OP[2][lipidNumber][chainCount][currentHydrogen][member] + (currentOP * currentOP);
+								currentHydrogen++;
+								hydrogenAtom = hydrogenAtom.nextHydrogen;
+							}	//Ends while loop
+						}	//Ends if statement
 					
-					double currentOP = carbonAtom.getOP();
-
-					if (currentOP != 0) {
-						int member = carbonAtom.getMember();
-
-						OP[0][lipidNumber][1][0][member]++;
-						OP[1][lipidNumber][1][0][member] = OP[1][lipidNumber][1][0][member] + currentOP;
-						OP[2][lipidNumber][1][0][member] = OP[2][lipidNumber][1][0][member] + (currentOP * currentOP);
-
-
-						Atom hydrogenAtom = carbonAtom.nextHydrogen;
-						int currentHydrogen = 1;
-
-						while (hydrogenAtom != null){
-							currentOP = hydrogenAtom.getOP();
-					
-							OP[0][lipidNumber][1][currentHydrogen][member]++;
-							OP[1][lipidNumber][1][currentHydrogen][member] = OP[1][lipidNumber][1][currentHydrogen][member] + currentOP;
-							OP[2][lipidNumber][1][currentHydrogen][member] = OP[2][lipidNumber][1][currentHydrogen][member] + (currentOP * currentOP);
-							currentHydrogen++;
-							hydrogenAtom = hydrogenAtom.nextHydrogen;
-						}	//Ends while loop
-					}	//Ends if statement
-				
-					carbonAtom = carbonAtom.next;
-
+						currentAtom = currentAtom.next;
+					}	//ends else statement
 				}	//Ends while loop
-
-
-
-
 			}	//Ends for Loop
 
 			Readin.serializeFrame("falseName", frameNumber, Frame);
@@ -185,8 +164,8 @@ public class Process implements Serializable {
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
 
-				double firstOPSquared = Math.pow(firstOP, 2);
-				double secondOPSquared = Math.pow(secondOP, 2);
+				double firstOPSquared = firstOP * firstOP;
+				double secondOPSquared = secondOP * secondOP;
 
 				//Add 1 to the NN Count.
 				OPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
@@ -273,157 +252,139 @@ public class Process implements Serializable {
 
 
 	public static void main(String[] args){
-		Readin ReadFile = new Readin();
-		String fileName = "Frames/frame_0.ser";
-		int totalFiles = 0;
-		boolean firstFrameOnly = false;
-	
-		//Lets create some variables that will be used intermittenly.
-		
+		boolean firstFrameOnly = true;
 		int searchRadius = 10;
+		String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
+
+		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
+
 
 		System.out.println("");
 		System.out.println("----------------------------------");
 		System.out.println("Initiated File Processor");
 		System.out.println("");
-
-
 		long start = System.currentTimeMillis();
 		System.out.println("Started Reading Files");
 
-		String[] lipidNames = new String[1];
+
+
+		String[] lipidNames = Readin.findLipidNames();
 		int totalLipids = lipidNames.length;
 
-		try{
-			lipidNames = ReadFile.findLipidNames();
-			totalLipids = lipidNames.length;
-		}	//Ends try statement
-
-		catch(FileNotFoundException e){
-			System.out.println("Cannot find Coordinates.dat");
-		}	//Ends catch statement
-
-
-
-		//Create a bunch of serialized objects so that the memory usage won't be as great.
-		//If the files already exist then find out how many there are.
-		boolean filesExist = Readin.checkForFiles(fileName);
-		if (!filesExist) {
-			try{
-				totalFiles = ReadFile.readFile(lipidNames, firstFrameOnly);
-
-			}	//Ends try Statement
-
-			catch(FileNotFoundException ex){
-				System.out.println("Could not find initial input file");
-			}	//Ends catch statement
-
+		if (lipidNames[0].equals("null")){
+			//There would be an error accessing the file, so the whole program must end.
 		}	//Ends if statement
 
 		else{
-			totalFiles = new File("Frames/").list().length;
-		}	//Ends if statement
 
-		long end = System.currentTimeMillis();
-		long totalTime = (end - start) / 1000;
+			int totalFiles = 0;
+			String fileName = "Frames/frame_0.ser";
+			//Create a bunch of serialized objects so that the memory usage won't be as great.
+			//If the files already exist then find out how many there are.
+			boolean filesExist = Readin.checkForFiles(fileName);
+			if (!filesExist) {
+				try{
+					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, coordinateFile);
 
-		System.out.println("Finished Reading File in " + totalTime + " seconds.");
+				}	//Ends try Statement
 
+				catch(FileNotFoundException ex){
+					System.out.println("Could not find initial input file");
+				}	//Ends catch statement
+			}	//Ends if statement
 
-		System.out.println("");
+			else{
+				totalFiles = new File("Frames/").list().length;
+			}	//Ends if statement
 
-
-
-
-
-
-
-		start = System.currentTimeMillis();
-		System.out.println("Begun Various Calculations");
-
-		double[][][][][] OP = new double[3][totalLipids][2][4][30];
-			//First Index is Count (0), Avg (1), Squared Average (2)
-			//Second index is current Lipid
-			//Third index is Chain One (0), Two (1),
-			//Fourth index is the corresponding OP
-				//Carbon/CarbonBead/CHOL OP (0)
-				//H1,H2,H3 (1,2,3)
-			//Fifth index is carbon index.
+			long end = System.currentTimeMillis();
+			long totalTime = (end - start) / 1000;
+			System.out.println("Finished Reading File in " + totalTime + " seconds.");
+			System.out.println("");
 
 
-		//Create an array for calculating various things.
-		double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][20];
-			//Let's describe this 5-d array.
-			//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
-				//AKA Various Calculations that we will eventually need Simultaneously.
 
-			//Second Index is the current Lipid, for this specifically: PSM (0), PDPC (1), CHL1 (2)
+			//Now we will do the actual Analysis.
 
-			//Third Index is the Comparing Lipid, same as second Index.
+			start = System.currentTimeMillis();
+			System.out.println("Begun Various Calculations");
 
-			//Fourth Index is the chain; Sn1 (0), Sn2 (1);
+			double[][][][][] OP = new double[3][totalLipids][2][4][30];
+				//First Index is Count (0), Avg (1), Squared Average (2)
+				//Second index is current Lipid
+				//Third index is Chain One (0), Two (1),
+				//Fourth index is the corresponding OP
+					//Carbon/CarbonBead/CHOL OP (0)
+					//H1,H2,H3 (1,2,3)
+				//Fifth index is carbon index.
 
-			//Fifth index is the value we are interested in (# of Neighbors, OP, OP^2).
-				//The index indicates how many Comparing Lipid Neighbors they are.
 
-			//There may be a better way to do this, but this is the simplest in terms of manageable code.
-	
-		int[][] Thickness = new int[totalLipids][800];
-			//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
-			//Second Index are the bins.
-				//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.
+			//Create an array for calculating various things.
+			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][20];
+				//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
+					//AKA Various Calculations that we will eventually need Simultaneously.
+
+				//Second Index is the current Lipid, for this specifically: PSM (0), PDPC (1), CHL1 (2)
+
+				//Third Index is the Comparing Lipid, same as second Index.
+
+				//Fourth Index is the chain; Sn1 (0), Sn2 (1);
+
+				//Fifth index is the value we are interested in (# of Neighbors, OP, OP^2).
+					//The index indicates how many Comparing Lipid Neighbors they are.
+
+				//There may be a better way to do this, but this is the simplest in terms of manageable code.
 		
-		double[][][][] PCL = new double[3][totalLipids][2][30];
-			//First index can be: Number of Occurance (0), PCL (1), or PCL^2 (2)
-			//Second index is the current lipid
-			//Third index is the chain, since there are only 2 chains we can assign an exact value
-			//Fourht index relates to carbon index, we overestimate this just to be extremely safe.
-
-
-
-		if (firstFrameOnly) { totalFiles = 1; }
-
-		//Preform calculations for each Frame.
-		for (int i = 0; i < totalFiles; i++){
-			Frame currentFrame = ReadFile.unserializeFrame(i);
-
-//			countLipids(currentFrame.allLipids, lipidNames);
-
-			generateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-			OP = generateOP(currentFrame, ReadFile, OP, lipidNames);
-
+			int[][] Thickness = new int[totalLipids][800];
+				//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
+				//Second Index are the bins.
+					//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.
 			
-			OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
-			Thickness = generateThickness(currentFrame, Thickness, lipidNames);
-			PCL = generatePCL(currentFrame, PCL, lipidNames);
-
-//			currentFrame.allLipids[0].getInformation();
-
-		}	//Ends for loop
-
-//		System.out.println(Arrays.toString(lipidNames));
-
-		end = System.currentTimeMillis();
-		totalTime = (end - start) / 1000;
-
-		System.out.println("Finished Calculation in  " + totalTime + " seconds");		
+			double[][][][] PCL = new double[3][totalLipids][2][30];
+				//First index can be: Number of Occurance (0), PCL (1), or PCL^2 (2)
+				//Second index is the current lipid
+				//Third index is the chain, since there are only 2 chains we can assign an exact value
+				//Fourht index relates to carbon index, we overestimate this just to be extremely safe.
 
 
+			if (firstFrameOnly) { totalFiles = 1; } //Allows us to skip a lot of work, this is a debugging tool.
 
-		System.out.println("");
-		System.out.println("Started Creating Output Files");
-		start = System.currentTimeMillis();
+			//Preform calculations for each Frame.
+			for (int i = 0; i < totalFiles; i++){
+				Frame currentFrame = Readin.unserializeFrame(i);
 
-		//Create the output Files	
-		Readin.createNNFiles(OPvNN, lipidNames);
-		Readin.createOPFiles(OP, lipidNames);
-		Readin.createOPvNNFiles(OPvNN, lipidNames);
-		Readin.createThicknessFiles(Thickness, lipidNames);
-		Readin.createPCLFiles(PCL, lipidNames);
-		end = System.currentTimeMillis();
-		totalTime = (end - start) / 1000;
-		System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
+				generateNN(currentFrame, searchRadius, lipidNames);
+				OP = generateOP(currentFrame, OP, lipidNames);
+				OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
+				Thickness = generateThickness(currentFrame, Thickness, lipidNames);
+				PCL = generatePCL(currentFrame, PCL, lipidNames);
+			}	//Ends for loop
 
+			end = System.currentTimeMillis();
+			totalTime = (end - start) / 1000;
+			System.out.println("Finished Calculation in  " + totalTime + " seconds");		
+			System.out.println("");
+
+
+
+
+
+
+
+			System.out.println("Started Creating Output Files");
+			start = System.currentTimeMillis();
+
+			Readin.createNNFiles(OPvNN, lipidNames);
+			Readin.createOPFiles(OP, lipidNames);
+			Readin.createOPvNNFiles(OPvNN, lipidNames);
+			Readin.createThicknessFiles(Thickness, lipidNames);
+			Readin.createPCLFiles(PCL, lipidNames);
+			end = System.currentTimeMillis();
+
+			totalTime = (end - start) / 1000;
+			System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
+
+		}	//Ends else statement
 
 		System.out.println("");
 	}	//Ends Main
