@@ -81,17 +81,17 @@ public class Lipid implements java.io.Serializable {
 
 	//Average the Order Parameter for the first Chain and the seocnd chain.
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
-	public void findOP(){
+	public void setOP(){
 
 		double[] first = new double[2];
 
-		firstChain.calculateOP(0, 0, 0);
+		firstChain.determineOP(0, 0, 0);
 		first = firstChain.averageOP(first);		
 		this.firstOP = (first[1] / first[0]);
 	
 		double[] second = new double[2];
 
-		secondChain.calculateOP(0,0,0);
+		secondChain.determineOP(0,0,0);
 		second = secondChain.averageOP(second);
 		this.secondOP = (second[1] / second[0]);
 
@@ -99,10 +99,10 @@ public class Lipid implements java.io.Serializable {
 
 
 	//Assigns a specific attribute.
-	public void assignNN(int index, int value){
+	public void setNN(int index, int value){
 		this.Neighbors[index] = value;
 
-	}	//Ends assignNN
+	}	//Ends setNN
 
 
 	//Return Various Information
@@ -210,29 +210,13 @@ public class Lipid implements java.io.Serializable {
 	}       //Ends addAtom
 
 	
-	//Return a specific integer based off lipid name
-		//this is unique to every system.
-			//May be changed to not be that way later on.
-	public int getIntName(String[] lipidNames){
-		int result = 99;
-
-		int length = lipidNames.length;
-
-		for (int i = 0; i < length; i++){
-			if (this.Name.equals(lipidNames[i])) { result = i; }
-
-		}	//ends for loop
-
-		return result;
-	}	//Ends getIntName
-
-	public double getPhosphateThickness(){
+	public double findPhosphateThickness(){
 		double result = 0;
-		result = this.specialAtoms.findPhosphateThickness();
+		result = this.specialAtoms.getPhosphateThickness();
 		
 		return result;
 
-	}	//Ends getPhosphateThickness
+	}	//Ends findPhosphateThickness
 
 
 	public String getName(){

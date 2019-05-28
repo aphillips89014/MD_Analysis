@@ -55,12 +55,12 @@ public class Atom implements Serializable{
 
 
 	//Calculate the OP using the second order legrange polynomial. and some unseen algebra.
-	public void calculateOP(double carbonX, double carbonY, double carbonZ){
+	public void determineOP(double carbonX, double carbonY, double carbonZ){
 		
 		//These first couple of if statements are for Atomistic Simulations only.
 		
 		if ((this.Name.equals("C"))) {
-			this.nextHydrogen.calculateOP(this.X, this.Y, this.Z);
+			this.nextHydrogen.determineOP(this.X, this.Y, this.Z);
 
 			double[] OParray = new double[2];
 			OParray = this.nextHydrogen.averageHydrogenOP(OParray);
@@ -68,16 +68,16 @@ public class Atom implements Serializable{
 
 
 			if (this.next != null){
-				this.next.calculateOP(0,0,0);
+				this.next.determineOP(0,0,0);
 			}	//Ends if statement
 		}	//Ends if statement
 
 
 		else if (this.Name.equals("H")) {
-			this.OP = Mathematics.computeOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
+			this.OP = Mathematics.calculateOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
 
 			if (this.nextHydrogen != null){
-				this.nextHydrogen.calculateOP(carbonX, carbonY, carbonZ);
+				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ);
 			}	//Ends if statement
 		}	//Ends if statement
 		
@@ -85,7 +85,7 @@ public class Atom implements Serializable{
 		//Skip over the head
 		else if (this.Name.equals("head")){
 			if (this.next != null){
-				this.next.calculateOP(0,0,0);
+				this.next.determineOP(0,0,0);
 			}	//Ends if statement
 		}	//Ends if statement
 
@@ -97,7 +97,7 @@ public class Atom implements Serializable{
 			//Its the OP between C3 and H3
 		else if (this.Name.equals("H3")) {
 			//Next item is always C3
-			this.OP = Mathematics.computeOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.OP = Mathematics.calculateOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
 
 		}	//Ends if statement
 
@@ -106,10 +106,10 @@ public class Atom implements Serializable{
 		//Iterate through the linked list until we find a suitable value
 		else{
 			if (this.next != null){
-				this.next.calculateOP(0,0,0);
+				this.next.determineOP(0,0,0);
 			}	//ends if statement
 		}	//ends else statement
-	}	//Ends calculateOP
+	}	//Ends determineOP
 
 	
 	public double[] averageHydrogenOP(double[] array){
@@ -145,7 +145,7 @@ public class Atom implements Serializable{
 		return array;
 	}	//Ends averageOp
 
-	public double findPhosphateThickness(){
+	public double getPhosphateThickness(){
 		double result = 0;
 		if ((this.Name).equals("P")){
 			result = this.Z;
@@ -153,12 +153,12 @@ public class Atom implements Serializable{
 		}	//Ends if statement
 
 		else if (this.next != null){
-			result = this.next.findPhosphateThickness();
+			result = this.next.getPhosphateThickness();
 
 		}	//Ends if statement
 
 		return result;
-	}	//Ends findPhosphateThickness	
+	}	//Ends getPhosphateThickness	
 
 
 	//System for checking debugging

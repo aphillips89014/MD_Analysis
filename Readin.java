@@ -15,9 +15,38 @@ public class Readin implements Serializable{
 
 	}	//Ends Constructor
 
+	//Save an object to the Disk so that it can be accessed at a later dat.
+	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
+
+		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
+		if (frameNumber < 2000){
+			//Choose an arbitrarily large value such as 2000.
+
+			String frameNumberString = Integer.toString(frameNumber);
+			fileName = "Frames/frame_" + frameNumberString + ".ser";
+
+		}	//Ends if statement
+
+		try{
+			FileOutputStream fileOutput = new FileOutputStream(fileName);
+			ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
+
+			objectOutput.writeObject(Frame);
+
+			fileOutput.close();
+			objectOutput.close();
+
+		}       //Ends try statement
+
+		catch (IOException e){
+			//Don't do anything, give up.
+		}       //Ends Catch statement
+	}	//Ends Serialize Frame method
+
+
 
 	//Unserialize a Serialized Object, return said object
-	public static Frame getFrame(int x){
+	public static Frame unserializeFrame(int x){
 		String frameNumber = Integer.toString(x);
 		Frame newFrame = null;
 		
@@ -48,7 +77,19 @@ public class Readin implements Serializable{
 		}	//Ends catch statement
 
 		return newFrame;
-	}	//Ends getFrame
+	}	//Ends unserializeFrame
+
+	public static boolean checkForFiles(String fileName){
+		//Checks for a specific file, if it exists return true, otherwise return false.
+		boolean result = false;
+
+		File file = new File(fileName);
+		if(file.exists() && !file.isDirectory()) {
+			result = true;
+		}       //Ends if statement
+
+		return result;
+	}       //Ends checkForFiles method
 
 
 
@@ -172,45 +213,7 @@ public class Readin implements Serializable{
 	}	//Ends if statement
 
 
-	//Save an object to the Disk so that it can be accessed at a later dat.
-	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
-
-		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
-		if (frameNumber < 2000){
-			//Choose an arbitrarily large value such as 2000.
-
-			String frameNumberString = Integer.toString(frameNumber);
-			fileName = "Frames/frame_" + frameNumberString + ".ser";
-
-		}	//Ends if statement
-
-		try{
-			FileOutputStream fileOutput = new FileOutputStream(fileName);
-			ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
-
-			objectOutput.writeObject(Frame);
-
-			fileOutput.close();
-			objectOutput.close();
-
-		}       //Ends try statement
-
-		catch (IOException e){
-			//Don't do anything, give up.
-		}       //Ends Catch statement
-	}	//Ends Serialize Frame method
-
-
-	//Unique to specific systems
-	public static String convertInteger(int x, String[] lipidNames){
-		//Converts a given int to a specific string.
-		String output = "null";
-		output = lipidNames[x];		
-
-		return output;
-	}	//Ends convertInteger Method
-
-	public static void createOrderParameterFiles(double[][][][][] OP, String[] lipidNames){
+	public static void createOPFiles(double[][][][][] OP, String[] lipidNames){
 		PrintStream console = System.out;
 	
 		int totalLipids = lipidNames.length;
@@ -239,7 +242,7 @@ public class Readin implements Serializable{
 								double currentOP = OP[1][currentLipid][currentChain][0][i] / count;
 								double squaredOP = OP[2][currentLipid][currentChain][0][i] / count;
 
-								double deviation = Mathematics.findDeviation(currentOP, squaredOP);
+								double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 								
 								System.out.println(i + " " + currentOP + " " + squaredOP);
 
@@ -258,7 +261,7 @@ public class Readin implements Serializable{
 									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / count;
 									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / count;
 
-									double deviation = Mathematics.findDeviation(currentOP, squaredOP);
+									double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 									
 									System.out.println(i + " " + currentOP + " " + squaredOP);
 
@@ -279,7 +282,7 @@ public class Readin implements Serializable{
 
 		System.setOut(console);
 
-	}	//Ends createOrderParameterFiles method
+	}	//Ends createOPFiles method
 
 	public static void createThicknessFiles(int[][] Thickness, String[] lipidNames){
 		PrintStream console = System.out;
@@ -364,7 +367,7 @@ public class Readin implements Serializable{
 								carbonLength = PCL[1][i][0][j] / count;
 								squaredLength = PCL[2][i][0][j] / count;
 	
-								deviation = Mathematics.findDeviation(carbonLength, squaredLength);
+								deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
 									
 								System.setOut(output0);
 								System.out.println(j + " " + carbonLength + " " + deviation);
@@ -378,7 +381,7 @@ public class Readin implements Serializable{
 								carbonLength = PCL[1][i][1][j] / count;
 								squaredLength = PCL[2][i][1][j] / count;
 	
-								deviation = Mathematics.findDeviation(carbonLength, squaredLength);
+								deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
 								
 								System.setOut(output1);
 								System.out.println(j + " " + carbonLength + " " + deviation);
@@ -409,11 +412,11 @@ public class Readin implements Serializable{
 
 		//Iterate through second index
 		for (int i = 0; i < totalLipids; i++){
-			String lipid = convertInteger(i, lipidNames);
+			String lipid = Mathematics.IntToLipid(i, lipidNames);
 
 			//Iterate through third index
 			for (int j = 0; j < totalLipids; j++){
-				String compLipid = convertInteger(j, lipidNames);
+				String compLipid = Mathematics.IntToLipid(j, lipidNames);
 
 				//Iterate through fourth index
 				for (int chain = 0; chain < 2; chain++){
@@ -480,18 +483,18 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createHistogramFiles(double[][][][][] OPvNN, String[] lipidNames){
+	public static void createNNFiles(double[][][][][] OPvNN, String[] lipidNames){
 
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
 		//iterate through second index
 		for (int i = 0; i < totalLipids; i++){
-			String lipid = convertInteger(i, lipidNames);
+			String lipid = Mathematics.IntToLipid(i, lipidNames);
 
 			//iterate through third index
 			for (int j = 0; j < totalLipids; j++){
-				String compLipid = convertInteger(j, lipidNames);
+				String compLipid = Mathematics.IntToLipid(j, lipidNames);
 
 				String fileName = "Graphing/Data/" + lipid + "_Histogram_" + compLipid + ".dat";				
 
@@ -601,7 +604,7 @@ public class Readin implements Serializable{
 					String fileName = "Frames/frame_" + frameString + ".ser";
 	
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
-					Frame.findLength();
+					Frame.findDimensions();
 			
 					serializeFrame(fileName, 9999, Frame);
 

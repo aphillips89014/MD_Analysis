@@ -57,7 +57,7 @@ public class Frame implements java.io.Serializable {
 	//Find the maximum and minimum x and y lengths for this current frame
 	//Iterate through every lipid and find the maximum x and y values.
 	//This is unique for every frame so it must be calculated every frame.
-	public void findLength(){
+	public void findDimensions(){
 		double maxX = 0;
 		double maxY = 0;
 		double minX = 0;
@@ -82,5 +82,5 @@ public class Frame implements java.io.Serializable {
 		this.xLength = (maxX - minX);
 		this.yLength = (maxY - minY);
 
-	}	//Ends findLength method
+	}	//Ends findDimensions method
 }	//Ends class defintion

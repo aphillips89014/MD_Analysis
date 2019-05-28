@@ -96,7 +96,7 @@ public class Mathematics{
 	}       //Ends applyPBC method
 
 	//Finds Standard Deviation
-	public static double findDeviation(double value, double squaredValue){
+	public static double calculateDeviation(double value, double squaredValue){
 		value = value * value;
 
 		double deviation = squaredValue - value;
@@ -108,7 +108,7 @@ public class Mathematics{
 
 
 
-	public static double computeOP(double x1, double y1, double z1, double x2, double y2, double z2){
+	public static double calculateOP(double x1, double y1, double z1, double x2, double y2, double z2){
 
 		double xDiff = Math.pow((x1 - x2), 2);
 		double yDiff = Math.pow((y1 - y2), 2);
@@ -121,9 +121,29 @@ public class Mathematics{
 
 		double OP = (3*cosTheta - 1 ) / 2;
 		return OP;
-	}       //Ends computeOP method
+	}       //Ends calculateOP method
 
+	public static String IntToLipid(int x, String[] lipidNames){
+		//Converts a given int to a specific string.
+		String output = "null";
+		output = lipidNames[x];
 
+		return output;
+	}       //Ends IntToLipid Method
+
+	//Return a specific integer based off lipid name
+	public static int LipidToInt(String[] lipidNames, String Name){
+		int result = 99;
+
+		int length = lipidNames.length;
+
+		for (int i = 0; i < length; i++){
+			if (Name.equals(lipidNames[i])) { result = i; }
+
+		}       //ends for loop
+
+		return result;
+	}       //Ends LipidToInt
 
 
 

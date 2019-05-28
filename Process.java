@@ -7,23 +7,9 @@ import java.io.*;
 import java.lang.Math;
 
 public class Process implements Serializable {
-
-
-	public static boolean checkForFiles(String fileName){
-		//Checks for a specific file, if it exists return true, otherwise return false.
-		boolean result = false;
-
-		File file = new File(fileName);
-		if(file.exists() && !file.isDirectory()) { 
-		    result = true;
-		}	//Ends if statement
-
-		return result;
-	}	//Ends checkForFiles method
-
 	
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
-	public static void calculateNN(Frame currentFrame, int searchRadius, Readin tempReadin, String[] lipidNames){
+	public static void generateNN(Frame currentFrame, int searchRadius, Readin Readin, String[] lipidNames){
 	
 		//May already be done, so lets try to skip this lengthy calculation if it is already done.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
@@ -65,27 +51,26 @@ public class Process implements Serializable {
 					if (radius <= searchRadius && radius != 0){
 						for (int k = 0; k < totalLipids; k++){
 							if (Name2.equals(lipidNames[k])) { lipidCount[k]++;}
-
 						}	//Ends for loop
 					}	//Ends if statement
 				}	//Ends for loop
 
 				for (int j = 0; j < totalLipids; j++){
-					currentFrame.allLipids[i].assignNN(j, lipidCount[j]);
+					currentFrame.allLipids[i].setNN(j, lipidCount[j]);
 				}	//Ends for loop
 			}	//Ends for loop
 
 			//We need to update the frame as we have just done a calculation and more importantly we want to save that calculation.
-			tempReadin.serializeFrame("falseName", frame, currentFrame);
+			Readin.serializeFrame("falseName", frame, currentFrame);
 
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
 
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
-		//Use the method findOP to average the OP of all Atoms per Chain
+		//Use the method setOP to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static double[][][][][] getOP(Frame Frame, Readin Readin, double[][][][][] OP, String[] lipidNames){
+	public static double[][][][][] generateOP(Frame Frame, Readin Readin, double[][][][][] OP, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -100,9 +85,10 @@ public class Process implements Serializable {
 			int totalChains = OP[0][0].length;
 
 			for (int i = 0; i < length; i++){
-				Frame.allLipids[i].findOP();
+				Frame.allLipids[i].setOP();
 
-				int lipidNumber = Frame.allLipids[i].getIntName(lipidNames);
+				String lipidName = Frame.allLipids[i].getName();
+				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
 				Atom carbonAtom = Frame.allLipids[i].firstChain;
 
 				while (carbonAtom != null) {
@@ -183,13 +169,14 @@ public class Process implements Serializable {
 	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
-	public static double[][][][][] findOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
+	public static double[][][][][] generateOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
 		
 		int length = Frame.allLipids.length;
 		int totalLipids = OPvNN[0].length;
 
 		for (int i = 0; i < length; i++){
-			int currentLipid = Frame.allLipids[i].getIntName(lipidNames);
+			String lipidName = Frame.allLipids[i].getName();
+			int currentLipid = Mathematics.LipidToInt(lipidNames, lipidName);
 			
 			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
@@ -219,28 +206,13 @@ public class Process implements Serializable {
 		return OPvNN;
 	}	//Ends OPvNN
 
-	public static void countLipids(Lipid[] allLipids, String[] lipidNames){
-		
-		int length = allLipids.length;
-		int[] totalLipids = new int[lipidNames.length];
-
-		for (int i = 0; i < length; i++){
-			int currentLipid = allLipids[i].getIntName(lipidNames);
-			totalLipids[currentLipid]++;
-
-		}	//ends for loop
-
-		System.out.println(Arrays.toString(totalLipids));
-
-	}	//Ends countLipids Method
-
-
-	public static int[][] calculateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
+	public static int[][] generateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
 
 		for (int i = 0; i < totalLipids; i++){
-			int lipid = currentFrame.allLipids[i].getIntName(lipidNames);
-			double Z = currentFrame.allLipids[i].getPhosphateThickness();
+			String lipidName = currentFrame.allLipids[i].getName();
+			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
+			double Z = currentFrame.allLipids[i].findPhosphateThickness();
 
 			if (Z != 0){
 				Z = Z + 40;
@@ -250,12 +222,12 @@ public class Process implements Serializable {
 		}	//Ends for loop
 
 		return Thickness;
-	}	//Ends calculateThickness 
+	}	//Ends generateThickness 
 
 
 	//PCL Stands for Project Chain Length, it a a measurement of the height of each carbon on a carbon chain.
 		//For this program it can be a simple binning algorithm.
-	public static double[][][][] calculatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
+	public static double[][][][] generatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
 
 		for (int i = 0; i < totalLipids; i++){
@@ -266,7 +238,8 @@ public class Process implements Serializable {
 			}	//ends if statement
 
 			else {
-				int currentLipid = currentFrame.allLipids[i].getIntName(lipidNames);
+				String lipidName = currentFrame.allLipids[i].getName();
+				int currentLipid = Mathematics.LipidToInt(lipidNames, lipidName);
 				Atom firstChain = currentFrame.allLipids[i].firstChain;
 				Atom secondChain = currentFrame.allLipids[i].secondChain;
 
@@ -334,7 +307,7 @@ public class Process implements Serializable {
 
 		//Create a bunch of serialized objects so that the memory usage won't be as great.
 		//If the files already exist then find out how many there are.
-		boolean filesExist = checkForFiles(fileName);
+		boolean filesExist = Readin.checkForFiles(fileName);
 		if (!filesExist) {
 			try{
 				totalFiles = ReadFile.readFile(lipidNames, firstFrameOnly);
@@ -412,17 +385,17 @@ public class Process implements Serializable {
 
 		//Preform calculations for each Frame.
 		for (int i = 0; i < totalFiles; i++){
-			Frame currentFrame = ReadFile.getFrame(i);
+			Frame currentFrame = ReadFile.unserializeFrame(i);
 
 //			countLipids(currentFrame.allLipids, lipidNames);
 
-			calculateNN(currentFrame, searchRadius, ReadFile, lipidNames);
-			OP = getOP(currentFrame, ReadFile, OP, lipidNames);
+			generateNN(currentFrame, searchRadius, ReadFile, lipidNames);
+			OP = generateOP(currentFrame, ReadFile, OP, lipidNames);
 
 			
-			OPvNN = findOPvNN(currentFrame, OPvNN, lipidNames);
-			Thickness = calculateThickness(currentFrame, Thickness, lipidNames);
-			PCL = calculatePCL(currentFrame, PCL, lipidNames);
+			OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
+			Thickness = generateThickness(currentFrame, Thickness, lipidNames);
+			PCL = generatePCL(currentFrame, PCL, lipidNames);
 
 //			currentFrame.allLipids[0].getInformation();
 
@@ -442,8 +415,8 @@ public class Process implements Serializable {
 		start = System.currentTimeMillis();
 
 		//Create the output Files	
-		Readin.createHistogramFiles(OPvNN, lipidNames);
-		Readin.createOrderParameterFiles(OP, lipidNames);
+		Readin.createNNFiles(OPvNN, lipidNames);
+		Readin.createOPFiles(OP, lipidNames);
 		Readin.createOPvNNFiles(OPvNN, lipidNames);
 		Readin.createThicknessFiles(Thickness, lipidNames);
 		Readin.createPCLFiles(PCL, lipidNames);
