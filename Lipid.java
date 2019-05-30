@@ -81,17 +81,17 @@ public class Lipid implements java.io.Serializable {
 
 	//Average the Order Parameter for the first Chain and the seocnd chain.
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
-	public void setOP(){
+	public void setOP(double xLength, double yLength){
 
 		double[] first = new double[2];
 
-		firstChain.determineOP(0, 0, 0);
+		firstChain.determineOP(0, 0, 0, xLength, yLength);
 		first = firstChain.averageOP(first);		
 		this.firstOP = (first[1] / first[0]);
 	
 		double[] second = new double[2];
 
-		secondChain.determineOP(0,0,0);
+		secondChain.determineOP(0,0,0, xLength, yLength);
 		second = secondChain.averageOP(second);
 		this.secondOP = (second[1] / second[0]);
 
@@ -173,8 +173,11 @@ public class Lipid implements java.io.Serializable {
 			addAtom(this.specialAtoms, newAtom);	
 
 		}	//Ends if statement
-
-
+		
+		else {
+			//Group up all the Coarse-Grained Beads in this else statement
+			addAtom(thisChain, newAtom);
+		}	//Ends else statement
 	}	//Ends createAtom method
 
 	public static void addHydrogen(Atom head, Atom newAtom){

@@ -55,12 +55,12 @@ public class Atom implements Serializable{
 
 
 	//Calculate the OP using the second order legrange polynomial. and some unseen algebra.
-	public void determineOP(double carbonX, double carbonY, double carbonZ){
+	public void determineOP(double carbonX, double carbonY, double carbonZ, double xLength, double yLength){
 		
 		//These first couple of if statements are for Atomistic Simulations only.
 		
 		if ((this.Name.equals("C"))) {
-			this.nextHydrogen.determineOP(this.X, this.Y, this.Z);
+			this.nextHydrogen.determineOP(this.X, this.Y, this.Z, 0, 0);
 
 			double[] OParray = new double[2];
 			OParray = this.nextHydrogen.averageHydrogenOP(OParray);
@@ -68,7 +68,7 @@ public class Atom implements Serializable{
 
 
 			if (this.next != null){
-				this.next.determineOP(0,0,0);
+				this.next.determineOP(0,0,0,0,0);
 			}	//Ends if statement
 		}	//Ends if statement
 
@@ -77,7 +77,7 @@ public class Atom implements Serializable{
 			this.OP = Mathematics.calculateOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
 
 			if (this.nextHydrogen != null){
-				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ);
+				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ, 0, 0);
 			}	//Ends if statement
 		}	//Ends if statement
 		
@@ -85,7 +85,7 @@ public class Atom implements Serializable{
 		//Skip over the head
 		else if (this.Name.equals("head")){
 			if (this.next != null){
-				this.next.determineOP(0,0,0);
+				this.next.determineOP(0,0,0,0,0);
 			}	//Ends if statement
 		}	//Ends if statement
 
@@ -102,11 +102,32 @@ public class Atom implements Serializable{
 		}	//Ends if statement
 
 
+		//Get the OP for any given Coarse-Grained Lipid
+		else if ((this.Name.equals("C-Bead")) || (this.Name.equals("R3"))){
+			//Compare with the next atom always.
+				//Periodic Boundary Conditions can servely mess up a CG OP Calculation, so account for that here.
+
+			double currentX = this.X;
+			double currentY = this.Y;
+
+			double nextX = this.next.X;
+			double nextY = this.next.Y;
+
+			int shiftX = Mathematics.checkBoundary(currentX, xLength, 10);
+			int shiftY = Mathematics.checkBoundary(currentY, yLength, 10);
+
+			nextX = Mathematics.applyPBC(nextX, shiftX, xLength);
+			nextY = Mathematics.applyPBC(nextY, shiftY, yLength);
+
+			this.OP = Mathematics.calculateOP(nextX, nextY, this.next.Z, currentX, currentY, this.Z);
+
+		}	//Ends if statement
+
 
 		//Iterate through the linked list until we find a suitable value
 		else{
 			if (this.next != null){
-				this.next.determineOP(0,0,0);
+				this.next.determineOP(0,0,0, xLength, yLength);
 			}	//ends if statement
 		}	//ends else statement
 	}	//Ends determineOP

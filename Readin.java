@@ -81,6 +81,39 @@ public class Readin implements Serializable{
 		return result;
 	}       //Ends checkForFiles method
 
+	//This method will determine if we are looking at an Atomistic, or a Coarse-Grained Simulation.
+		//There should never be an occurance of a Hydrogen in a CG simulation.
+		//There is a potential that a simulation of Cholesterol only could break this.
+	public static boolean determineSimulationMethod(){
+		Frame currentFrame = unserializeFrame(0);
+		//Choose the first frame available.
+
+		int totalLipids = currentFrame.allLipids.length;
+		Atom probingAtom;		
+		int totalHydrogen = 0;
+
+		boolean result = true;
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			probingAtom = currentFrame.allLipids[currentLipid].firstChain;
+			
+			while (probingAtom != null) {
+				if (probingAtom.nextHydrogen != null){
+					//If this happens then the atom is Atomistic, so the result should be false, since it corresponds to if it is CG or not.
+						//So cancel both loops we are in, we don't need to go any futher
+					result = false;
+					probingAtom = null;
+					currentLipid = totalLipids;
+				}	//Ends if statement
+			
+				else{
+					probingAtom = probingAtom.next;
+				}	//Ends else statement
+			}	//ends while Loop
+		}	//Ends for loop
+		
+		return result;
+	}	//Ends determineSimulationMethod
 
 
 	//Search forward in a specific file to find out how many total Molecules in a data file there is.
@@ -91,8 +124,11 @@ public class Readin implements Serializable{
 		Scanner Scan = new Scanner(file);
 		Scan.useDelimiter(" ");
 
-		int ID = 0;
+		int totalLipids = 0;
 		int currentFrame = 0;
+		String Chain;
+		String Element;
+
 
 		while (keepGoing){
 			currentFrame = Scan.nextInt();
@@ -103,12 +139,18 @@ public class Readin implements Serializable{
 
 			else{
 				Scan.next();
-				ID = Scan.nextInt();
-				Scan.nextLine();		
+				Scan.next();
+				Chain = Scan.next();
+				Element = Scan.next();
+				Scan.nextLine();
+				
+				if ((Chain.equals("null")) && (Element.equals("null"))){
+					totalLipids++;
+				}	//Ends if statement
 			}	//Ends else statement
 		}	//Ends while loop
 
-		return ID;
+		return totalLipids;
 	}	//Ends findMaximumId
 
 	//Parse forward through the file we are interested in
@@ -377,7 +419,74 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createOPvNNFiles(double[][][][][] OPvNN, String[] lipidNames){
+	public static void createOPvNNFiles_CG(double[][][][] OPvNN, String[] lipidNames){
+		PrintStream console = System.out;
+		int totalLipids = OPvNN[0].length;
+
+		//Iterate through second index
+		for (int lipid = 0; lipid < totalLipids; lipid++){
+			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+
+			//Iterate through third index
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
+
+				//Create a file specifically for this
+				String fileName = "Graphing/Data/OP_NN_" + lipidName + "_" + compLipidName + ".dat";
+
+				try{
+					PrintStream output = new PrintStream(new File(fileName));
+					System.setOut(output);
+
+					//First Sum the array we want to look at.
+					double sum = 0;
+					int length = OPvNN[0][lipid][compLipid].length;					
+
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
+					}	//Ends for Loop
+
+
+					//Then find the proportion that the values in the array given occur.
+						//Then find the standard Deviation of this.						
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						double count = OPvNN[0][lipid][compLipid][neighbors];
+						double proportion = count / sum;
+
+						if (proportion <= 0.001){
+							proportion = 0;
+						}	//ends if statement
+
+						proportion = proportion * 100;
+						String stringProportion = String.format("%.2f", proportion);
+
+						double OP = OPvNN[1][lipid][compLipid][neighbors] / count;
+						double OPSquared = OPvNN[2][lipid][compLipid][neighbors] / count;
+						double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
+						
+						//Magnitude of OP
+						if (OP < 0) { OP = OP * -1; }
+
+						if (OP > 0) {
+							if (proportion > 0.3){
+								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+							}	//Ends if statement
+						}	//Ends if statement
+					}	//Ends for loop
+				}	//end try statement
+
+				catch (IOException e){
+					System.out.println("Error in creating Histogram Output File");
+				}	//Ends catch statement
+				System.setOut(console);
+			}	//Ends for loop
+		}	//Ends for loop
+	}	//Ends createOutputFiles Methdo
+
+
+
+	//Going to create an output file after manipulating and binning OPvNN
+	public static void createOPvNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
@@ -445,9 +554,56 @@ public class Readin implements Serializable{
 		}	//Ends for loop
 	}	//Ends createOutputFiles Methdo
 
+	//Going to create an output file after manipulating and binning OPvNN
+	public static void createNNFiles_CG(double[][][][] OPvNN, String[] lipidNames){
+		PrintStream console = System.out;
+		int totalLipids = OPvNN[0].length;
+
+		//iterate through second index
+		for (int lipid = 0; lipid < totalLipids; lipid++){
+			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+
+			//iterate through third index
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
+
+				String fileName = "Graphing/Data/" + lipidName + "_Histogram_" + compLipidName + ".dat";				
+
+				try{
+					PrintStream output = new PrintStream(new File(fileName));
+					System.setOut(output);
+
+					//First Sum the array we want to look at.
+					double sum = 0;
+					int length = OPvNN[0][lipid][compLipid].length;					
+
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
+					}	//Ends for Loop
+					
+					//Divide each count by the sum so we can find a proportion.
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						double count = OPvNN[0][lipid][compLipid][neighbors];
+						double proportion = count / sum;
+						if (proportion > 0.0005){
+							System.out.println(neighbors + " " + proportion);
+						}	//ends if statement
+					}	//Ends for loop
+				}	//end try statement
+
+				catch (IOException e){
+					System.out.println("Error in creating Histogram Output File");
+				}	//Ends catch statement
+
+				System.setOut(console);
+			}	//Ends for loop
+		}	//Ends for loop
+	}	//Ends createOutputFiles Methdo
+
+
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createNNFiles(double[][][][][] OPvNN, String[] lipidNames){
+	public static void createNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
@@ -589,6 +745,13 @@ public class Readin implements Serializable{
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//ends if statement
+
+				else if ((Element.equals("C-Bead")) || (Element.equals("R3")) || (Element.equals("ROH"))){
+					//This elese statement will group up all the Coarse-Grained Atoms.
+					Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
+					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+
+				}	//Ends else statement
 			}	//Ends if statment
 
 			else {

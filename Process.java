@@ -66,11 +66,39 @@ public class Process implements Serializable {
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
+	//Use the method setOP to average the OP of all Atoms
+	//Do this for every lipid, then save these calculation.
+	public static void generateOP_CG(Frame Frame, String[] lipidNames){
+		
+		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+
+		if (OPCalculated){
+			//Do Nothing, you've already calculated the Average OP
+		}	//Ends if statement
+
+		else{
+			int totalLipids = Frame.allLipids.length;
+			int frameNumber = Frame.getFrameNumber();
+
+			double xLength = Frame.getXLength();
+			double yLength = Frame.getYLength();
+
+			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+				Frame.allLipids[currentLipid].setOP(xLength, yLength);
+
+			}	//Ends for loop
+
+			Readin.serializeFrame("falseName", frameNumber, Frame);
+			
+		}	//Ends else statement
+	}	//Ends AverageOP method
+
+
 
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
 		//Use the method setOP to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static double[][][][][] generateOP(Frame Frame, double[][][][][] OP, String[] lipidNames){
+	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -85,7 +113,7 @@ public class Process implements Serializable {
 			int totalChains = OP[0][0].length;
 
 			for (int i = 0; i < length; i++){
-				Frame.allLipids[i].setOP();
+				Frame.allLipids[i].setOP(0,0);
 
 				String lipidName = Frame.allLipids[i].getName();
 				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
@@ -145,13 +173,51 @@ public class Process implements Serializable {
 	}	//Ends AverageOP method
 
 
-	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
-		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
-		//This will be done in a large 5d array.
-	public static double[][][][][] generateOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
+
+	public static double[][][][] generateOPvNN_CG(Frame Frame, double[][][][] OPvNN, String[] lipidNames){
 		
 		int length = Frame.allLipids.length;
 		int totalLipids = OPvNN[0].length;
+
+		for (int i = 0; i < length; i++){
+			String lipidName = Frame.allLipids[i].getName();
+			int currentLipid = Mathematics.LipidToInt(lipidNames, lipidName);
+			
+			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+
+				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
+
+				double firstOP = Frame.allLipids[i].getFirstOP();
+				double secondOP = Frame.allLipids[i].getSecondOP();
+
+				double OP = (firstOP + secondOP) / 2;
+				
+				double OPSquared = OP * OP;
+
+				//Add 1 to the NN Count.
+				OPvNN[0][currentLipid][compLipid][neighborIndex]++;
+				
+				//Add the OP
+				OPvNN[1][currentLipid][compLipid][neighborIndex] = OPvNN[1][currentLipid][compLipid][neighborIndex] + OP;
+
+				//Add the OP^2
+				OPvNN[2][currentLipid][compLipid][neighborIndex] = OPvNN[2][currentLipid][compLipid][neighborIndex] + OPSquared;
+
+			}	//Ends for Loop
+		}	//Ends for loop
+
+		return OPvNN;
+	}	//Ends OPvNN
+
+
+
+	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
+		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
+		//This will be done in a large 5d array.
+	public static double[][][][][] generateOPvNN_AA(Frame Frame, double[][][][][] OPvNN_AA, String[] lipidNames){
+		
+		int length = Frame.allLipids.length;
+		int totalLipids = OPvNN_AA[0].length;
 
 		for (int i = 0; i < length; i++){
 			String lipidName = Frame.allLipids[i].getName();
@@ -168,22 +234,22 @@ public class Process implements Serializable {
 				double secondOPSquared = secondOP * secondOP;
 
 				//Add 1 to the NN Count.
-				OPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
-				OPvNN[0][currentLipid][compLipid][1][neighborIndex]++;
+				OPvNN_AA[0][currentLipid][compLipid][0][neighborIndex]++;
+				OPvNN_AA[0][currentLipid][compLipid][1][neighborIndex]++;
 				
 				//Add the OP
-				OPvNN[1][currentLipid][compLipid][0][neighborIndex] = OPvNN[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
-				OPvNN[1][currentLipid][compLipid][1][neighborIndex] = OPvNN[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
+				OPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] = OPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
+				OPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] = OPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
 
 				//Add the OP^2
-				OPvNN[2][currentLipid][compLipid][0][neighborIndex] = OPvNN[2][currentLipid][compLipid][0][neighborIndex] + firstOPSquared;
-				OPvNN[2][currentLipid][compLipid][1][neighborIndex] = OPvNN[2][currentLipid][compLipid][1][neighborIndex] + secondOPSquared;
+				OPvNN_AA[2][currentLipid][compLipid][0][neighborIndex] = OPvNN_AA[2][currentLipid][compLipid][0][neighborIndex] + firstOPSquared;
+				OPvNN_AA[2][currentLipid][compLipid][1][neighborIndex] = OPvNN_AA[2][currentLipid][compLipid][1][neighborIndex] + secondOPSquared;
 
 			}	//Ends for Loop
 		}	//Ends for loop
 
-		return OPvNN;
-	}	//Ends OPvNN
+		return OPvNN_AA;
+	}	//Ends OPvNN_AA
 
 	public static int[][] generateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
@@ -252,12 +318,13 @@ public class Process implements Serializable {
 
 
 	public static void main(String[] args){
-		boolean firstFrameOnly = true;
+		boolean firstFrameOnly = false;
 		int searchRadius = 10;
 		String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
 
 		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
 
+		boolean coarseGrained = false;
 
 		System.out.println("");
 		System.out.println("----------------------------------");
@@ -297,6 +364,8 @@ public class Process implements Serializable {
 				totalFiles = new File("Frames/").list().length;
 			}	//Ends if statement
 
+			coarseGrained = Readin.determineSimulationMethod();
+
 			long end = System.currentTimeMillis();
 			long totalTime = (end - start) / 1000;
 			System.out.println("Finished Reading File in " + totalTime + " seconds.");
@@ -309,7 +378,7 @@ public class Process implements Serializable {
 			start = System.currentTimeMillis();
 			System.out.println("Begun Various Calculations");
 
-			double[][][][][] OP = new double[3][totalLipids][2][4][30];
+			double[][][][][] OP_AA = new double[3][totalLipids][2][4][30];
 				//First Index is Count (0), Avg (1), Squared Average (2)
 				//Second index is current Lipid
 				//Third index is Chain One (0), Two (1),
@@ -320,7 +389,7 @@ public class Process implements Serializable {
 
 
 			//Create an array for calculating various things.
-			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][20];
+			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][20];
 				//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
 					//AKA Various Calculations that we will eventually need Simultaneously.
 
@@ -335,6 +404,13 @@ public class Process implements Serializable {
 
 				//There may be a better way to do this, but this is the simplest in terms of manageable code.
 		
+			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][20];
+				//First is Count (0), OP (1), OP^2 (2)
+				//Second Index is current Lipid
+				//Third index is the comparing lipid
+				//fourth index is the # of Neighbors of COmparign Lipid
+
+
 			int[][] Thickness = new int[totalLipids][800];
 				//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
 				//Second Index are the bins.
@@ -352,12 +428,21 @@ public class Process implements Serializable {
 			//Preform calculations for each Frame.
 			for (int i = 0; i < totalFiles; i++){
 				Frame currentFrame = Readin.unserializeFrame(i);
+				
+				if (coarseGrained){
+					generateNN(currentFrame, searchRadius, lipidNames);
+					generateOP_CG(currentFrame, lipidNames);
+					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
 
-				generateNN(currentFrame, searchRadius, lipidNames);
-				OP = generateOP(currentFrame, OP, lipidNames);
-				OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
-				Thickness = generateThickness(currentFrame, Thickness, lipidNames);
-				PCL = generatePCL(currentFrame, PCL, lipidNames);
+				}	//Do Stuff
+
+				else {
+					generateNN(currentFrame, searchRadius, lipidNames);
+					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
+					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
+					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
+					PCL = generatePCL(currentFrame, PCL, lipidNames);
+				}	//Ends else statement
 			}	//Ends for loop
 
 			end = System.currentTimeMillis();
@@ -373,12 +458,20 @@ public class Process implements Serializable {
 
 			System.out.println("Started Creating Output Files");
 			start = System.currentTimeMillis();
+			
+			if (coarseGrained) {
+				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames);
+				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
+			}	//Ends if statement
 
-			Readin.createNNFiles(OPvNN, lipidNames);
-			Readin.createOPFiles(OP, lipidNames);
-			Readin.createOPvNNFiles(OPvNN, lipidNames);
-			Readin.createThicknessFiles(Thickness, lipidNames);
-			Readin.createPCLFiles(PCL, lipidNames);
+			else{
+				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createOPFiles(OP_AA, lipidNames);
+				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createThicknessFiles(Thickness, lipidNames);
+				Readin.createPCLFiles(PCL, lipidNames);
+			}	//Ends else statement
+
 			end = System.currentTimeMillis();
 
 			totalTime = (end - start) / 1000;
