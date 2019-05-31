@@ -9,7 +9,7 @@ import java.lang.Math;
 public class Process implements Serializable {
 	
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
-	public static void generateNN(Frame currentFrame, int searchRadius, String[] lipidNames){
+	public static void generateNN(Frame currentFrame, int searchRadius, String[] lipidNames, boolean canLengthBeNegative){
 	
 		//May already be done, so lets try to skip this lengthy calculation if it is already done.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
@@ -32,8 +32,8 @@ public class Process implements Serializable {
 				double xLength = currentFrame.getXLength();
 				double yLength = currentFrame.getYLength();
 
-				int shiftY = Mathematics.checkBoundary(x, xLength, searchRadius);
-				int shiftX = Mathematics.checkBoundary(y, yLength, searchRadius);
+				int shiftY = Mathematics.checkBoundary(x, xLength, searchRadius, canLengthBeNegative);
+				int shiftX = Mathematics.checkBoundary(y, yLength, searchRadius, canLengthBeNegative);
 
 				int totalLipids = lipidNames.length;
 				int[] lipidCount = new int[totalLipids];
@@ -43,8 +43,8 @@ public class Process implements Serializable {
 					double y2 = currentFrame.allLipids[j].getY();
 					String Name2 = currentFrame.allLipids[j].getName();
 
-					x2 = Mathematics.applyPBC(x2, shiftX, xLength);
-					y2 = Mathematics.applyPBC(y2, shiftY, yLength);				
+					x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
+					y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
 
 					double radius = Mathematics.calculateRadius(x, y, x2, y2);
 
@@ -190,9 +190,13 @@ public class Process implements Serializable {
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
 
-				double OP = (firstOP + secondOP) / 2;
+				double totalChains = 2;
+				if (secondOP == 0) { totalChains = 1; }
+
+				double OP = (firstOP + secondOP) / totalChains;
 				
 				double OPSquared = OP * OP;
+
 
 				//Add 1 to the NN Count.
 				OPvNN[0][currentLipid][compLipid][neighborIndex]++;
@@ -319,8 +323,10 @@ public class Process implements Serializable {
 
 	public static void main(String[] args){
 		boolean firstFrameOnly = false;
+//		boolean firstFrameOnly = true;
 		int searchRadius = 10;
-		String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
+		//String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
+		String coordinateFile = "Coordinates.dat";
 
 		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
 
@@ -335,7 +341,7 @@ public class Process implements Serializable {
 
 
 
-		String[] lipidNames = Readin.findLipidNames();
+		String[] lipidNames = Readin.findLipidNames(coordinateFile);
 		int totalLipids = lipidNames.length;
 
 		if (lipidNames[0].equals("null")){
@@ -430,14 +436,14 @@ public class Process implements Serializable {
 				Frame currentFrame = Readin.unserializeFrame(i);
 				
 				if (coarseGrained){
-					generateNN(currentFrame, searchRadius, lipidNames);
+					generateNN(currentFrame, searchRadius, lipidNames, false);
 					generateOP_CG(currentFrame, lipidNames);
 					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
 
 				}	//Do Stuff
 
 				else {
-					generateNN(currentFrame, searchRadius, lipidNames);
+					generateNN(currentFrame, searchRadius, lipidNames, true);
 					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
 					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
@@ -462,6 +468,8 @@ public class Process implements Serializable {
 			if (coarseGrained) {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
+
+				System.out.println("CG");
 			}	//Ends if statement
 
 			else{

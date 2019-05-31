@@ -87,14 +87,26 @@ public class Lipid implements java.io.Serializable {
 
 		firstChain.determineOP(0, 0, 0, xLength, yLength);
 		first = firstChain.averageOP(first);		
-		this.firstOP = (first[1] / first[0]);
-	
+
+		if (first[0] != 0){
+			this.firstOP = (first[1] / first[0]);
+		}	//Ends if statement	
+
 		double[] second = new double[2];
 
 		secondChain.determineOP(0,0,0, xLength, yLength);
 		second = secondChain.averageOP(second);
-		this.secondOP = (second[1] / second[0]);
 
+		if (second[0] != 0){
+			this.secondOP = (second[1] / second[0]);
+		}	//ends if statement
+
+
+		if (this.firstOP < 0) { this.firstOP = this.firstOP * -1; }
+		if (this.secondOP < 0) { this.secondOP = this.secondOP * -1; }
+
+
+		//getInformation();
 	}	//Ends average OP method
 
 
@@ -107,13 +119,17 @@ public class Lipid implements java.io.Serializable {
 
 	//Return Various Information
 	public void getInformation(){
-//		System.out.println(this.Name + " " + this.firstChainIdentifier + " " + this.secondChainIdentifier);
-		this.firstChain.printAllAtoms();
-//		this.secondChain.printAllAtoms();
-		this.specialAtoms.printAllAtoms();
+		System.out.println(this.Name);
 
-//		System.out.println(this.firstOP + " " + this.secondOP);
-//		System.out.println(Arrays.toString(this.Neighbors));
+//		System.out.println("firstChain:");
+//		this.firstChain.printAllAtoms();
+//		System.out.println("secondChain:");
+//		this.secondChain.printAllAtoms();
+//		System.out.println("specialAtoms:");
+//		this.specialAtoms.printAllAtoms();
+
+		System.out.println(this.firstOP + " " + this.secondOP);
+		System.out.println(Arrays.toString(this.Neighbors));
 		System.out.println("");
 
 
@@ -177,6 +193,7 @@ public class Lipid implements java.io.Serializable {
 		else {
 			//Group up all the Coarse-Grained Beads in this else statement
 			addAtom(thisChain, newAtom);
+
 		}	//Ends else statement
 	}	//Ends createAtom method
 

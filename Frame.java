@@ -15,7 +15,7 @@ public class Frame implements java.io.Serializable {
 	int totalLipids = 0;
 	double xLength = 0;
 	double yLength = 0;
-
+	int nextAvailableLipid = 0;
 
 	//Assign the attributes of the class directly from the Constructor.
 	public Frame(int frameNumber, int totalLipids){
@@ -28,8 +28,8 @@ public class Frame implements java.io.Serializable {
 
 	//Create a lipid with the given attributes
 	public void createLipid(String Name, int ID, double X, double Y, double Z, String[] lipidNames){
-		this.allLipids[ID-1] = new Lipid(Name, ID, X, Y, Z, lipidNames);
-
+		this.allLipids[this.nextAvailableLipid] = new Lipid(Name, ID, X, Y, Z, lipidNames);
+		this.nextAvailableLipid++;
 	}	//Ends createLipid Method
 
 
@@ -48,9 +48,10 @@ public class Frame implements java.io.Serializable {
 
 	//Quite literally delete the frame.
 	//Since the frame (before this method is invoked) is always Serialized, if we want to access it we just Un-Serailize it. So we can remove it entirely from our memory. This is done using this method (kind of).
-	public void resetFrame(int frameNumber){
-		this.allLipids = new Lipid[this.totalLipids];
+	public void resetFrame(int frameNumber, int totalLipids){
+		this.allLipids = new Lipid[totalLipids];
 		this.frameNumber = frameNumber;
+		this.nextAvailableLipid = 0;
 
 	}	//Ends resetFrame
 

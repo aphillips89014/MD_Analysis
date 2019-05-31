@@ -103,24 +103,31 @@ public class Atom implements Serializable{
 
 
 		//Get the OP for any given Coarse-Grained Lipid
-		else if ((this.Name.equals("C-Bead")) || (this.Name.equals("R3"))){
+		else if ((this.Name.equals("C-Bead")) || (this.Name.equals("ROH"))){
 			//Compare with the next atom always.
 				//Periodic Boundary Conditions can servely mess up a CG OP Calculation, so account for that here.
 
-			double currentX = this.X;
-			double currentY = this.Y;
+			if (this.next != null){
 
-			double nextX = this.next.X;
-			double nextY = this.next.Y;
+				double currentX = this.X;
+				double currentY = this.Y;
 
-			int shiftX = Mathematics.checkBoundary(currentX, xLength, 10);
-			int shiftY = Mathematics.checkBoundary(currentY, yLength, 10);
+				double nextX = this.next.X;
+				double nextY = this.next.Y;
 
-			nextX = Mathematics.applyPBC(nextX, shiftX, xLength);
-			nextY = Mathematics.applyPBC(nextY, shiftY, yLength);
+				int shiftX = Mathematics.checkBoundary(currentX, xLength, 10, false);
+				int shiftY = Mathematics.checkBoundary(currentY, yLength, 10, false);
 
-			this.OP = Mathematics.calculateOP(nextX, nextY, this.next.Z, currentX, currentY, this.Z);
+				nextX = Mathematics.applyPBC(nextX, shiftX, xLength, false);
+				nextY = Mathematics.applyPBC(nextY, shiftY, yLength, false);
 
+				this.OP = Mathematics.calculateOP(nextX, nextY, this.next.Z, currentX, currentY, this.Z);
+			}	//Ends if statement
+
+			else{
+				System.out.println("There is no Neighbor for " + this.Name + "    ID: " + this.ID);
+
+			}	//Ends else statement
 		}	//Ends if statement
 
 
@@ -153,7 +160,6 @@ public class Atom implements Serializable{
 	//Keep track of the total number of iterations in the first index, then the summed value itself in the second index.
 	public double[] averageOP(double[] array){
 		
-		//Come back to this later, currently it is intentionally broken
 		if (this.OP != 0){
 			array[0]++;
 			array[1] = array[1] + this.OP;

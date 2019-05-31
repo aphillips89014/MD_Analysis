@@ -118,26 +118,38 @@ public class Readin implements Serializable{
 
 	//Search forward in a specific file to find out how many total Molecules in a data file there is.
 		//This method is unique to a specific File Format
-	public static int findMaximumID(File file) throws FileNotFoundException {
+	public static int findMaximumID(Scanner Scan, int targetFrame) throws FileNotFoundException {
 		boolean keepGoing = true;
-
-		Scanner Scan = new Scanner(file);
-		Scan.useDelimiter(" ");
 
 		int totalLipids = 0;
 		int currentFrame = 0;
 		String Chain;
 		String Element;
 
+		//In Coarse-Grained Simulations there is a variant amount of lipids due to the inconsistent flip-flop of Cholesterol.
+			//So therefore we must do some gymnastics to make sure we can figure this out exactly every time.
 
 		while (keepGoing){
-			currentFrame = Scan.nextInt();
 
-			if (currentFrame != 0) {
+			try{
+				currentFrame = Scan.nextInt();
+			}	//Ends try Statement
+
+			catch (Exception e){
+				if (Scan.hasNextLine()){
+					Scan.nextLine();
+				}	//Ends if statement	
+
+				totalLipids++;
+
+			}	//ends catch statement
+
+
+			if (currentFrame > targetFrame){
 				keepGoing = false;
 			}	//Ends if statement
 
-			else{
+			else if (currentFrame == targetFrame){
 				Scan.next();
 				Scan.next();
 				Chain = Scan.next();
@@ -148,6 +160,15 @@ public class Readin implements Serializable{
 					totalLipids++;
 				}	//Ends if statement
 			}	//Ends else statement
+
+			else{
+				Scan.nextLine();
+
+			}	//Ends else statement
+
+			if (!(Scan.hasNextLine())){
+				keepGoing = false;
+			}	//Ends if statement
 		}	//Ends while loop
 
 		return totalLipids;
@@ -155,13 +176,13 @@ public class Readin implements Serializable{
 
 	//Parse forward through the file we are interested in
 		//Find each lipid in the systme by searching through the first frame.
-	public static String[] findLipidNames(){
+	public static String[] findLipidNames(String fileName){
 		boolean keepGoing = true;
 
 		String[] lipidNames = {"null"};
 		try{
 
-			File file = new File("/media/alex/Hermes/Anton/Coordinates.dat");
+			File file = new File(fileName);
 			Scanner Scan = new Scanner(file);
 			Scan.useDelimiter(" ");
 
@@ -463,7 +484,12 @@ public class Readin implements Serializable{
 						double OP = OPvNN[1][lipid][compLipid][neighbors] / count;
 						double OPSquared = OPvNN[2][lipid][compLipid][neighbors] / count;
 						double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
-						
+
+						System.setOut(console);
+						System.out.println(OP + " " + OPSquared + " " + Deviation + " " + proportion);
+						System.out.println("");
+						System.setOut(output);
+
 						//Magnitude of OP
 						if (OP < 0) { OP = OP * -1; }
 
@@ -546,7 +572,7 @@ public class Readin implements Serializable{
 					}	//end try statement
 
 					catch (IOException e){
-						System.out.println("Error in creating Histogram Output File");
+						System.out.println("Error in creating OPvNN Output File");
 					}	//Ends catch statement
 					System.setOut(console);
 				}	//Ends for loop
@@ -657,6 +683,11 @@ public class Readin implements Serializable{
 		Scanner Scan = new Scanner(file);
 		Scan.useDelimiter(" ");
 
+		file = new File(fileName);
+		Scanner Scout = new Scanner(file);
+		Scout.useDelimiter(" ");
+
+
 		Frame Frame = new Frame(9999, 1);
 
 		int currentFrame = 0;
@@ -674,7 +705,7 @@ public class Readin implements Serializable{
 		int totalFiles = 0;
 
 		//Probe Forward
-		int maximumID = findMaximumID(file);
+		int maximumID = findMaximumID(Scout, 0);
 		
 		boolean keepGoing = true;
 
@@ -721,15 +752,18 @@ public class Readin implements Serializable{
 			
 					serializeFrame(fileName, 9999, Frame);
 
+					maximumID = findMaximumID(Scout, currentFrame);
+
 					//Create new Frame
-					Frame.resetFrame(currentFrame);
+					Frame.resetFrame(currentFrame, maximumID);
 				}	//Ends else statement
 			}	//Ends if statement	
 
 			//Now, assign values to the item it corresponds to.
 
 			if ( (Chain.equals("null")) && (Element.equals("null")) ){
-				//New lipid identifiers have no chain or element			
+				//New lipid identifiers have no chain or element
+
 				Frame.createLipid(Lipid, ID, X, Y, Z, lipidNames);
 			}	//Ends if statement
 
@@ -748,8 +782,8 @@ public class Readin implements Serializable{
 
 				else if ((Element.equals("C-Bead")) || (Element.equals("R3")) || (Element.equals("ROH"))){
 					//This elese statement will group up all the Coarse-Grained Atoms.
-					Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
-					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
+					Frame.allLipids[Frame.nextAvailableLipid - 1].assignChainIdentifier(Chain);
+					Frame.allLipids[Frame.nextAvailableLipid - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//Ends else statement
 			}	//Ends if statment

@@ -23,45 +23,66 @@ public class Mathematics{
 	}       //End calculateRadius Method
 
 
-	//For the data sets we are concerned with the points exist in a box. We need to preform a special operation whenever these are within a searchRadius
-	//This method returns 0, -1, or 1. This indicates which boundary it is close to.
-	// 0 --> Not near a boundary
-	// 1 --> Near the right (positive) boundary
-	// -1 --> Near the left (negative) boundary
-	public static int checkBoundary(double point, double length, int searchRadius){
+	public static int checkBoundary(double point, double length, double searchRadius, boolean LengthCanBeNegative){
+		//Two Scenarios, those being if Length can be Negative
 
 		int result = 0;
-		double halfLength = length / 2;
-		boolean negative = false;
+		//If result is 0, then it is NOT near the boundary.
+		//if result is 1, then it is near the RIGHT (positive) side of the boundary)
+		//if result is -1, then it near the LEFT (negative) side of the boundary.
 
-		if (point < 0) {
-			negative = true;
-			point = point * -1;
-		}       //Ends if statement
 
-		//This equation makes the point negative if it is outside the searchRadius, and makes it positive if it is within the SearchRadius
-		//Only works is point and searchRadius are less than length
-		point = point - (length - searchRadius);
+		if (LengthCanBeNegative){
+			boolean isPointNegative = false;
 
-		if (point < 0) {
-			result = 0;
-		}       //Ends if statement
+			//Make sure point is a positive value.
+				//Keep track of if it was ever negative.			
+			if (point < 0) {
+				isPointNegative = true;
+				
+				point = point * -1;
+
+			}	//Ends if statement
+
+			//Now, we will use a special equation
+
+			double distanceFromBoundary = point - (length - searchRadius);
+				//This equation will be POSITIVE if it is NEAR the boundary.
+				//This equation will be NEGATIVE if it is NOT near the boundary.
+
+			if (distanceFromBoundary >= 0){
+				result = 1;
+
+				if (isPointNegative) { result = -1; }
+			}	//Ends if statement
+		}	//Ends if statment
 
 		else{
-			result = 1;
-		}       //Ends else statement
+			//In case the box stops at 0 and L.
 
+			//Basically iteratively figure out if it is within the edges.
+			if ((point + searchRadius) > length){
+				//IN this case its at the RIGHT (L) Boundary.
+				result = 1;				
 
-		if (negative == true){
-			result = result * -1;
-		}       //Ends if statement
+			}	//Ends if statement
+
+			else if ((point - searchRadius) <= 0){
+				//In this case its at the LEFT (0) Boundary.
+				result = -1;
+			}	//ends if statement
+
+			else{
+				result = 0;
+			}	//ends else statement
+		}	//Ends else statement
 
 		return result;
 	}       //Ends checkBoundary method
 
 	//If a point is within the searchRadius of a Boundary of the box, this function is executed.
-	//This shifts the point to a new location purely for a simpler more accurate calculation.
-	public static double applyPBC(double coordinate, int modifier, double length){
+	//This shifts the point to a new location purely for a simpler more accurate c44alculation.
+	public static double applyPBC(double coordinate, double modifier, double length, boolean LengthCanBeNegative){
 		//PBC stands for Periodic Boundary Condition
 		//modifier can only be 1, -1, or 0.
 
@@ -70,25 +91,67 @@ public class Mathematics{
 		//If the modifier is 0 then dont do a thing.
 
 		if (modifier != 0){
-			if (coordinate < 0){
-				if (modifier == 1){
-					result = result + length;
+
+			//Length goes from -(1/2)L to (1/2)L.
+			if (LengthCanBeNegative) {
+
+				//Coordinate is on the left side
+				if (coordinate < 0){
+
+					//Modifier is on the right side
+					if (modifier == 1){
+						result = coordinate + length;
+					}       //Ends if statement
+
+					//Modifier is on the left side
+					else if (modifier == -1){
+						//Do nothing.
+					}       //Ends if statement
 				}       //Ends if statement
 
-				else if (modifier == -1){
-					//Do nothing.
-				}       //Ends if statement
-			}       //Ends if statement
+				//Coordinate is on the right side
+				else if (coordinate >= 0){
+					
+					//Modifier is on the left side
+					if (modifier == -1){
+						result = coordinate - length;
+					}       //Ends if statement
 
-			else if (coordinate >= 0){
+					//Modifier is on the right side.
+					else if (modifier == 1){
+						//Do Nothing
+					}       //Ends if statement
+				}       //Ends if statement
+			}	//Ends if statement
+
+
+
+			//Length goes from 0 to L.
+			else{
+				double halfLength = length / 2;
+	
+				//Left Side
 				if (modifier == -1){
-					result = result - length;
-				}       //Ends if statement
 
-				else if (modifier == 1){
-					//Do Nothing
-				}       //Ends if statement
-			}       //Ends if statement
+					//Coordinate is on the right side.
+						//Don't do anything if Coordinate is on the left side.
+					if (coordinate > halfLength) {
+						coordinate = coordinate - length;
+						result = coordinate;
+					}	//Ends if statement
+				}	//Ends if statement
+
+				//Right side
+				else if (modifier == 1) {
+
+					//Coordinate is on the left side
+						//Dont do anything if the coordinate is on the right side.
+					if (coordinate <= halfLength){
+						coordinate = coordinate + length;
+						result = coordinate;
+					}	//Ends if statement
+				}	//Ends else if satement
+			}	//Ends else statement
 		}       //Eends if statement
 
 		return result;
