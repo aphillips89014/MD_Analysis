@@ -61,7 +61,7 @@ public class Mathematics{
 			//In case the box stops at 0 and L.
 
 			//Basically iteratively figure out if it is within the edges.
-			if ((point + searchRadius) > length){
+			if ((point + searchRadius) >= length){
 				//IN this case its at the RIGHT (L) Boundary.
 				result = 1;				
 
@@ -135,9 +135,10 @@ public class Mathematics{
 
 					//Coordinate is on the right side.
 						//Don't do anything if Coordinate is on the left side.
-					if (coordinate > halfLength) {
+					if (coordinate >= halfLength) {
 						coordinate = coordinate - length;
 						result = coordinate;
+
 					}	//Ends if statement
 				}	//Ends if statement
 
@@ -149,8 +150,10 @@ public class Mathematics{
 					if (coordinate <= halfLength){
 						coordinate = coordinate + length;
 						result = coordinate;
+
 					}	//Ends if statement
 				}	//Ends else if satement
+
 			}	//Ends else statement
 		}       //Eends if statement
 
@@ -162,6 +165,9 @@ public class Mathematics{
 		value = value * value;
 
 		double deviation = squaredValue - value;
+		
+		//Testing this line
+		if (deviation < 0) { deviation = deviation * -1; }
 
 		deviation = Math.pow(deviation, 0.5);
 
@@ -184,6 +190,19 @@ public class Mathematics{
 		double OP = (3*cosTheta - 1 ) / 2;
 		return OP;
 	}       //Ends calculateOP method
+
+	public double sumArray(double[] array){
+		int length = array.length;
+		double sum = 0;
+
+		for (int index = 0; index < length; index++){
+			sum = sum + array[index];
+
+		}	//Ends for loop
+
+		return sum;
+	}	//Ends average array method
+
 
 	public static String IntToLipid(int x, String[] lipidNames){
 		//Converts a given int to a specific string.

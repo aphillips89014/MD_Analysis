@@ -105,8 +105,6 @@ public class Lipid implements java.io.Serializable {
 		if (this.firstOP < 0) { this.firstOP = this.firstOP * -1; }
 		if (this.secondOP < 0) { this.secondOP = this.secondOP * -1; }
 
-
-		//getInformation();
 	}	//Ends average OP method
 
 
@@ -119,20 +117,21 @@ public class Lipid implements java.io.Serializable {
 
 	//Return Various Information
 	public void getInformation(){
-		System.out.println(this.Name);
+//		System.out.println("");
+
+		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
+//		System.out.println(this.Name + " " + this.ID);
 
 //		System.out.println("firstChain:");
 //		this.firstChain.printAllAtoms();
 //		System.out.println("secondChain:");
 //		this.secondChain.printAllAtoms();
-//		System.out.println("specialAtoms:");
-//		this.specialAtoms.printAllAtoms();
 
-		System.out.println(this.firstOP + " " + this.secondOP);
-		System.out.println(Arrays.toString(this.Neighbors));
+		System.out.println("firstOP: " + this.firstOP + "     secondOP: " + this.secondOP);
+//		System.out.println(Arrays.toString(this.Neighbors));
+
+
 		System.out.println("");
-
-
 	} //Ends getInformation method
 
 
