@@ -489,7 +489,7 @@ public class Readin implements Serializable{
 						if (OP < 0) { OP = OP * -1; }
 
 						if (OP > 0) {
-							if (proportion > 1){
+							if (proportion > 3){
 								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 							}	//Ends if statement
 						}	//Ends if statement
@@ -606,9 +606,9 @@ public class Readin implements Serializable{
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						double count = OPvNN[0][lipid][compLipid][neighbors];
 						double proportion = count / sum;
-						if (proportion > 0.0005){
+//						if (proportion > 0.0005){
 							System.out.println(neighbors + " " + proportion);
-						}	//ends if statement
+//						}	//ends if statement
 					}	//Ends for loop
 				}	//end try statement
 

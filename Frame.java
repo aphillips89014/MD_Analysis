@@ -32,6 +32,18 @@ public class Frame implements java.io.Serializable {
 		this.nextAvailableLipid++;
 	}	//Ends createLipid Method
 
+	//Return the given String of lipids
+	public void getSpecificLipids(String givenLipid){
+		int totalLipids = this.allLipids.length;
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			if ((this.allLipids[currentLipid].Name).equals(givenLipid)){
+				this.allLipids[currentLipid].getInformation();
+
+			}	//Ends if statement
+		}	//Ends for loop
+	}	//Ends getSpecificLipids Method
+
 
 	public int getFrameNumber(){
 		return this.frameNumber;

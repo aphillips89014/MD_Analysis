@@ -224,11 +224,6 @@ public class Process implements Serializable {
 						OPvNN[1][currentLipid][compLipid][neighbor] = OPvNN[1][currentLipid][compLipid][neighbor] + frameOP;
 						OPvNN[2][currentLipid][compLipid][neighbor] = OPvNN[2][currentLipid][compLipid][neighbor] + (frameOP * frameOP);
 
-						if (currentLipid == 2 && compLipid == 1 && neighbor == 7){
-							System.out.println(OPvNN[1][2][1][7] + "   " + OPvNN[2][2][1][7]);
-							System.out.println(Mathematics.calculateDeviation(OPvNN[1][2][1][7], OPvNN[2][2][1][7]));
-							System.out.println("");
-						}	//ends if staemetn
 					}	//Ends if statement
 				}	//Ends for loop
 			}	//Ends for loop

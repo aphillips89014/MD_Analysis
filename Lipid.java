@@ -119,16 +119,17 @@ public class Lipid implements java.io.Serializable {
 	public void getInformation(){
 //		System.out.println("");
 
-		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
-//		System.out.println(this.Name + " " + this.ID);
+//		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
+		System.out.println(this.Name + " " + this.ID);
 
 //		System.out.println("firstChain:");
 //		this.firstChain.printAllAtoms();
 //		System.out.println("secondChain:");
 //		this.secondChain.printAllAtoms();
+//		System.out.println("firstOP: " + this.firstOP + "     secondOP: " + this.secondOP);
 
-		System.out.println("firstOP: " + this.firstOP + "     secondOP: " + this.secondOP);
-//		System.out.println(Arrays.toString(this.Neighbors));
+		System.out.println("OP: " + this.firstOP);
+		System.out.println(Arrays.toString(this.Neighbors));
 
 
 		System.out.println("");
