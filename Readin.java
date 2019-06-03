@@ -578,7 +578,9 @@ public class Readin implements Serializable{
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createNNFiles_CG(double[][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
-		int totalLipids = OPvNN[0].length;
+		int totalLipids = lipidNames.length;
+
+		double[][] barGraphNN = new double[totalLipids][totalLipids];
 
 		//iterate through second index
 		for (int lipid = 0; lipid < totalLipids; lipid++){
@@ -590,6 +592,7 @@ public class Readin implements Serializable{
 
 				String fileName = "Graphing/Data/" + lipidName + "_Histogram_" + compLipidName + ".dat";				
 
+
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
 					System.setOut(output);
@@ -597,6 +600,9 @@ public class Readin implements Serializable{
 					//First Sum the array we want to look at.
 					double sum = 0;
 					int length = OPvNN[0][lipid][compLipid].length;					
+
+					//Create a second File for Bar Graphs, 
+					double avgOP = 0;					
 
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
@@ -606,10 +612,14 @@ public class Readin implements Serializable{
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						double count = OPvNN[0][lipid][compLipid][neighbors];
 						double proportion = count / sum;
-//						if (proportion > 0.0005){
-							System.out.println(neighbors + " " + proportion);
-//						}	//ends if statement
+
+						avgOP = avgOP + (proportion * neighbors);
+
+						System.out.println(neighbors + " " + proportion);
 					}	//Ends for loop
+
+					barGraphNN[lipid][compLipid] = avgOP;
+
 				}	//end try statement
 
 				catch (IOException e){
@@ -619,6 +629,34 @@ public class Readin implements Serializable{
 				System.setOut(console);
 			}	//Ends for loop
 		}	//Ends for loop
+
+		//Now, create the bar graph graph.
+		try{
+			String fileName = "Graphing/Data/NN_Bar_Graph.dat";
+			PrintStream output = new PrintStream(new File(fileName));
+			System.setOut(output);
+
+			double seperator = 0.33;
+
+			for (int i = 0; i < totalLipids; i++){
+				for (int j = 0; j < totalLipids; j++){
+					seperator = 0.33 + i + (0.33 * j);
+					
+					String Lipid = Mathematics.IntToLipid(i, lipidNames);
+					String compLipid = Mathematics.IntToLipid(j, lipidNames);
+
+					System.out.println(Lipid + " " + compLipid + " " + seperator + " " + barGraphNN[i][j]);
+
+				}	//Ends for loop
+			}	//Ends for loop
+
+		}	//Ends try statement
+
+		catch (IOException e){
+			System.out.println("Error in Creating NN Bar Graph File");
+		}	//Ends catch statement
+
+		System.setOut(console);
 	}	//Ends createOutputFiles Methdo
 
 
@@ -626,7 +664,9 @@ public class Readin implements Serializable{
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
-		int totalLipids = OPvNN[0].length;
+		int totalLipids = lipidNames.length;
+
+		double[][] barGraphNN = new double[totalLipids][totalLipids];
 
 		//iterate through second index
 		for (int lipid = 0; lipid < totalLipids; lipid++){
@@ -645,6 +685,7 @@ public class Readin implements Serializable{
 					//First Sum the array we want to look at.
 					double sum = 0;
 					int length = OPvNN[0][lipid][compLipid][0].length;					
+					double avgOP = 0;
 
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						sum = sum + OPvNN[0][lipid][compLipid][0][neighbors];
@@ -654,10 +695,14 @@ public class Readin implements Serializable{
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						double count = OPvNN[0][lipid][compLipid][0][neighbors];
 						double proportion = count / sum;
+						avgOP = avgOP + (proportion * neighbors);
+
 						if (proportion > 0.0005){
 							System.out.println(neighbors + " " + proportion);
 						}	//ends if statement
 					}	//Ends for loop
+
+					barGraphNN[lipid][compLipid] = avgOP;
 				}	//end try statement
 
 				catch (IOException e){
@@ -667,6 +712,37 @@ public class Readin implements Serializable{
 				System.setOut(console);
 			}	//Ends for loop
 		}	//Ends for loop
+
+		//Now, create the bar graph graph.
+		try{
+			String fileName = "Graphing/Data/NN_Bar_Graph.dat";
+			PrintStream output = new PrintStream(new File(fileName));
+			System.setOut(output);
+
+			double seperator = 0.33;
+
+			for (int i = 0; i < totalLipids; i++){
+				for (int j = 0; j < totalLipids; j++){
+					seperator = 0.33 + i + (0.33 * j);
+					
+					String Lipid = Mathematics.IntToLipid(i, lipidNames);
+					String compLipid = Mathematics.IntToLipid(j, lipidNames);
+
+					System.out.println(Lipid + " " + compLipid + " " + seperator + " " + barGraphNN[i][j]);
+
+				}	//Ends for loop
+			}	//Ends for loop
+
+		}	//Ends try statement
+
+		catch (IOException e){
+			System.out.println("Error in Creating NN Bar Graph File");
+		}	//Ends catch statement
+
+		System.setOut(console);
+
+
+
 	}	//Ends createOutputFiles Methdo
 
 
