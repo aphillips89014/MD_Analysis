@@ -275,7 +275,7 @@ public class Readin implements Serializable{
 	}	//Ends if statement
 
 
-	public static void createOPFiles(double[][][][][] OP, String[] lipidNames){
+	public static void createOPFiles(double[][][][][] OP, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 	
 		int totalLipids = lipidNames.length;
@@ -301,8 +301,8 @@ public class Readin implements Serializable{
 							double count = OP[0][currentLipid][currentChain][0][i];
 
 							if (count > 0) {
-								double currentOP = OP[1][currentLipid][currentChain][0][i] / count;
-								double squaredOP = OP[2][currentLipid][currentChain][0][i] / count;
+								double currentOP = OP[1][currentLipid][currentChain][0][i] / totalFiles;
+								double squaredOP = OP[2][currentLipid][currentChain][0][i] / totalFiles;
 
 								double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 								
@@ -320,8 +320,8 @@ public class Readin implements Serializable{
 								double count = OP[0][currentLipid][currentChain][currentHydrogen][i];
 
 								if (count > 0) {
-									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / count;
-									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / count;
+									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
+									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
 
 									double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 									

@@ -99,17 +99,28 @@ public class Process implements Serializable {
 		//Do this for every lipid, then save these calculation.
 	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
-		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+//		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+		boolean OPCalculated = false;
 
 		if (OPCalculated){
 			//Do Nothing, you've already calculated the Average OP
 		}	//Ends if statement
 
 		else{
+
 			int length = Frame.allLipids.length;
 			int frameNumber = Frame.getFrameNumber();
-			int totalMembers = OP[0][0][0][0].length;
+			int totalLipids = lipidNames.length;
 			int totalChains = OP[0][0].length;
+			int totalMembers = OP[0][0][0][0].length;
+			int totalAtoms = 4;
+
+			//The Array OP can be Defined as:
+			//OP[ Count / OP / OP^2 ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
+			//We Want to do a system average for a single frame, then average all the frames togethor.
+
+			double[][][][][] frameOP = new double[2][totalLipids][totalChains][totalAtoms][totalMembers];
+
 
 			for (int i = 0; i < length; i++){
 				Frame.allLipids[i].setOP(0,0);
@@ -140,9 +151,8 @@ public class Process implements Serializable {
 						if (currentOP != 0) {
 							int member = currentAtom.getMember();
 
-							OP[0][lipidNumber][chainCount][0][member]++;
-							OP[1][lipidNumber][chainCount][0][member] = OP[1][lipidNumber][chainCount][0][member] + currentOP;
-							OP[2][lipidNumber][chainCount][0][member] = OP[2][lipidNumber][chainCount][0][member] + (currentOP * currentOP);
+							frameOP[0][lipidNumber][chainCount][0][member]++;
+							frameOP[1][lipidNumber][chainCount][0][member] = frameOP[1][lipidNumber][chainCount][0][member] + currentOP;
 
 
 							Atom hydrogenAtom = currentAtom.nextHydrogen;
@@ -151,9 +161,8 @@ public class Process implements Serializable {
 							while (hydrogenAtom != null){
 								currentOP = hydrogenAtom.getOP();
 						
-								OP[0][lipidNumber][chainCount][currentHydrogen][member]++;
-								OP[1][lipidNumber][chainCount][currentHydrogen][member] = OP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
-								OP[2][lipidNumber][chainCount][currentHydrogen][member] = OP[2][lipidNumber][chainCount][currentHydrogen][member] + (currentOP * currentOP);
+								frameOP[0][lipidNumber][chainCount][currentHydrogen][member]++;
+								frameOP[1][lipidNumber][chainCount][currentHydrogen][member] = frameOP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
 								currentHydrogen++;
 								hydrogenAtom = hydrogenAtom.nextHydrogen;
 							}	//Ends while loop
@@ -166,7 +175,34 @@ public class Process implements Serializable {
 
 			Readin.serializeFrame("falseName", frameNumber, Frame);
 
+			
+			//Now average the array given and add it into the overall Array.
+
+			for (int i = 0; i < totalLipids; i++){
+				for (int j = 0; j < totalChains; j++){
+					for (int k = 0; k < totalAtoms; k++){
+						for (int h = 0; h < totalMembers; h++){
+
+							double count = frameOP[0][i][j][k][h];
+
+							OP[0][i][j][k][h] = OP[0][i][j][k][h] + count;
+
+							double currentOP = frameOP[1][i][j][k][h] / count;
+
+							if (currentOP != 0){
+								OP[1][i][j][k][h] = OP[1][i][j][k][h] + currentOP;
+								OP[2][i][j][k][h] = OP[2][i][j][k][h] + (currentOP * currentOP);
+
+							}	//Ends if statement
+						}	//Ends for loop
+					}	//Ends for loop
+				}	//Ends for loop
+			}	//Ends for loop
 		}	//Ends else statement
+
+//		System.out.println(OP[0][0][0][0][5]);
+//		System.out.println(OP[1][0][0][0][5]);
+//		System.out.println("");
 
 		return OP;
 	}	//Ends AverageOP method
@@ -346,8 +382,8 @@ public class Process implements Serializable {
 		double searchRadius = 10;
 		int Neighbors = 20;
 
-		//String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
-		String coordinateFile = "Coordinates.dat";
+		String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
+		//String coordinateFile = "Coordinates.dat";
 
 		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
 
@@ -467,11 +503,11 @@ public class Process implements Serializable {
 				}	//ends if statemetn
 
 				else {
-					generateNN(currentFrame, searchRadius, lipidNames, true);
+//					generateNN(currentFrame, searchRadius, lipidNames, true);
 					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
-					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
-					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
-					PCL = generatePCL(currentFrame, PCL, lipidNames);
+//					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
+//					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
+//					PCL = generatePCL(currentFrame, PCL, lipidNames);
 				}	//Ends else statement
 			}	//Ends for loop
 
@@ -496,11 +532,11 @@ public class Process implements Serializable {
 			}	//Ends if statement
 
 			else{
-				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
-				Readin.createOPFiles(OP_AA, lipidNames);
-				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames);
-				Readin.createThicknessFiles(Thickness, lipidNames);
-				Readin.createPCLFiles(PCL, lipidNames);
+//				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createOPFiles(OP_AA, lipidNames, totalFiles);
+//				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames);
+//				Readin.createThicknessFiles(Thickness, lipidNames);
+//				Readin.createPCLFiles(PCL, lipidNames);
 			}	//Ends else statement
 
 			end = System.currentTimeMillis();
