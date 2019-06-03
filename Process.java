@@ -358,6 +358,18 @@ public class Process implements Serializable {
 	public static double[][][][] generatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
 
+		int totalLipidTypes = lipidNames.length;		
+		int totalChains = 2;
+		int totalCarbonIndex = PCL[0][0][0].length;
+
+
+		//The PCL Array can be Defined as
+		// PCL[ Count / PCL / PCL^2 ][ Lipid ][ Chain ][ Carbon Index ]
+
+		//Now average it for every frame and add this to an overall Array.
+
+		double[][][][] framePCL = new double[2][totalLipidTypes][totalChains][totalCarbonIndex];
+
 		for (int i = 0; i < totalLipids; i++){
 			//Skip any lipid that does not have 2 chains.
 				//Because of how chains are assigned we only need to check the second chain	
@@ -375,9 +387,8 @@ public class Process implements Serializable {
 					int Member = firstChain.getMember();
 					double Z = firstChain.Z;
 
-					PCL[0][currentLipid][0][Member]++;
-					PCL[1][currentLipid][0][Member] = PCL[1][currentLipid][0][Member] + Z;
-					PCL[2][currentLipid][0][Member] = PCL[2][currentLipid][0][Member] + (Z * Z);
+					framePCL[0][currentLipid][0][Member]++;
+					framePCL[1][currentLipid][0][Member] = framePCL[1][currentLipid][0][Member] + Z;
 
 					firstChain = firstChain.next;
 				}	//Ends while loop
@@ -386,14 +397,31 @@ public class Process implements Serializable {
 					int Member = secondChain.getMember();
 					double Z = secondChain.Z;
 
-					PCL[0][currentLipid][1][Member]++;
-					PCL[1][currentLipid][1][Member] = PCL[1][currentLipid][1][Member] + Z;
-					PCL[2][currentLipid][1][Member] = PCL[2][currentLipid][1][Member] + (Z * Z);
+					framePCL[0][currentLipid][1][Member]++;
+					framePCL[1][currentLipid][1][Member] = framePCL[1][currentLipid][1][Member] + Z;
 
 					secondChain = secondChain.next;
 				}	//Ends while loop
 			}	//ends else statement
 		}	//Ends for loop
+
+		//Now average the frame and add it into the overall.
+
+		for (int i = 0; i < totalLipidTypes; i++){
+			for (int j = 0; j < totalChains; j++){
+				for (int k = 0; k < totalCarbonIndex; k++){
+					double count = framePCL[0][i][j][k];
+					double currentPCL = framePCL[1][i][j][k] / count;
+
+					PCL[0][i][j][k] = PCL[0][i][j][k] + count;
+					PCL[1][i][j][k] = PCL[1][i][j][k] + currentPCL;
+					PCL[2][i][j][k] = PCL[2][i][j][k] + (currentPCL * currentPCL);
+
+
+				}	//Ends for loop
+			}	//Ends for loop
+		}	//Ends for loop
+
 
 		return PCL;
 	}	//Ends calculate PCL
@@ -530,8 +558,8 @@ public class Process implements Serializable {
 					generateNN(currentFrame, searchRadius, lipidNames, true);
 					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
 					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
-//					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
-//					PCL = generatePCL(currentFrame, PCL, lipidNames);
+					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
+					PCL = generatePCL(currentFrame, PCL, lipidNames);
 				}	//Ends else statement
 			}	//Ends for loop
 
@@ -559,8 +587,8 @@ public class Process implements Serializable {
 				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
 				Readin.createOPFiles(OP_AA, lipidNames, totalFiles);
 				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalFiles);
-//				Readin.createThicknessFiles(Thickness, lipidNames);
-//				Readin.createPCLFiles(PCL, lipidNames);
+				Readin.createThicknessFiles(Thickness, lipidNames);
+				Readin.createPCLFiles(PCL, lipidNames, totalFiles);
 			}	//Ends else statement
 
 			end = System.currentTimeMillis();

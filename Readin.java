@@ -388,7 +388,7 @@ public class Readin implements Serializable{
 
 
 
-	public static void createPCLFiles(double[][][][] PCL, String[] lipidNames){
+	public static void createPCLFiles(double[][][][] PCL, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 		
 		int totalLipids = lipidNames.length;
@@ -415,8 +415,8 @@ public class Readin implements Serializable{
 							double count = PCL[0][currentLipid][chainCount][carbonIndex];
 							if (count > 0) {
 								if (carbonIndex != 0) {
-									double carbonLength = PCL[1][currentLipid][chainCount][carbonIndex] / count;
-									double squaredLength = PCL[2][currentLipid][chainCount][carbonIndex] / count;
+									double carbonLength = PCL[1][currentLipid][chainCount][carbonIndex] / totalFiles;
+									double squaredLength = PCL[2][currentLipid][chainCount][carbonIndex] / totalFiles;
 		
 									double deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
 										
