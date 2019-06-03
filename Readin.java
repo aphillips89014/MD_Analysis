@@ -507,7 +507,7 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createOPvNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames){
+	public static void createOPvNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
@@ -551,8 +551,8 @@ public class Readin implements Serializable{
 							proportion = proportion * 100;
 							String stringProportion = String.format("%.2f", proportion);
 
-							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / count;
-							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / count;
+							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / totalFiles;
+							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFiles;
 							double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
 							
 							//Magnitude of OP

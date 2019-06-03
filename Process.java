@@ -99,8 +99,7 @@ public class Process implements Serializable {
 		//Do this for every lipid, then save these calculation.
 	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
-//		boolean OPCalculated = Frame.allLipids[0].checkForOP();
-		boolean OPCalculated = false;
+		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
 		if (OPCalculated){
 			//Do Nothing, you've already calculated the Average OP
@@ -274,9 +273,19 @@ public class Process implements Serializable {
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
 	public static double[][][][][] generateOPvNN_AA(Frame Frame, double[][][][][] OPvNN_AA, String[] lipidNames){
+
+		//OPvNN Array can be Described as
+		//OPvNN[ Count / OP / OP^2 ][ Current Lipid ][ Comparing Lipid ][ Chain ][ # of Neighbors ]
 		
+		//Create a frame Array and avg this and add it to the overall array.
+
+		int totalLipids = lipidNames.length;
+		int totalNeighbors = OPvNN_AA[0][0][0][0].length;
+		int totalChains = 2;
+
+		double[][][][][] frameOPvNN_AA = new double[2][totalLipids][totalLipids][totalChains][totalNeighbors];
+
 		int length = Frame.allLipids.length;
-		int totalLipids = OPvNN_AA[0].length;
 
 		for (int i = 0; i < length; i++){
 			String lipidName = Frame.allLipids[i].getName();
@@ -293,19 +302,34 @@ public class Process implements Serializable {
 				double secondOPSquared = secondOP * secondOP;
 
 				//Add 1 to the NN Count.
-				OPvNN_AA[0][currentLipid][compLipid][0][neighborIndex]++;
-				OPvNN_AA[0][currentLipid][compLipid][1][neighborIndex]++;
+				frameOPvNN_AA[0][currentLipid][compLipid][0][neighborIndex]++;
+				frameOPvNN_AA[0][currentLipid][compLipid][1][neighborIndex]++;
 				
 				//Add the OP
-				OPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] = OPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
-				OPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] = OPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
-
-				//Add the OP^2
-				OPvNN_AA[2][currentLipid][compLipid][0][neighborIndex] = OPvNN_AA[2][currentLipid][compLipid][0][neighborIndex] + firstOPSquared;
-				OPvNN_AA[2][currentLipid][compLipid][1][neighborIndex] = OPvNN_AA[2][currentLipid][compLipid][1][neighborIndex] + secondOPSquared;
+				frameOPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] = frameOPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
+				frameOPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] = frameOPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
 
 			}	//Ends for Loop
 		}	//Ends for loop
+
+		//Now average the frame array and put it into the overall array.
+
+		for (int i = 0; i < totalLipids; i++){
+			for (int j = 0; j < totalLipids; j++){
+				for (int k = 0; k < totalChains; k++){
+					for (int h = 0; h < totalNeighbors; h++){
+						double count = frameOPvNN_AA[0][i][j][k][h];
+						double OP = frameOPvNN_AA[1][i][j][k][h] / count;
+
+						OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
+						OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
+						OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
+
+					}	//Ends for loop
+				}	//ends for loop
+			}	//Ends for loop
+		}	//Ends for loop
+
 
 		return OPvNN_AA;
 	}	//Ends OPvNN_AA
@@ -503,9 +527,9 @@ public class Process implements Serializable {
 				}	//ends if statemetn
 
 				else {
-//					generateNN(currentFrame, searchRadius, lipidNames, true);
+					generateNN(currentFrame, searchRadius, lipidNames, true);
 					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
-//					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
+					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
 //					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 //					PCL = generatePCL(currentFrame, PCL, lipidNames);
 				}	//Ends else statement
@@ -532,9 +556,9 @@ public class Process implements Serializable {
 			}	//Ends if statement
 
 			else{
-//				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
 				Readin.createOPFiles(OP_AA, lipidNames, totalFiles);
-//				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalFiles);
 //				Readin.createThicknessFiles(Thickness, lipidNames);
 //				Readin.createPCLFiles(PCL, lipidNames);
 			}	//Ends else statement
