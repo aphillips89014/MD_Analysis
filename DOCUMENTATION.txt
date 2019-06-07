@@ -1,0 +1,320 @@
+This file will describe the function/utillity of every function in the entire code-base.
+	It will not describe line by line functionallity, but rather the overall goal of every function, and perhaps a comment about special things about that function.
+
+
+It should be noted that time-efficiency is not a concern of this program as of v1.0
+	a much larger emphasis on minimizing the memory required for the stack is placed.
+	Memory is instead opted to be stored in the file system via serialization.
+	 This is intentional.
+
+
+
+Process.java
+	This class is for directing the whole program, and various binning of data is done here so that it can be output.	
+
+
+
+	generateNN Method
+		This method iterates through every item in the Frame Object's allLipids array and calculates the nearest neighbors (NN) of each lipid.
+		It does this by comparing each lipid in a O(n^2) runtime, so not to miss anything.
+
+	generateOP_CG
+		This method iterates through every item in the Frame Object's allLipids array and calculates the order parameter (OP) of each lipid.
+		There is a generateOP_AA counterpart. Since the OP needs to be treated differently in each due to an inconsistent application of periodic boundary conditions, there are two functions.
+
+	generateOP_AA
+		This method iterates through every item in the Frame Object's allLipids array and calculates the order parameter (OP) of each lipid.
+		A 5-d Array is passed and outputted with this method.
+			For every lipid each atom has a different OP and it is common to graph each atom's OP seperately on one graph. So we try to pre-emptively bin these results into a 5-d array.
+			The 5-d Array is defined as follows:
+				First Index: Data that needs to be tracked.
+					(0) == Count :: How often a single occurance is found, will be used to help average later value.
+					(1) == OP :: The actual OP of a given atom.
+					(2) == OP^2 :: The actual OP of a given atom squared. Will be used to get an accurate standard deviation.
+
+				Second Index: The current lipid we are looking at
+					It is possible that there can be N number of lipids in a system, typically in AA simulations there is only 1. But sometimes there is not. So in order to be able to Bin the OP efficently we should bin the OP for all Lipids at one time. This second index lets us do that.
+
+				Third Index: Total Chains
+					(0) == First Chain :: There are two chains, and the OP is different for any n carbon. This is information that is wanted, so it will also be specifically tracked.
+					(1) == Second Chain
+
+				Fourth Index: Total Atoms
+					For any given carbon on a carbon chain there is anywhere from 1-3 Hydrogen associated with it.
+					(0) == Carbon's OP :: This is an average of the OP of index 1, 2, and 3.
+					(1,2,3) == Hydrogen's OP :: This is the OP of a given Hydrogen. There may not always be 3 hydrogen for a given carbon, so this sis where the first index's Count variable comes into to play to help us.
+			
+				Fifth Index: Total Members
+					For any given carbon chain there can be N carbon. For lipids we cap this abitrarily at 30 carbon. 
+					This index relates to which exact carbon we are looking at.
+
+
+		This 5-d array is average every frame and the added to an overall array that will be average, basically we are performing a System Average and then a time average.
+
+
+
+	generateOPvNN_CG
+		This method iterates through every item in the Frame Object's allLipids array and bins both the OP and NN of each lipid.
+		This uses a 4-d array. that is very similar to the 5-d array used in generateOP_AA
+
+			First Index: Data that needs to be tracked
+	
+			Second Index: The current lipid we are looking at.
+		
+			Third Index : The lipid we are comparing the current lipid with.
+
+			Fourth Index : The number of comparing lipid neighbors.
+
+
+			So for each lipid we find the number of neighbors of every other lipid type (including the same type).
+			Then we simply add the OP into the array and then average this later on, essentially binning the OP based off the number of NN.
+
+			
+			Similar to the generateOP_AA function, there is a System Average and then this is added togethor and then a Time Average is performed.
+
+
+
+	generateOPvNN_AA
+		This method is identical to the previous one, but adapted for AA simulations.
+		This one uses a 5-d array, because in AA we track specific chains which is the new fifth index.
+
+
+	generateThickness
+		This method iterates through every item in the Frame Object's allLipids array and bins the Phosphate thickness of each lipid.
+		
+		It does this by simply choosing the phosphate atom in each lipid and returning it's Z-Length.
+		It then uses a somewhat complicated equation to bin it, and it returns this in a simple array.
+
+	generatePCL
+		This method iterates through every item in the Frame Object's allLipids array and bins the Thickness of each carbon for eacah lipid.
+
+		It does this by iterating through every lipid and then iterating through every carbon atom, returning and binning it's Z-Value.
+
+
+
+	main
+		Main method of the whole program
+
+		Has three main parts:
+			File Reading
+			Data Gathering/Binning
+			Output
+
+		File Reading is always done the same, but once this is done the system can be defined as AA or CG. These two styles require different measurement techniques. So the two other parts of the main method program will be changed based off of if it is AA or CG.
+		
+
+
+
+
+
+
+Readin.java
+	This class is designed for any process directly related to reading files and outputting files.
+	
+
+	serializeFrame
+		Serializes a given Frame Object in a very specific manner.
+		Only Frame objects will be explicitly serialized so this method only works with Frame objects.
+
+	unserializeFrame
+		Unserializes a given Frame Object.
+
+	checkForFiles
+		A string, which is a fileName, is passed.
+		This string is then used to see if a file with a matching name is found.
+		Returns true if it is found, returns false otherwise.
+
+	determineSimulationMethod
+		Finds out if a data set is defined as AA or CG.
+		This is determined by the presence of Hydrogen Atoms.
+		In a CG simulation Hydrogen Atoms are not explicitly created but are rather assumed.
+
+	findMaximumID
+		Looks forward in the main input file and determines how many lipids there are in a given frame.
+			In AA simulations this number is constant
+			In CG simulations this number changes due to the flip-flop of Cholesterol.
+				It is calculated every time intentionally just to be safe.
+
+	findLipidNames
+		Looks forward in the main input file and determines how many lipids there are in total.
+			This value should never change (if it does then an entire new analysis is required).
+				It is only executed once.
+		Returns an array of the Strings of each Lipid's specific name.
+
+	addName
+		Method to aide findLipidNames
+	
+	assignLipidNames
+		Method to aide findLipidNames
+
+
+	readFile
+		Reads the main input file.
+
+			Information is gathered every line, and based off how it's setup new lipid or new atom objects are created.
+			This is a very specific process but can work for any given lipid.
+			However it only reads very specific input, this is explained in more depth in the .TCL scripts that are associated with creating the main input file.
+
+	create_XX_Files
+		There are multiple methods with the name create_XX_Files
+		These methods are for taking the binned data from Process.java and then actually outputting it to a single file so that it can immediately be plotted.
+
+
+
+
+
+
+Frame.java
+	Stores the actual lipids.
+
+
+	Frame Constructor
+		Assigns some specific properties to the Frame.
+
+	createLipid
+		Creates a new lipid with the passed values to a specific spot in the allLipids array.
+
+	getSpecificLipids
+		Returns information about a very specific lipid
+			Used for general debugging.
+
+	getFrameNumber
+		Returns the number associated with the frame.
+		This should be unique for each Frame.
+	
+	get(X/Y)Length
+		returns a specific property of the Frame object.
+
+	resetFrame
+		Essentialy wipes and important information from the Frame.
+		This is done after the Frame has been serialized.
+		It is done so that a new Frame object does not need to be instantiated, essentially allowing for less memory to be stored on the stack.
+			This memory is instead stored in the file system, this is done intentionally.
+	
+	findDimenstions
+		Each frame has a different area.
+		This is executed after each lipid has been created, and before the Frame is serialized and reset.
+		It iterates through every lipid in the allLipids array, and finds the maximum and mimumum X and Y of the entire system.
+			The difference is found between these and it is set as the totalX or totalY Length.
+
+
+
+Lipid.java
+	This class is the whole point of this code-base
+	How the propeties of this class change based of various things is why this code-base is made.
+
+
+	Lipid Constructor
+		Assigns various passed values to the given lipid.
+
+	checkForNN
+		Calculating the NN for a given lipid takes a lot of time.
+		So if it has been caclulated already and stored in a lipid (so if we unserialize a frame and find its already calculated NN) we can skip it.
+		It's done by just checking if the NN array in Lipid.java has been instantiated.
+
+	checkForOP
+		Same as the checkForNN method, but rather for OP instead.
+
+	setOP
+		OP's are complicated and unique to each atom in a system, so this method helps jump-start that process.
+
+	getInformation
+		Returns information about a given Lipid
+			Used for debugging.
+
+	assignChainIdentifier
+		During file reading it's difficult to know when a chain is over/when it begins without taking a very long time via file-reading.
+		this method helps speed up this process by figuring it out on the fly.
+			It does this by assuming there are only 2 chains ever.
+			And then assign the differnce between the chains here.
+
+	createAtom
+		Creates a new atom with the passed values.
+		This needs to be assigned to specific linked lists (LL) so this is determined by the element we are trying to create.
+
+	addHydrogen
+		Add's a Hydrogen Atom to any given atom (the given atom should always be Carbon).
+			Add's the given atom to a special LL.
+
+	addAtom
+		Add's any atom to a linked list.
+
+	findPhosphateThickness
+		Finds the thickness of Phosphate by choosing phosphate directly and returning it's Z-Value.
+
+	get_XX
+		Various get methods for returning specific attributes of the Lipid Class.
+
+
+
+
+Atom.java
+	This is what makes up Lipids, so in order for Lipids to exist we need this class to support it.
+
+	Atom Constructor
+		Assigns various passed values to the attributes of the Atom Class.
+	
+	setNext
+		Adds the current Atom to a Linked List.
+
+	setNextHydrogen
+		Adds Hydrogen to a Linked List
+
+	determineOP
+		Find the OP between two specific atoms.
+		This is done differently based off the atom we are looking at currently.
+
+			For CG simulations we need to account for periodic boundary conditions, this is done here.
+
+	averageOP
+		Averages an array of OP and then returns this average.
+
+	printAllAtoms
+		Prints information about the atom and the next atom in the LL
+			Used for Debugging
+
+	get_XX
+		Various get methods for returning specific attributes of the Atom Class.
+
+
+
+
+Mathematics.java
+	This class is used for various mathematical methods that don't fit in any one spot well.
+
+
+	calculateRadius
+		Given two sets of coordinates, calculate the radius between them
+
+	checkBoundary
+		See if a given coordinate needs to account for Periodic Boundary Conditions.
+
+	applyPBC
+		If checkBoundary says that a coordinate needs to account for periodic boundary conditions (PBC)
+			Then this method actually does apply PBC.
+
+	calculateDeviation
+		Finds the standard deviation of a measurement.
+
+			Requires the squared average and the average.
+
+	calcultateOP
+		Calculates the OP between two given points by establishing a vector between them
+			The angle between this vector and the Z-Axis is found and then applied to a 2nd order LeGrange Polynomial
+				This is the standard method of calcualting OP
+
+	sumArray
+		Sum a given array.
+
+	IntToLipid
+		Take a number and return the Lipid name associated with this number (unique and determined on the fly for each progam in the findLipidNames method of the Readin Class)
+
+	LipidToInt
+		take a lipid name and get the number associated with it.
+
+
+
+
+	
+
+

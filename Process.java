@@ -436,14 +436,8 @@ public class Process implements Serializable {
 		double searchRadius = 10;
 		int Neighbors = 20;
 
-<<<<<<< HEAD
 		//String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
 		String coordinateFile = "Coordinates.dat";
-=======
-		String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
-		//String coordinateFile = "Coordinates.dat";
->>>>>>> e36ea6731153f1b6ea0582eaff373cbf6fdecf56
-
 		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
 
 		boolean coarseGrained = false;
