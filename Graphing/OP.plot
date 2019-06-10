@@ -28,10 +28,10 @@ set title full_Title
 set xlabel "Carbon Index"
 set ylabel "Order Parameter"
 
-fileName_1 = "Data/".lipid_1."chain_0_OP_H.dat"
-fileName_2 = "Data/".lipid_1."chain_1_OP_H.dat"
-fileName_3 = "Data/".lipid_1."chain_0_OP.dat"
-fileName_4 = "Data/".lipid_1."chain_1_OP.dat"
+fileName_1 = "Data/".lipid_1."_chain_0_OP_H.dat"
+fileName_2 = "Data/".lipid_1."_chain_1_OP_H.dat"
+fileName_3 = "Data/".lipid_1."_chain_0_OP.dat"
+fileName_4 = "Data/".lipid_1."_chain_1_OP.dat"
 
 
 plot fileName_1 u 1:($2 * -1)  notitle with linespoints linestyle 1,\

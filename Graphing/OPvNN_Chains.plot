@@ -70,10 +70,10 @@ set yrange[0:0.5]
 #set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
 #set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4 
 
-fileName_1 = "Data/OP_NN_".lipid_1."chain_0_".lipid_2.".dat"
-fileName_2 = "Data/OP_NN_".lipid_1."chain_1_".lipid_2.".dat"
-fileName_3 = "Data/OP_NN_".lipid_3."chain_0_".lipid_4.".dat"
-fileName_4 = "Data/OP_NN_".lipid_3."chain_1_".lipid_4.".dat"
+fileName_1 = "Data/OP_NN_".lipid_1."_chain_0_".lipid_2.".dat"
+fileName_2 = "Data/OP_NN_".lipid_1."_chain_1_".lipid_2.".dat"
+fileName_3 = "Data/OP_NN_".lipid_3."_chain_0_".lipid_4.".dat"
+fileName_4 = "Data/OP_NN_".lipid_3."_chain_1_".lipid_4.".dat"
 
 key_1 = "SN1 vs ".lipid_2
 key_2 = "SN2 vs ".lipid_2

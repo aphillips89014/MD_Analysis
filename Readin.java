@@ -559,9 +559,7 @@ public class Readin implements Serializable{
 							if (OP < 0) { OP = OP * -1; }
 
 							if (OP > 0) {
-								if (proportion > 0.3){
-									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
-								}	//Ends if statement
+								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 							}	//Ends if statement
 						}	//Ends for loop
 					}	//end try statement
