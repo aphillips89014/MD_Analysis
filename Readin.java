@@ -368,7 +368,7 @@ public class Readin implements Serializable{
 
 					for (int j = 0; j < length; j++){
 						float binSpot = (float) j;
-						binSpot = (binSpot/10) - 40;
+						binSpot = (binSpot/10) - 100;
 						int count = Thickness[i][j];
 						String firstValue = String.format("%.1f", binSpot);
 						System.out.println(firstValue + " " + count);

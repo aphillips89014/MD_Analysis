@@ -345,7 +345,7 @@ public class Process implements Serializable {
 			double Z = currentFrame.allLipids[i].findPhosphateThickness();
 
 			if (Z != 0){
-				Z = Z + 40;
+				Z = Z + 100;
 				int index = (int) Math.round(Z * 10);
 				Thickness[lipid][index]++;
 			}	//Ends if statement
@@ -530,7 +530,7 @@ public class Process implements Serializable {
 				//fourth index is the # of Neighbors of COmparign Lipid
 
 
-			int[][] Thickness = new int[totalLipids][800];
+			int[][] Thickness = new int[totalLipids][2000];
 				//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
 				//Second Index are the bins.
 					//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.

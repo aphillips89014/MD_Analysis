@@ -11,5 +11,9 @@ fullClean:
 dataClean:
 	rm -f Graphing/Data/*
 
+jar:
+	rm MD_Analysis.jar
+	jar cvfm MD_Analysis.jar manifest.mf *.*
+
 run: Process
 	java Process
