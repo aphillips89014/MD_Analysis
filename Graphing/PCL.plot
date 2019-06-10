@@ -15,12 +15,12 @@ set style line 2 \
 
 set style line 3 \
     linecolor rgb '#008cff' \
-    linetype 1 linewidth 20 \
+    linetype 1 linewidth 3 \
     pointtype 7 pointsize 2
 
 set style line 4 \
     linecolor rgb '#ff0000' \
-    linetype 1 linewidth 20 \
+    linetype 1 linewidth 3 \
     pointtype 7 pointsize 2
 
 full_Title = "Projected Chain Length of ".lipid_1

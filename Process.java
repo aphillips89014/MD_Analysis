@@ -338,15 +338,17 @@ public class Process implements Serializable {
 
 	public static int[][] generateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
+		double BilayerCenter = currentFrame.getBilayerCenter();
 
 		for (int i = 0; i < totalLipids; i++){
 			String lipidName = currentFrame.allLipids[i].getName();
 			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
 			double Z = currentFrame.allLipids[i].findPhosphateThickness();
+			double newZ = Z - BilayerCenter;
 
 			if (Z != 0){
-				Z = Z + 100;
-				int index = (int) Math.round(Z * 10);
+				newZ = newZ + 100;
+				int index = (int) Math.round(newZ * 10);
 				Thickness[lipid][index]++;
 			}	//Ends if statement
 		}	//Ends for loop
@@ -359,11 +361,12 @@ public class Process implements Serializable {
 		//For this program it can be a simple binning algorithm.
 	public static double[][][][] generatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
+		double BilayerCenter = currentFrame.getBilayerCenter();
 
 		int totalLipidTypes = lipidNames.length;		
 		int totalChains = 2;
 		int totalCarbonIndex = PCL[0][0][0].length;
-
+		double Z = 0;
 
 		//The PCL Array can be Defined as
 		// PCL[ Count / PCL / PCL^2 ][ Lipid ][ Chain ][ Carbon Index ]
@@ -385,9 +388,11 @@ public class Process implements Serializable {
 				Atom firstChain = currentFrame.allLipids[i].firstChain;
 				Atom secondChain = currentFrame.allLipids[i].secondChain;
 
+
 				while (firstChain != null){
 					int Member = firstChain.getMember();
-					double Z = firstChain.Z;
+					Z = firstChain.Z;
+					Z = Z - BilayerCenter;
 
 					framePCL[0][currentLipid][0][Member]++;
 					framePCL[1][currentLipid][0][Member] = framePCL[1][currentLipid][0][Member] + Z;
@@ -397,7 +402,8 @@ public class Process implements Serializable {
 
 				while (secondChain != null){
 					int Member = secondChain.getMember();
-					double Z = secondChain.Z;
+					Z = secondChain.Z;
+					Z = Z - BilayerCenter;
 
 					framePCL[0][currentLipid][1][Member]++;
 					framePCL[1][currentLipid][1][Member] = framePCL[1][currentLipid][1][Member] + Z;
@@ -418,7 +424,6 @@ public class Process implements Serializable {
 					PCL[0][i][j][k] = PCL[0][i][j][k] + count;
 					PCL[1][i][j][k] = PCL[1][i][j][k] + currentPCL;
 					PCL[2][i][j][k] = PCL[2][i][j][k] + (currentPCL * currentPCL);
-
 
 				}	//Ends for loop
 			}	//Ends for loop

@@ -820,7 +820,12 @@ public class Readin implements Serializable{
 	
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
 					Frame.findDimensions();
-			
+
+					//Find the bilayer Center
+					Frame.findBilayerCenter();
+
+
+					//Serialize the updated Frame			
 					serializeFrame(fileName, 9999, Frame);
 
 					maximumID = findMaximumID(Scout, currentFrame);

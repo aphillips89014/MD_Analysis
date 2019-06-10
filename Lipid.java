@@ -239,6 +239,25 @@ public class Lipid implements java.io.Serializable {
 	}	//Ends findPhosphateThickness
 
 
+	public double getTerminalCarbonHeight(){
+		//The first Atom is a Head, the 2nd is the latest added lipid
+		Atom tempAtom = this.firstChain;
+		
+	
+
+		double result = 0;
+
+		if (tempAtom.next != null) {
+		
+			result = tempAtom.next.Z;
+			
+ 
+		}	//ends if staement
+
+		return result;
+	}	//Ends getTerminalCarbonHeight Method
+
+
 	public String getName(){
 		return this.Name;
 	}	//Ends getName Method

@@ -15,6 +15,7 @@ public class Frame implements java.io.Serializable {
 	int totalLipids = 0;
 	double xLength = 0;
 	double yLength = 0;
+	double BilayerCenter = 0;
 	int nextAvailableLipid = 0;
 
 	//Assign the attributes of the class directly from the Constructor.
@@ -44,6 +45,9 @@ public class Frame implements java.io.Serializable {
 		}	//Ends for loop
 	}	//Ends getSpecificLipids Method
 
+	public double getBilayerCenter(){
+		return this.BilayerCenter;
+	}	//ends getBilayerCenter
 
 	public int getFrameNumber(){
 		return this.frameNumber;
@@ -96,4 +100,27 @@ public class Frame implements java.io.Serializable {
 		this.yLength = (maxY - minY);
 
 	}	//Ends findDimensions method
+	
+
+	//Find the cetner of the bilayer by averaging all lipids terminal carbon Z location. 
+	public void findBilayerCenter(){
+		double count = 0;
+		double Zsum = 0;
+		double currentZ = 0;
+
+		int totalLipids = this.allLipids.length;
+		
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			currentZ = this.allLipids[currentLipid].getTerminalCarbonHeight();
+
+			Zsum = Zsum + currentZ;
+			if (currentZ != 0){ count++; }
+		}	//Ends for loop
+
+		double averageZ = Zsum / count;
+
+		this.BilayerCenter = averageZ;		
+
+	}	//Ends findBilayerCenter Method
+
 }	//Ends class defintion
