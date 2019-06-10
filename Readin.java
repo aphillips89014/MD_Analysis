@@ -602,7 +602,7 @@ public class Readin implements Serializable{
 					int length = OPvNN[0][lipid][compLipid].length;					
 
 					//Create a second File for Bar Graphs, 
-					double avgOP = 0;					
+					double avgNN = 0;					
 
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
@@ -613,12 +613,12 @@ public class Readin implements Serializable{
 						double count = OPvNN[0][lipid][compLipid][neighbors];
 						double proportion = count / sum;
 
-						avgOP = avgOP + (proportion * neighbors);
+						avgNN = avgNN + (proportion * neighbors);
 
 						System.out.println(neighbors + " " + proportion);
 					}	//Ends for loop
 
-					barGraphNN[lipid][compLipid] = avgOP;
+					barGraphNN[lipid][compLipid] = avgNN;
 
 				}	//end try statement
 
@@ -685,7 +685,7 @@ public class Readin implements Serializable{
 					//First Sum the array we want to look at.
 					double sum = 0;
 					int length = OPvNN[0][lipid][compLipid][0].length;					
-					double avgOP = 0;
+					double avgNN = 0;
 
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						sum = sum + OPvNN[0][lipid][compLipid][0][neighbors];
@@ -695,14 +695,14 @@ public class Readin implements Serializable{
 					for (int neighbors = 0; neighbors < length; neighbors++){
 						double count = OPvNN[0][lipid][compLipid][0][neighbors];
 						double proportion = count / sum;
-						avgOP = avgOP + (proportion * neighbors);
+						avgNN = avgNN + (proportion * neighbors);
 
 						if (proportion > 0.0005){
 							System.out.println(neighbors + " " + proportion);
 						}	//ends if statement
 					}	//Ends for loop
 
-					barGraphNN[lipid][compLipid] = avgOP;
+					barGraphNN[lipid][compLipid] = avgNN;
 				}	//end try statement
 
 				catch (IOException e){
