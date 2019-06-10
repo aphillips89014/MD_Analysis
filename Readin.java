@@ -575,6 +575,76 @@ public class Readin implements Serializable{
 		}	//Ends for loop
 	}	//Ends createOutputFiles Methdo
 
+	//Get the AvgOP for the entire system (for each lipid)
+	//Get the avg NN for the entire system
+	//Show only that
+	//Not meant to be graphed.
+	public static void createStandardDataFiles_CG(double[][][][] OPvNN, double[][] OP_CG, String[] lipidNames){
+		PrintStream console = System.out;
+		int totalLipids = lipidNames.length;
+		double sum = 0;
+		double overallSum = 0;
+		String fileName = "Graphing/Data/Standard_Data.dat";
+
+		try{
+
+			PrintStream output = new PrintStream(new File(fileName));
+			System.setOut(output);
+
+			//iterate through second index
+			for (int lipid = 0; lipid < totalLipids; lipid++){
+				String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+
+				//iterate through third index
+				for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+					String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
+
+					sum = 0;
+					int length = OPvNN[0][lipid][compLipid].length;					
+					double avgNN = 0;
+
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
+						overallSum = overallSum + OPvNN[0][lipid][compLipid][neighbors];
+					}	//Ends for Loop
+					
+					//Divide each count by the sum so we can find a proportion.
+					for (int neighbors = 0; neighbors < length; neighbors++){
+						double count = OPvNN[0][lipid][compLipid][neighbors];
+						double proportion = count / sum;
+						avgNN = avgNN + (proportion * neighbors);
+
+
+					}	//Ends for loop
+
+					System.out.println(lipidName + " has " + avgNN + " neighbors of " + compLipidName);
+
+				}	//Ends for loop
+			}	//Ends for loop
+
+			//iterate through second index
+			for (int lipid = 0; lipid < totalLipids; lipid++){
+				String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+
+				double OP = OP_CG[1][lipid] / OP_CG[0][lipid];
+				double OP_Squared = OP_CG[2][lipid] / OP_CG[0][lipid];
+
+
+				double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
+				System.out.println("OP of " + lipidName + " is " + OP + "    +-" + deviation);
+
+			}	//Ends for loop
+		}	//Ends try statement
+
+		catch(IOException e){
+			System.setOut(console);
+			System.out.println("Error in creating Standard Data File");
+		}	//Ends catch statement
+
+		System.setOut(console);
+	}	//Ends createStandardDataFiles_CG
+
+
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createNNFiles_CG(double[][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
@@ -740,8 +810,6 @@ public class Readin implements Serializable{
 		}	//Ends catch statement
 
 		System.setOut(console);
-
-
 
 	}	//Ends createOutputFiles Methdo
 

@@ -69,7 +69,7 @@ public class Process implements Serializable {
 
 	//Use the method setOP to average the OP of all Atoms
 	//Do this for every lipid, then save these calculation.
-	public static void generateOP_CG(Frame Frame, String[] lipidNames){
+	public static double[][] generateOP_CG(Frame Frame, double[][] OP_CG, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -80,18 +80,53 @@ public class Process implements Serializable {
 		else{
 			int totalLipids = Frame.allLipids.length;
 			int frameNumber = Frame.getFrameNumber();
+			int totalLipidTypes = lipidNames.length;
 
 			double xLength = Frame.getXLength();
 			double yLength = Frame.getYLength();
 
+			//Get the OP for this frame, avg it, then avg that over the total frames.
+			double[][] frameOP_CG = new double[2][totalLipids];
+
 			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 				Frame.allLipids[currentLipid].setOP(xLength, yLength);
+
+
+				String lipidName = Frame.allLipids[currentLipid].getName();
+				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
+	
+
+		
+				double firstOP = Frame.allLipids[currentLipid].getFirstOP();
+				double secondOP = Frame.allLipids[currentLipid].getSecondOP();
+
+				double totalChains = 2;
+				if (secondOP == 0) { totalChains = 1; }
+
+				double OP = (firstOP + secondOP) / totalChains;
+	
+				frameOP_CG[0][lipidNumber]++;
+				frameOP_CG[1][lipidNumber] = frameOP_CG[1][lipidNumber] + OP;
+
+			}	//Ends for loop
+
+
+			//Avg OP for this frame.
+			for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
+				OP_CG[0][currentLipid]++;
+				
+				double OP = frameOP_CG[1][currentLipid] / frameOP_CG[0][currentLipid];
+				
+				OP_CG[1][currentLipid] = OP_CG[1][currentLipid] + OP;
+				OP_CG[2][currentLipid] = OP_CG[2][currentLipid] + (OP * OP);
 
 			}	//Ends for loop
 
 			Readin.serializeFrame("falseName", frameNumber, Frame);
-			
+
 		}	//Ends else statement
+	
+		return OP_CG;
 	}	//Ends AverageOP method
 
 
@@ -201,10 +236,6 @@ public class Process implements Serializable {
 			}	//Ends for loop
 		}	//Ends else statement
 
-//		System.out.println(OP[0][0][0][0][5]);
-//		System.out.println(OP[1][0][0][0][5]);
-//		System.out.println("");
-
 		return OP;
 	}	//Ends AverageOP method
 
@@ -236,7 +267,6 @@ public class Process implements Serializable {
 
 				double OP = (firstOP + secondOP) / totalChains;
 				
-				double OPSquared = OP * OP;
 
 				//Add 1 to the NN Count.
 				frameOPvNN[0][currentLipid][compLipid][neighborIndex]++;
@@ -510,6 +540,10 @@ public class Process implements Serializable {
 					//Carbon/CarbonBead/CHOL OP (0)
 					//H1,H2,H3 (1,2,3)
 				//Fifth index is carbon index.
+			
+			double[][] OP_CG = new double[3][totalLipids];
+				//First index is Count (0), Avg (1), Squared Avg (2)
+				//Second index is current Lipid
 
 
 			//Create an array for calculating various things.
@@ -555,7 +589,7 @@ public class Process implements Serializable {
 				
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
-					generateOP_CG(currentFrame, lipidNames);
+					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
 					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
 
 				}	//ends if statemetn
@@ -586,7 +620,7 @@ public class Process implements Serializable {
 			if (coarseGrained) {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalFiles);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
-
+				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
 			}	//Ends if statement
 
 			else{
