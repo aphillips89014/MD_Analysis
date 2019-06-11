@@ -56,8 +56,8 @@ set bmargin 6
 set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
 set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4
 
-fileName_1 = "OP_NN_".lipid_1."_".lipid_2.".dat"
-fileName_2 = "OP_NN_".lipid_3."_".lipid_4.".dat"
+fileName_1 = "Data/OP_NN_".lipid_1."_".lipid_2.".dat"
+fileName_2 = "Data/OP_NN_".lipid_3."_".lipid_4.".dat"
 
 key_1 = lipid_1." v ".lipid_2
 key_2 = lipid_3." v ".lipid_4

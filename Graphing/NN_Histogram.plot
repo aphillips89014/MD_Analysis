@@ -2,10 +2,10 @@ lipid_1 = ARG1
 lipid_1_ls = 1
 
 lipid_2 = ARG2
-lipid_2_ls = 2
+lipid_2_ls = 3
 
 lipid_3 = ARG3
-lipid_3_ls = 3
+lipid_3_ls = 2
 
 
 set style line 1 lc rgb "red"
