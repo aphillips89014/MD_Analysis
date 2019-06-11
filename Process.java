@@ -183,9 +183,10 @@ public class Process implements Serializable {
 
 					else {
 						double currentOP = currentAtom.getOP();
-
+						
 						if (currentOP != 0) {
 							int member = currentAtom.getMember();
+							if (member == -1) { member = 0; }
 
 							frameOP[0][lipidNumber][chainCount][0][member]++;
 							frameOP[1][lipidNumber][chainCount][0][member] = frameOP[1][lipidNumber][chainCount][0][member] + currentOP;
@@ -326,6 +327,7 @@ public class Process implements Serializable {
 			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
 				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
+
 				
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
@@ -352,11 +354,11 @@ public class Process implements Serializable {
 					for (int h = 0; h < totalNeighbors; h++){
 						double count = frameOPvNN_AA[0][i][j][k][h];
 						double OP = frameOPvNN_AA[1][i][j][k][h] / count;
-
-						OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
-						OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
-						OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
-
+						if (OP > 0) {
+							OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
+							OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
+							OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
+						}	//Ends if Statemetn
 					}	//Ends for loop
 				}	//ends for loop
 			}	//Ends for loop
@@ -467,7 +469,12 @@ public class Process implements Serializable {
 
 	public static void main(String[] args){
 		boolean firstFrameOnly = false;
-//		boolean firstFrameOnly = true;
+
+		if (args.length > 0){
+			String CommandLineArguement = args[0];
+			if (CommandLineArguement.equals("FirstFrame")) { firstFrameOnly = true; }
+		}	//Ends if statement
+
 		double searchRadius = 10;
 		int Neighbors = 20;
 
@@ -600,6 +607,10 @@ public class Process implements Serializable {
 					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 					PCL = generatePCL(currentFrame, PCL, lipidNames);
+
+//					currentFrame.allLipids[0].getInformation();
+//					currentFrame.allLipids[1].getInformation();
+//					currentFrame.allLipids[5].getInformation();
 				}	//Ends else statement
 			}	//Ends for loop
 

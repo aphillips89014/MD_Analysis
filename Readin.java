@@ -538,6 +538,7 @@ public class Readin implements Serializable{
 						}	//Ends for Loop
 
 
+
 						//Then find the proportion that the values in the array given occur.
 							//Then find the standard Deviation of this.						
 						for (int neighbors = 0; neighbors < length; neighbors++){
@@ -559,7 +560,9 @@ public class Readin implements Serializable{
 							if (OP < 0) { OP = OP * -1; }
 
 							if (OP > 0) {
-								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+								if (proportion > 1){
+									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+								}	//Ends if statement
 							}	//Ends if statement
 						}	//Ends for loop
 					}	//end try statement
@@ -911,7 +914,7 @@ public class Readin implements Serializable{
 
 			else if ( (Hydrogen == -1) ){
 				//This implies that it is either Carbon or a special element.
-				if (Element.equals("C")) {
+				if (Element.equals("C") || (Element.equals("C3")) || (Element.equals("H3"))) {
 
 					Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
