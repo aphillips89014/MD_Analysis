@@ -16,4 +16,7 @@ jar:
 	jar cvfm MD_Analysis.jar manifest.mf *.*
 
 run: Process
-	java Process
+	java Process AllFrames
+
+runFirst: Process
+	java Process FirstFrame
