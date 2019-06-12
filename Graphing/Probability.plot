@@ -48,13 +48,16 @@ set lmargin 13
 set bmargin 6
 
 set yrange [0:0.8]
-set xrange[-0.2:7.2]
+set xrange[-0.2:6.2]
 
-set file_One = "Data/".lipid_1."_Histogram_".lipid_3.".dat"
-set file_Two = "Data/".lipid_2."_Histogram_".lipid_4.".dat"
+file_One = "Data/".lipid_1."_Histogram_".lipid_3.".dat"
+file_Two = "Data/".lipid_2."_Histogram_".lipid_4.".dat"
 
-plot file_One with linespoints linestyle 4 title lipid_1,\
-file_Two with linespoints linestyle 3 title lipid_2,\
+key_1 = lipid_1." Having N ".lipid_2." Neighbors"
+key_2 = lipid_3." Having N ".lipid_4." Neighbors"
+
+plot file_One with linespoints linestyle 4 title key_1,\
+file_Two with linespoints linestyle 3 title key_2,\
 
 
 pause -1 "Press button"

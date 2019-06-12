@@ -10,6 +10,7 @@ set xlabel "Distance from Center of Bilayer (A)"
 set xlabel font ",20"
 set key font ",14"
 
+set xrange[-1:31]
 
 fileName = "Data/".lipid_1."_Thickness.dat"
 

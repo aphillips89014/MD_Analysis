@@ -46,8 +46,8 @@ set style line 8 \
     linetype 1 linewidth 1.5 \
     pointtype 7 pointsize 1
 
-
-yLabel_Name = lipid_1." Order Paramter"
+xLabel_Name = "Number of Neighbors"
+yLabel_Name = "Order Paramter"
 
 set title full_Title
 set key top left
@@ -75,10 +75,10 @@ fileName_2 = "Data/OP_NN_".lipid_1."_chain_1_".lipid_2.".dat"
 fileName_3 = "Data/OP_NN_".lipid_3."_chain_0_".lipid_4.".dat"
 fileName_4 = "Data/OP_NN_".lipid_3."_chain_1_".lipid_4.".dat"
 
-key_1 = "SN1 vs ".lipid_2
-key_2 = "SN2 vs ".lipid_2
-key_3 = "SN1 vs ".lipid_4
-key_4 = "SN2 vs ".lipid_4
+key_1 = lipid_1."'s SN1 vs ".lipid_2." Neighbors"
+key_2 = lipid_1."'s SN2 vs ".lipid_2." Neighbors"
+key_3 = lipid_3."'s SN1 vs ".lipid_4." Neighbors"
+key_4 = lipid_3."'s SN2 vs ".lipid_4." Neighbors"
 
 plot fileName_1 using 1:2:($2-$3):($2+$3) with errorbars linestyle 3 title key_4,\
 fileName_1 using 1:2:($2-$3):($2+3) with linespoints linestyle 1 notitle,\
