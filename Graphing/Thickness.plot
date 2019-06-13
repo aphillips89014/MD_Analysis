@@ -1,4 +1,7 @@
 lipid_1 = ARG1
+set xrange[-1:31]
+
+
 
 set style line 1 \
     linecolor rgb '#0060ad' \
@@ -10,7 +13,6 @@ set xlabel "Distance from Center of Bilayer (A)"
 set xlabel font ",20"
 set key font ",14"
 
-set xrange[-1:31]
 
 fileName = "Data/".lipid_1."_Thickness.dat"
 

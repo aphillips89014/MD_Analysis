@@ -1,8 +1,10 @@
-
 lipid_1 = ARG1
 lipid_2 = ARG2
 lipid_3 = ARG3
 lipid_4 = ARG4
+set xrange[-0.1:7.25]
+set yrange[0.3:1]
+
 
 set style line 1 \
     linecolor rgb '#008cff' \
@@ -34,9 +36,8 @@ set style line 6 \
     linetype 1 linewidth 3 \
     pointtype 7 pointsize 2
 
-full_Title = lipid_1."'s Order Parameter vs ".lipid_1."'s Nearest Neighbors"
 
-set title full_Title
+set title "Order Parameter vs Nearest Neighbors"
 set key bottom left
 set xlabel "Number of Neighbors" offset 0,-2
 set ylabel "Order Parameter" offset -3
@@ -45,9 +46,6 @@ set key font ",20"
 set title font ",20"
 set xlabel font ",20"
 set ylabel font ",20"
-set xrange[-0.1:7.25]
-set yrange[0.3:1]
-
 set xtics font ",20"
 set ytics font ",20"
 set lmargin 13

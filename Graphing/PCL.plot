@@ -1,5 +1,8 @@
 lipid_1 = ARG1
 
+set yrange [-1:21]
+set xrange [0:19]
+
 first_File_Chain = "SN1"
 second_File_Chain = "SN2"
 
@@ -29,9 +32,6 @@ set title full_Title
 set key top right
 set xlabel "Carbon Index" offset 0,-2
 set ylabel "Height" offset -3
-
-set yrange [-1:21]
-set xrange [0:19]
 
 set arrow from 0,0 to 200,0
 

@@ -18,8 +18,11 @@ set style fill solid
 
 set yrange[0:2.6]
 
-fileName = "NN_Bar_Graph.dat"
+set title "Nearest Neighbors"
+set xlabel "Lipids"
+set ylabel "Number of Neighbors"
 
+fileName = "NN_Bar_Graph.dat"
 full_FileName = "Data/".fileName
 
 plot full_FileName every 3 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\

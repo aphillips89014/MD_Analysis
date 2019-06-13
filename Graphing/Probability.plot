@@ -1,11 +1,12 @@
 lipid_1 = ARG1
 lipid_1_ls = 4
-
 lipid_2 = ARG2
 lipid_2_ls = 3
-
 lipid_3 = ARG3
 lipid_4 = ARG4
+
+set yrange [0:0.8]
+set xrange[-0.2:6.2]
 
 
 set style line 1 \
@@ -47,11 +48,8 @@ set ytics font ",10"
 set lmargin 13
 set bmargin 6
 
-set yrange [0:0.8]
-set xrange[-0.2:6.2]
-
-file_One = "Data/".lipid_1."_Histogram_".lipid_3.".dat"
-file_Two = "Data/".lipid_2."_Histogram_".lipid_4.".dat"
+file_One = "Data/".lipid_1."_Histogram_".lipid_2.".dat"
+file_Two = "Data/".lipid_3."_Histogram_".lipid_4.".dat"
 
 key_1 = lipid_1." Having N ".lipid_2." Neighbors"
 key_2 = lipid_3." Having N ".lipid_4." Neighbors"

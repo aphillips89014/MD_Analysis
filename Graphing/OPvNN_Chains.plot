@@ -3,8 +3,12 @@ lipid_2 = ARG2
 lipid_3 = ARG3 
 lipid_4 = ARG4
 
-full_Title = ARG5
-xLabel_Name = ARG6
+set xrange[-0.1:6.4]
+set yrange[0:0.5]
+
+#set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
+#set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4 
+
 
 set style line 1 \
     linecolor rgb '#8c8c8c' \
@@ -49,7 +53,7 @@ set style line 8 \
 xLabel_Name = "Number of Neighbors"
 yLabel_Name = "Order Paramter"
 
-set title full_Title
+set title "Order Parameter vs Nearest Neighbors"
 set key top left
 set xlabel xLabel_Name offset 0,-2
 set ylabel yLabel_Name
@@ -64,21 +68,15 @@ set ytics font ",10"
 set lmargin 13
 set bmargin 6
 
-set xrange[-0.1:6.4]
-set yrange[0:0.5]
-
-#set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
-#set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4 
-
 fileName_1 = "Data/OP_NN_".lipid_1."_chain_0_".lipid_2.".dat"
 fileName_2 = "Data/OP_NN_".lipid_1."_chain_1_".lipid_2.".dat"
 fileName_3 = "Data/OP_NN_".lipid_3."_chain_0_".lipid_4.".dat"
 fileName_4 = "Data/OP_NN_".lipid_3."_chain_1_".lipid_4.".dat"
 
-key_1 = lipid_1."'s SN1 vs ".lipid_2." Neighbors"
-key_2 = lipid_1."'s SN2 vs ".lipid_2." Neighbors"
-key_3 = lipid_3."'s SN1 vs ".lipid_4." Neighbors"
-key_4 = lipid_3."'s SN2 vs ".lipid_4." Neighbors"
+key_1 = lipid_1."'s SN1 OP vs N ".lipid_2." Neighbors"
+key_2 = lipid_1."'s SN2 OP vs N ".lipid_2." Neighbors"
+key_3 = lipid_3."'s SN1 OP vs N ".lipid_4." Neighbors"
+key_4 = lipid_3."'s SN2 OP vs N ".lipid_4." Neighbors"
 
 plot fileName_1 using 1:2:($2-$3):($2+$3) with errorbars linestyle 3 title key_4,\
 fileName_1 using 1:2:($2-$3):($2+3) with linespoints linestyle 1 notitle,\
