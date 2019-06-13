@@ -686,7 +686,10 @@ public class Readin implements Serializable{
 
 						avgNN = avgNN + (proportion * neighbors);
 
-						System.out.println(neighbors + " " + proportion);
+						//Probabilities cant be negative, and we want to not write zero probs.
+						if (proportion > 0.0001){
+							System.out.println(neighbors + " " + proportion);
+						}	//Ends if statement
 					}	//Ends for loop
 
 					barGraphNN[lipid][compLipid] = avgNN;
@@ -768,7 +771,7 @@ public class Readin implements Serializable{
 						double proportion = count / sum;
 						avgNN = avgNN + (proportion * neighbors);
 
-						if (proportion > 0.0005){
+						if (proportion > 0.00001){
 							System.out.println(neighbors + " " + proportion);
 						}	//ends if statement
 					}	//Ends for loop
