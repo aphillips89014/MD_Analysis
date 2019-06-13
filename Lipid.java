@@ -240,19 +240,36 @@ public class Lipid implements java.io.Serializable {
 
 
 	public double getTerminalCarbonHeight(){
-		//The first Atom is a Head, the 2nd is the latest added lipid
+		//Go to the terminal Carbon and get its height.
 		Atom tempAtom = this.firstChain;
-		
-	
-
 		double result = 0;
+		boolean keepGoing = true;
 
-		if (tempAtom.next != null) {
-		
-			result = tempAtom.next.Z;
+		while (keepGoing){
+			int currentMember = tempAtom.getMember();
 			
- 
-		}	//ends if staement
+			if (tempAtom.next != null) {
+				int nextMember = tempAtom.next.getMember();
+				
+				if (nextMember > currentMember){
+					tempAtom = tempAtom.next;
+				}	//ends if statement
+
+				else{
+					keepGoing = false;
+				}	//Ends else statement
+			}	//Ends if statement
+		
+			else{
+				keepGoing = false;
+			}	//Ends else statement
+		}	//Endswhile loop
+
+		result = tempAtom.Z;
+
+		//If its invalid, return an absurd value
+		if (tempAtom.getMember() == 0) { result = 5000; }
+
 
 		return result;
 	}	//Ends getTerminalCarbonHeight Method
