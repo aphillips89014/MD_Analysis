@@ -714,7 +714,7 @@ public class Readin implements Serializable{
 
 			for (int i = 0; i < totalLipids; i++){
 				for (int j = 0; j < totalLipids; j++){
-					seperator = 0.33 + i + (0.33 * j);
+					seperator = 0.33 + (i*1.33) + (0.33 * j);
 					
 					String Lipid = Mathematics.IntToLipid(i, lipidNames);
 					String compLipid = Mathematics.IntToLipid(j, lipidNames);
