@@ -368,6 +368,32 @@ public class Process implements Serializable {
 		return OPvNN_AA;
 	}	//Ends OPvNN_AA
 
+
+	public static double[][] generateOPHistogram(Frame currentFrame, double[][] OP_Histogram, String[] lipidNames){
+		//First index is the lipid type, second index is the binned OP
+		int totalLipids = currentFrame.allLipids.length;
+		
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			String lipidName = currentFrame.allLipids[currentLipid].getName();
+			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
+
+			double firstOP = currentFrame.allLipids[currentLipid].getFirstOP();
+			double secondOP = currentFrame.allLipids[currentLipid].getSecondOP();
+
+			double totalChains = 2;
+			if (secondOP == 0) { totalChains = 1; }
+
+			double OP = (firstOP + secondOP) / totalChains;
+		
+			int index = (int) Math.round(OP * 2000);
+
+			OP_Histogram[lipid][index]++;
+
+		}	//Ends for loop
+	
+		return OP_Histogram;
+	}	//ends generateOPHistogram
+
 	public static int[][] generateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
 		double BilayerCenter = currentFrame.getBilayerCenter();
@@ -575,6 +601,8 @@ public class Process implements Serializable {
 				//Third index is the comparing lipid
 				//fourth index is the # of Neighbors of COmparign Lipid
 
+			double[][] OP_Histogram = new double[totalLipids][2001];
+
 
 			int[][] Thickness = new int[totalLipids][2000];
 				//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
@@ -598,6 +626,7 @@ public class Process implements Serializable {
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
 					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
+					OP_Histogram = generateOPHistogram(currentFrame, OP_Histogram, lipidNames);
 
 				}	//ends if statemetn
 
@@ -607,10 +636,8 @@ public class Process implements Serializable {
 					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 					PCL = generatePCL(currentFrame, PCL, lipidNames);
+					OP_Histogram = generateOPHistogram(currentFrame, OP_Histogram, lipidNames);
 
-//					currentFrame.allLipids[0].getInformation();
-//					currentFrame.allLipids[1].getInformation();
-//					currentFrame.allLipids[5].getInformation();
 				}	//Ends else statement
 			}	//Ends for loop
 
@@ -632,6 +659,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalFiles);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
 				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
+				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
 			}	//Ends if statement
 
 			else{
@@ -640,6 +668,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalFiles);
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalFiles);
+				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
 			}	//Ends else statement
 
 			end = System.currentTimeMillis();

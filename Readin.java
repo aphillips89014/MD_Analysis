@@ -346,6 +346,47 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
+	public static void createOPHistogramFiles(double[][] OP_Histogram, String[] lipidNames){
+		PrintStream console = System.out;
+
+		int totalLipids = lipidNames.length;
+		int length = OP_Histogram[0].length;
+		double sum = 0;
+
+		for (int i = 0; i < totalLipids; i++){
+			for (int j = 0; j < length; j++){
+				sum = sum + OP_Histogram[i][j];
+			}	//Ends for loop
+
+			//Now we ignore lipids without phosphates.
+			if (sum > 1){
+				String fileName = "Graphing/Data/" + lipidNames[i] + "_OP_Histogram.dat";
+
+				try{
+					PrintStream output = new PrintStream(new File(fileName));
+					System.setOut(output);
+
+					for (int j = 0; j < length; j++){
+						float binSpot = (float) j;
+						binSpot = binSpot / 2000;
+
+						double count = OP_Histogram[i][j];
+						String firstValue = String.format("%.0005f", binSpot);
+						System.out.println(firstValue + " " + count);
+
+					}	//Ends for loop
+				}	//Ends try statement
+
+				catch (IOException e){
+					System.setOut(console);
+					System.out.println("Error in Creating " + fileName);
+					System.out.println(e);
+				}	//Ends catch
+			}	//Ends if statement
+		}	//Ends for loop
+		System.setOut(console);
+	}	//ends createOPHistogram
+
 	public static void createThicknessFiles(int[][] Thickness, String[] lipidNames){
 		PrintStream console = System.out;
 		
