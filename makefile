@@ -18,5 +18,5 @@ jar:
 run: Process
 	java Process AllFrames
 
-runFirst: Process
+firstFrame: Process
 	java Process FirstFrame
