@@ -58,13 +58,13 @@ Process.java
 		This uses a 4-d array. that is very similar to the 5-d array used in generateOP_AA
 
 			First Index: Data that needs to be tracked
-	
+				(0) == Count :: How often a single occurance is found, will be used to help average later value.
+				(1) == OP :: The actual OP of a given atom.
+				(2) == OP^2 :: The actual OP of a given atom squared. Will be used to get an accurate standard deviation.
+
 			Second Index: The current lipid we are looking at.
-		
 			Third Index : The lipid we are comparing the current lipid with.
-
 			Fourth Index : The number of comparing lipid neighbors.
-
 
 			So for each lipid we find the number of neighbors of every other lipid type (including the same type).
 			Then we simply add the OP into the array and then average this later on, essentially binning the OP based off the number of NN.
@@ -76,7 +76,23 @@ Process.java
 
 	generateOPvNN_AA
 		This method is identical to the previous one, but adapted for AA simulations.
-		This one uses a 5-d array, because in AA we track specific chains which is the new fifth index.
+		This one uses a 5-d array, because in AA we track specific chains.
+		The Fourth index in this array is the chain number
+			(0) == Sn1
+			(1) == Sn2
+		The Fifth index in this array is the number of Neighbors of Comparing Lipids.
+
+	generateOPHistogram
+		This method iterates through every item in the Frame Object's allLipids array and bins the OP for every lipid.
+		
+		It does this by applying the OP to a simple equation and binning it based off increments of 0.0005
+		There are 2000 bins in total.
+		
+		Uses a 2-d array.
+			First Index == Current Lipid we are Looking at
+			Second Index == Binned Location
+				This is accessed through a simple equation.
+					Multiply OP by 2000, and round. This is the index value.
 
 
 	generateThickness
@@ -85,10 +101,34 @@ Process.java
 		It does this by simply choosing the phosphate atom in each lipid and returning it's Z-Length.
 		It then uses a somewhat complicated equation to bin it, and it returns this in a simple array.
 
+		This array is a 2d array;
+			The First Index indicates the type of lipid we are looking at
+			The Second Index indicates the binned location. This uses a simple equation to determine bin location.
+				Add 100 to a thickness, multiply by 10, and round. This is the Index value.
+
+
 	generatePCL
-		This method iterates through every item in the Frame Object's allLipids array and bins the Thickness of each carbon for eacah lipid.
+		This method iterates through every item in the Frame Object's allLipids array and bins the Thickness of each carbon for each lipid.
 
 		It does this by iterating through every lipid and then iterating through every carbon atom, returning and binning it's Z-Value.
+
+		Uses a 4-d array.
+			First Index == Data that needs to be Tracked
+				(0) == Count :: How often a single occurance is found, will be used to help average later value.
+				(1) == OP :: The actual OP of a given atom.
+				(2) == OP^2 :: The actual OP of a given atom squared. Will be used to get an accurate standard deviation.
+			Second Index == Lipid we are current looking at
+			Third Index == Chain Number
+				(0) == Sn1
+				(1) == Sn2
+			Fourth Index == Carbon Index
+
+
+	progressStatement
+		Tracks the total time it took for a set of commands to run and prints out various statements.
+		This used to be imbedded into the main function but was removed for readabillity.
+
+		
 
 
 
