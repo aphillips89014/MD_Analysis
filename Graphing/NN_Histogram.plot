@@ -2,10 +2,10 @@ lipid_1 = ARG1
 lipid_1_ls = 1
 
 lipid_2 = ARG2
-lipid_2_ls = 3
+lipid_2_ls = 2
 
 lipid_3 = ARG3
-lipid_3_ls = 2
+lipid_3_ls = 3
 
 
 set style line 1 lc rgb "red"
@@ -16,7 +16,6 @@ set style line 3 lc rgb "green"
 set boxwidth 0.33
 set style fill solid
 
-set yrange[0:2.6]
 
 set title "Nearest Neighbors"
 set xlabel "Lipids"

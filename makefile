@@ -16,7 +16,10 @@ jar:
 	jar cvfm MD_Analysis.jar manifest.mf *.*
 
 run: Process
-	java Process AllFrames
+	java Process
+
+nFrames: Process
+	java Process $(s) $(f)
 
 firstFrame: Process
 	java Process FirstFrame

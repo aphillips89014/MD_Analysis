@@ -495,11 +495,21 @@ public class Process implements Serializable {
 
 	public static void main(String[] args){
 		boolean firstFrameOnly = false;
+		int startingFrame = 0;
+		int finalFrame = -1;
+
 
 		if (args.length > 0){
 			String CommandLineArguement = args[0];
 			if (CommandLineArguement.equals("FirstFrame")) { firstFrameOnly = true; }
+			else {
+				//Set the beginning and end Frame
+				startingFrame = Integer.parseInt(CommandLineArguement);
+				finalFrame = Integer.parseInt(args[1]);
+
+			 }	// Ends else statement
 		}	//Ends if statement
+
 
 		double searchRadius = 10;
 		int Neighbors = 20;
@@ -617,9 +627,11 @@ public class Process implements Serializable {
 
 
 			if (firstFrameOnly) { totalFiles = 1; } //Allows us to skip a lot of work, this is a debugging tool.
+			else if (finalFrame != -1) { totalFiles = finalFrame; }
+			
 
 			//Preform calculations for each Frame.
-			for (int i = 0; i < totalFiles; i++){
+			for (int i = startingFrame; i < totalFiles; i++){
 				Frame currentFrame = Readin.unserializeFrame(i);
 				
 				if (coarseGrained){
@@ -654,9 +666,25 @@ public class Process implements Serializable {
 
 			System.out.println("Started Creating Output Files");
 			start = System.currentTimeMillis();
-			
+
+			int totalReadFrames = totalFiles;
+			if ((startingFrame != 0) || (finalFrame != -1)) {
+				if ((startingFrame != 0) && (finalFrame == -1)){
+					totalReadFrames = totalFiles - startingFrame;
+				}	//Ends if statement
+
+				else if ((startingFrame == 0) && (finalFrame != -1)){
+					totalReadFrames = finalFrame;
+				}	//Ends else if statement
+
+				else if ((startingFrame != 0) && (finalFrame != -1)){
+					totalReadFrames = finalFrame - startingFrame;
+				}	//ends else if statement
+			}	
+		
+
 			if (coarseGrained) {
-				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalFiles);
+				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalReadFrames);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
 				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
 				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
@@ -664,10 +692,10 @@ public class Process implements Serializable {
 
 			else{
 				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
-				Readin.createOPFiles(OP_AA, lipidNames, totalFiles);
-				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalFiles);
+				Readin.createOPFiles(OP_AA, lipidNames, totalReadFrames);
+				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalReadFrames);
 				Readin.createThicknessFiles(Thickness, lipidNames);
-				Readin.createPCLFiles(PCL, lipidNames, totalFiles);
+				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
 				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
 			}	//Ends else statement
 
