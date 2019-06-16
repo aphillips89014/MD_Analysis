@@ -491,6 +491,59 @@ public class Process implements Serializable {
 		return PCL;
 	}	//Ends calculate PCL
 
+	//Prints out the progress of the System.
+	public static long progressStatement(long givenTime, String Step){
+		long totalTime = 0;		
+		long currentTime = System.currentTimeMillis();
+		boolean end = false;
+
+		if (givenTime == 0){
+			totalTime = currentTime;
+		}	//ends if statement
+
+		else {
+			end = true;
+			totalTime = (currentTime - givenTime) / 1000;
+		}	//Ends else statement
+
+	
+			
+		if (Step.equals("Start_Read")) {
+			System.out.println("");
+			System.out.println("----------------------------------");
+			System.out.println("Initiated File Processor");
+			System.out.println("");
+			System.out.println("Started Reading Files");
+
+		}	//Ends if statement
+
+		else if (Step.equals("End_Read")){
+			System.out.println("Finished Reading File in " + totalTime + " seconds.");
+			System.out.println("");
+		}	//Ends if statement
+
+		else if (Step.equals("Start_Calculation")){
+			System.out.println("Begun Various Calculations");
+		}	//ends if statement
+
+		else if (Step.equals("End_Calculation")){
+			System.out.println("Finished Calculations in  " + totalTime + " seconds");		
+			System.out.println("");
+		}	//ends if statement
+
+		else if (Step.equals("Start_Output")){
+			System.out.println("Started Creating Output Files");
+		}	//ends if statement
+
+		else if (Step.equals("End_Output")){
+			System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
+		}	//ends if statement
+
+		if (end) { totalTime = 0; }
+
+		return totalTime;
+	}	//Ends progressStatement method
+
 
 
 	public static void main(String[] args){
@@ -498,7 +551,15 @@ public class Process implements Serializable {
 		int startingFrame = 0;
 		int finalFrame = -1;
 
+		double searchRadius = 10;
+		int Neighbors = 20;
+		long time = 0;
 
+		boolean coarseGrained = false;
+
+		String coordinateFile = "Coordinates.dat";
+
+		//Determine if there is a specific set number of frames to use.
 		if (args.length > 0){
 			String CommandLineArguement = args[0];
 			if (CommandLineArguement.equals("FirstFrame")) { firstFrameOnly = true; }
@@ -506,28 +567,12 @@ public class Process implements Serializable {
 				//Set the beginning and end Frame
 				startingFrame = Integer.parseInt(CommandLineArguement);
 				finalFrame = Integer.parseInt(args[1]);
-
 			 }	// Ends else statement
 		}	//Ends if statement
 
 
-		double searchRadius = 10;
-		int Neighbors = 20;
-
-		//String coordinateFile = "/media/alex/Hermes/Anton/Coordinates.dat";
-		String coordinateFile = "Coordinates.dat";
-		//Gonna do the groundwork for the whole program, it will be a bit messy in this statement due to all the Console Ouput Messages.
-
-		boolean coarseGrained = false;
-
-		System.out.println("");
-		System.out.println("----------------------------------");
-		System.out.println("Initiated File Processor");
-		System.out.println("");
-		long start = System.currentTimeMillis();
-		System.out.println("Started Reading Files");
-
-
+		//Read an input file.
+		time = progressStatement(0, "Start_Read");
 
 		String[] lipidNames = Readin.findLipidNames(coordinateFile);
 		int totalLipids = lipidNames.length;
@@ -537,9 +582,9 @@ public class Process implements Serializable {
 		}	//Ends if statement
 
 		else{
-
 			int totalFiles = 0;
 			String fileName = "Frames/frame_0.ser";
+
 			//Create a bunch of serialized objects so that the memory usage won't be as great.
 			//If the files already exist then find out how many there are.
 			boolean filesExist = Readin.checkForFiles(fileName);
@@ -558,79 +603,31 @@ public class Process implements Serializable {
 				totalFiles = new File("Frames/").list().length;
 			}	//Ends if statement
 
+			//Determine what Method of Simulation is used so more accurate analysis can be done. Tell the user what we are assuming it is.
 			coarseGrained = Readin.determineSimulationMethod();
-			
 			if (coarseGrained) { System.out.println("System is assumed to be Coarse-Grained"); }
 			else { System.out.println("System is assumed to be Atomistic"); }
 
-			long end = System.currentTimeMillis();
-			long totalTime = (end - start) / 1000;
-			System.out.println("Finished Reading File in " + totalTime + " seconds.");
-			System.out.println("");
-
-
+			time = progressStatement(time, "End_Read");
+	
 
 			//Now we will do the actual Analysis.
+			time = progressStatement(time, "Start_Calculation");
 
-			start = System.currentTimeMillis();
-			System.out.println("Begun Various Calculations");
-
+			//Arrays for binning data so that it can be organized into a nice output file later.
+			//The DOCUMENTATION.txt file describes each of these arrays in the methods they are used in.
 			double[][][][][] OP_AA = new double[3][totalLipids][2][4][30];
-				//First Index is Count (0), Avg (1), Squared Average (2)
-				//Second index is current Lipid
-				//Third index is Chain One (0), Two (1),
-				//Fourth index is the corresponding OP
-					//Carbon/CarbonBead/CHOL OP (0)
-					//H1,H2,H3 (1,2,3)
-				//Fifth index is carbon index.
-			
 			double[][] OP_CG = new double[3][totalLipids];
-				//First index is Count (0), Avg (1), Squared Avg (2)
-				//Second index is current Lipid
-
-
-			//Create an array for calculating various things.
 			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
-				//First index is either NNCount Array (0), OP Array (1), OP^2 Array (2)
-					//AKA Various Calculations that we will eventually need Simultaneously.
-
-				//Second Index is the current Lipid, for this specifically: PSM (0), PDPC (1), CHL1 (2)
-
-				//Third Index is the Comparing Lipid, same as second Index.
-
-				//Fourth Index is the chain; Sn1 (0), Sn2 (1);
-
-				//Fifth index is the value we are interested in (# of Neighbors, OP, OP^2).
-					//The index indicates how many Comparing Lipid Neighbors they are.
-
-				//There may be a better way to do this, but this is the simplest in terms of manageable code.
-		
 			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
-				//First is Count (0), OP (1), OP^2 (2)
-				//Second Index is current Lipid
-				//Third index is the comparing lipid
-				//fourth index is the # of Neighbors of COmparign Lipid
-
 			double[][] OP_Histogram = new double[totalLipids][2001];
-
-
 			int[][] Thickness = new int[totalLipids][2000];
-				//First index is the lipid we are interested in, if it doesn't have a Phosphate then it will not have a thicknes
-				//Second Index are the bins.
-					//Starting at -40 it goes to; -39.9, -39.8, -39.7, ... , 0 , 0.1, 0.2, ..., 39.9, 40.
-			
 			double[][][][] PCL = new double[3][totalLipids][2][30];
-				//First index can be: Number of Occurance (0), PCL (1), or PCL^2 (2)
-				//Second index is the current lipid
-				//Third index is the chain, since there are only 2 chains we can assign an exact value
-				//Fourht index relates to carbon index, we overestimate this just to be extremely safe.
-
 
 			if (firstFrameOnly) { totalFiles = 1; } //Allows us to skip a lot of work, this is a debugging tool.
 			else if (finalFrame != -1) { totalFiles = finalFrame; }
-			
 
-			//Preform calculations for each Frame.
+			//Perform calculations for each Frame.
 			for (int i = startingFrame; i < totalFiles; i++){
 				Frame currentFrame = Readin.unserializeFrame(i);
 				
@@ -652,21 +649,12 @@ public class Process implements Serializable {
 
 				}	//Ends else statement
 			}	//Ends for loop
-
-
-			end = System.currentTimeMillis();
-			totalTime = (end - start) / 1000;
-			System.out.println("Finished Calculation in  " + totalTime + " seconds");		
-			System.out.println("");
-
-
+			time = progressStatement(time, "End_Calculation");
 			
+			//Now Create output files for graphing.
+			time = progressStatement(time, "Start_Output");
 
-
-
-			System.out.println("Started Creating Output Files");
-			start = System.currentTimeMillis();
-
+			//We may have chosen to only look at specific frames, so lets modify how many we actually looked at for binning purposes.
 			int totalReadFrames = totalFiles;
 			if ((startingFrame != 0) || (finalFrame != -1)) {
 				if ((startingFrame != 0) && (finalFrame == -1)){
@@ -682,7 +670,6 @@ public class Process implements Serializable {
 				}	//ends else if statement
 			}	
 		
-
 			if (coarseGrained) {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalReadFrames);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
@@ -699,13 +686,8 @@ public class Process implements Serializable {
 				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
 			}	//Ends else statement
 
-			end = System.currentTimeMillis();
-
-			totalTime = (end - start) / 1000;
-			System.out.println("Finished Creating Output Files in " + totalTime + " seconds");	
-
+			time = progressStatement(time, "End_Output");
 		}	//Ends else statement
-
 		System.out.println("");
 	}	//Ends Main
 }	//Ends Class Definition
