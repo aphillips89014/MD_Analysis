@@ -3,6 +3,7 @@
 
 //Added this comment ot test gitHub
 
+import java.util.Scanner;
 import java.util.Arrays;
 import java.io.*;
 import java.lang.Math;
@@ -581,7 +582,31 @@ public class Process implements Serializable {
 		return totalTime;
 	}	//Ends progressStatement method
 
+	public static String[] changeLipidNames(String[] lipidNames){
+		Scanner userInput = new Scanner(System.in);
+		int length = lipidNames.length;
 
+		for (int i = 0; i < length; i++){
+			System.out.println("");
+			System.out.println("The current lipid is called: " + lipidNames[i]);
+			System.out.println("Would you like to change it? (Y/N)");
+			System.out.println("");
+			String response = userInput.nextLine();
+			
+			if (response.equals("Y")){
+				System.out.println("Please input the new name.");
+				response = userInput.nextLine();
+				System.out.println("");
+				lipidNames[i] = response;
+
+			}	//Ends if statement
+
+			System.out.println("The final name for the current lipid is: " + lipidNames[i]);
+			System.out.println("-----");
+
+		}	//Ends for loop
+		return lipidNames;
+	}	//Ends changeLipidNames
 
 	public static void main(String[] args){
 		boolean firstFrameOnly = false;
@@ -593,6 +618,7 @@ public class Process implements Serializable {
 		long time = 0;
 
 		boolean coarseGrained = false;
+		boolean userResponse = false;
 
 		String coordinateFile = "Coordinates.dat";
 
@@ -606,6 +632,16 @@ public class Process implements Serializable {
 				finalFrame = Integer.parseInt(args[1]);
 			 }	// Ends else statement
 		}	//Ends if statement
+
+		Scanner userInput = new Scanner(System.in);
+		System.out.println("Would you like to edit settings as the program runs? (Y/N)");
+		String response = userInput.nextLine();
+		
+		if (response.equals("Y")) {
+			System.out.println("User response will be prompted occasionally.");
+			userResponse = true;
+		}	//ends if statement
+
 
 
 		//Read an input file.
@@ -690,6 +726,9 @@ public class Process implements Serializable {
 			}	//Ends for loop
 			time = progressStatement(time, "End_Calculation");
 			
+
+			if (userResponse) { lipidNames = changeLipidNames(lipidNames); }
+
 			//Now Create output files for graphing.
 			time = progressStatement(time, "Start_Output");
 
