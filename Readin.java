@@ -387,6 +387,8 @@ public class Readin implements Serializable{
 		System.setOut(console);
 	}	//ends createOPHistogram
 
+	
+
 	public static void createThicknessFiles(int[][] Thickness, String[] lipidNames){
 		PrintStream console = System.out;
 		
@@ -774,6 +776,42 @@ public class Readin implements Serializable{
 		System.setOut(console);
 	}	//Ends createOutputFiles Methdo
 
+	public static void createAngleHistogramFile(int[] Angles, String lipidName, boolean firstChain, int Member){
+		PrintStream console = System.out;
+
+		int length = Angles.length;
+		int sum = 0;
+		for (int i = 0; i < length; i++) { sum = sum + Angles[i]; }
+		if (sum != 0){
+			
+			String chain;
+			if (firstChain) { chain = "SN1"; }
+			else { chain = "SN2"; }
+			String fileName = "Graphing/Data/Angle_Histogram_" + lipidName + "_" + chain + "_" + Member + ".dat";
+			
+			try {
+				PrintStream output = new PrintStream(new File(fileName));
+				System.setOut(output);
+
+				for (int i = 0; i < length; i++){
+					int count = Angles[i];
+					float givenAngle = (float) i;
+					givenAngle = (givenAngle / 10) - 180;
+					String givenOutput = String.format("%.01f", givenAngle);		
+					
+					System.out.println(givenOutput + " " + count);
+				}	//Ends for loop
+			}	//Ends try statement
+
+			catch(IOException e){
+				System.setOut(console);
+				System.out.println("Error in creating Angle Histogram file");
+
+			}	//Ends catch
+		}	//Ends if statement
+		System.setOut(console);
+	}	//Ends createAngleHistogramFile
+
 
 
 	//Going to create an output file after manipulating and binning OPvNN
@@ -857,6 +895,9 @@ public class Readin implements Serializable{
 		System.setOut(console);
 
 	}	//Ends createOutputFiles Methdo
+
+
+	
 
 
 	//Read Various Files and create Lipids to be associated with specific Frames.

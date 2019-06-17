@@ -240,6 +240,45 @@ public class Process implements Serializable {
 		return OP;
 	}	//Ends AverageOP method
 
+	//Generate a Histogram of the given angle of a given C-H Bond.
+	public static int[] generateAngleHistogram(Frame Frame, int[] Angles, String correctLipid, boolean firstChain, int carbonIndex){
+		int totalLipids = Frame.allLipids.length;
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			String Name = Frame.allLipids[currentLipid].getName();
+
+			//Only look at one specific Lipid
+			if (Name.equals(correctLipid)){
+				Atom probingAtom;
+				
+				//Look at either the first or second chain.
+				if (firstChain) { probingAtom = Frame.allLipids[currentLipid].firstChain; }
+				else { probingAtom = Frame.allLipids[currentLipid].secondChain; }
+
+				//Look at a specific carbon index.
+				while (probingAtom.getMember() != carbonIndex) {
+					probingAtom = probingAtom.next;
+				}	//Ends while loop
+				
+				//Now, view every C-H Bond, and get the Angle of the bond by reverse engineering the OP associated with the approporiate Hydrogen.
+				while (probingAtom != null) {
+					if (probingAtom.Hydrogen != -1) {
+						double Angle = Mathematics.reverseOP(probingAtom.OP);
+
+						double newAngle = Angle + 180;	
+						int index = (int) Math.round(newAngle * 10);
+						
+						Angles[index]++;
+					}	//Ends if statement
+					
+					probingAtom = probingAtom.nextHydrogen;
+				}	//Ends while loop
+			}	//Ends if statement
+		}	//Ends for loop	
+
+		return Angles;
+	}	//ends generateAngleHistogram
+
 
 
 	public static double[][][][] generateOPvNN_CG(Frame Frame, double[][][][] OPvNN, String[] lipidNames){
@@ -506,8 +545,6 @@ public class Process implements Serializable {
 			totalTime = (currentTime - givenTime) / 1000;
 		}	//Ends else statement
 
-	
-			
 		if (Step.equals("Start_Read")) {
 			System.out.println("");
 			System.out.println("----------------------------------");
@@ -621,6 +658,7 @@ public class Process implements Serializable {
 			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
 			double[][] OP_Histogram = new double[totalLipids][2001];
+			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
 
@@ -646,6 +684,7 @@ public class Process implements Serializable {
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 					PCL = generatePCL(currentFrame, PCL, lipidNames);
 					OP_Histogram = generateOPHistogram(currentFrame, OP_Histogram, lipidNames);
+					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);
 
 				}	//Ends else statement
 			}	//Ends for loop
@@ -684,6 +723,7 @@ public class Process implements Serializable {
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
 				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
+				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);
 			}	//Ends else statement
 
 			time = progressStatement(time, "End_Output");
