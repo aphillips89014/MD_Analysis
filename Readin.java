@@ -367,8 +367,10 @@ public class Readin implements Serializable{
 					System.setOut(output);
 
 					for (int j = 0; j < length; j++){
-						float binSpot = (float) j;
+						double binSpot = (double) j;
 						binSpot = binSpot / 2000;
+
+						binSpot = Mathematics.reverseOP_CosTheta(binSpot);
 
 						double count = OP_Histogram[i][j];
 						String firstValue = String.format("%.0005f", binSpot);

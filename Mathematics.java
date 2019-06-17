@@ -201,6 +201,14 @@ public class Mathematics{
 		return Angle;
 	}	//Ends reverseOP
 
+	//Get the OP, but in terms of cos Theta
+	public static double reverseOP_CosTheta(double OP){
+		double cosTheta = ((OP * 2) + 1) /3;
+		cosTheta = Math.pow(cosTheta, 0.5);
+
+		return cosTheta;
+	}	//Ends reverseOP_CostTheta
+
 
 	public double sumArray(double[] array){
 		int length = array.length;
