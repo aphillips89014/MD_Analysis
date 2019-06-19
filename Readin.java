@@ -370,7 +370,7 @@ public class Readin implements Serializable{
 						double binSpot = (double) j;
 						binSpot = binSpot / 2000;
 
-						binSpot = Mathematics.reverseOP_CosTheta(binSpot);
+//						binSpot = Mathematics.reverseOP_CosTheta(binSpot);
 
 						double count = OP_Histogram[i][j];
 						String firstValue = String.format("%.0005f", binSpot);
@@ -1012,7 +1012,7 @@ public class Readin implements Serializable{
 
 				}	//ends if statement
 
-				else if ((Element.equals("C-Bead")) || (Element.equals("R3")) || (Element.equals("ROH"))){
+				else if ((Element.equals("C-Bead")) || (Element.equals("R3")) || (Element.equals("ROH") || (Element.equals("C1")))){
 					//This elese statement will group up all the Coarse-Grained Atoms.
 					Frame.allLipids[Frame.nextAvailableLipid - 1].assignChainIdentifier(Chain);
 					Frame.allLipids[Frame.nextAvailableLipid - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
