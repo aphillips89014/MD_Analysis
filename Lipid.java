@@ -105,6 +105,7 @@ public class Lipid implements java.io.Serializable {
 		if (this.firstOP < 0) { this.firstOP = this.firstOP * -1; }
 		if (this.secondOP < 0) { this.secondOP = this.secondOP * -1; }
 
+
 	}	//Ends average OP method
 
 

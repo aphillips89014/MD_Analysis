@@ -361,7 +361,6 @@ public class Readin implements Serializable{
 			//Now we ignore lipids without phosphates.
 			if (sum > 1){
 				String fileName = "Graphing/Data/" + lipidNames[i] + "_OP_Histogram.dat";
-
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
 					System.setOut(output);
