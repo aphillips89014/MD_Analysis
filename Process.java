@@ -10,6 +10,8 @@ import java.lang.Math;
 
 public class Process implements Serializable {
 	
+
+
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
 	public static void generateNN(Frame currentFrame, double searchRadius, String[] lipidNames, boolean canLengthBeNegative){
 	
@@ -366,11 +368,10 @@ public class Process implements Serializable {
 			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
 				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
-
 				
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
-
+				
 				double firstOPSquared = firstOP * firstOP;
 				double secondOPSquared = secondOP * secondOP;
 
@@ -393,16 +394,14 @@ public class Process implements Serializable {
 					for (int h = 0; h < totalNeighbors; h++){
 						double count = frameOPvNN_AA[0][i][j][k][h];
 						double OP = frameOPvNN_AA[1][i][j][k][h] / count;
-						if (OP > 0) {
-							OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
-							OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
-							OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
-						}	//Ends if Statemetn
+
+						OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
+						OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
+						OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
 					}	//Ends for loop
 				}	//ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
-
 
 		return OPvNN_AA;
 	}	//Ends OPvNN_AA

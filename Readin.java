@@ -868,11 +868,13 @@ public class Readin implements Serializable{
 			PrintStream output = new PrintStream(new File(fileName));
 			System.setOut(output);
 
-			double seperator = 0.33;
+			double doubleTotalLipids = totalLipids;
+			double shiftValue = 1 / doubleTotalLipids;
+			double seperator = 0;
 
 			for (int i = 0; i < totalLipids; i++){
 				for (int j = 0; j < totalLipids; j++){
-					seperator = 0.33 + (i*1.33) + (0.33 * j);
+					seperator = shiftValue + (i*(1+shiftValue)) + (shiftValue * j);
 					
 					String Lipid = Mathematics.IntToLipid(i, lipidNames);
 					String compLipid = Mathematics.IntToLipid(j, lipidNames);
