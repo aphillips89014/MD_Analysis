@@ -74,59 +74,59 @@ public class Process implements Serializable {
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
-		if (OPCalculated){
-			//Do Nothing, you've already calculated the Average OP
+		int totalLipids = Frame.allLipids.length;
+		int frameNumber = Frame.getFrameNumber();
+		int totalLipidTypes = lipidNames.length;
+
+		double xLength = Frame.getXLength();
+		double yLength = Frame.getYLength();
+
+		//Get the OP for this frame, avg it, then avg that over the total frames.
+		double[][] frameOP_CG = new double[2][totalLipids];
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			if (!(OPCalculated)){
+				//If the OP Is not calculated then we should set it.
+				Frame.allLipids[currentLipid].setOP(xLength, yLength);
+			}	//ends if statement
+
+
+			String lipidName = Frame.allLipids[currentLipid].getName();
+			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
+
+
+	
+			double firstOP = Frame.allLipids[currentLipid].getFirstOP();
+			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
+
+			double totalChains = 2;
+			if (secondOP == 0) { totalChains = 1; }
+
+			double OP = (firstOP + secondOP) / totalChains;
+
+			frameOP_CG[0][lipidNumber]++;
+			frameOP_CG[1][lipidNumber] = frameOP_CG[1][lipidNumber] + OP;
+
+		}	//Ends for loop
+
+
+		//Avg OP for this frame.
+		for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
+			OP_CG[0][currentLipid]++;
+			
+			double OP = frameOP_CG[1][currentLipid] / frameOP_CG[0][currentLipid];
+			
+			OP_CG[1][currentLipid] = OP_CG[1][currentLipid] + OP;
+			OP_CG[2][currentLipid] = OP_CG[2][currentLipid] + (OP * OP);
+
+		}	//Ends for loop
+
+
+		//If OP has been set/calculated, we should save those changes.
+		if (!(OPCalculated)) {
+			Readin.serializeFrame("falseName", frameNumber, Frame);
 		}	//Ends if statement
 
-		else{
-			int totalLipids = Frame.allLipids.length;
-			int frameNumber = Frame.getFrameNumber();
-			int totalLipidTypes = lipidNames.length;
-
-			double xLength = Frame.getXLength();
-			double yLength = Frame.getYLength();
-
-			//Get the OP for this frame, avg it, then avg that over the total frames.
-			double[][] frameOP_CG = new double[2][totalLipids];
-
-			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-				Frame.allLipids[currentLipid].setOP(xLength, yLength);
-
-
-				String lipidName = Frame.allLipids[currentLipid].getName();
-				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
-	
-
-		
-				double firstOP = Frame.allLipids[currentLipid].getFirstOP();
-				double secondOP = Frame.allLipids[currentLipid].getSecondOP();
-
-				double totalChains = 2;
-				if (secondOP == 0) { totalChains = 1; }
-
-				double OP = (firstOP + secondOP) / totalChains;
-	
-				frameOP_CG[0][lipidNumber]++;
-				frameOP_CG[1][lipidNumber] = frameOP_CG[1][lipidNumber] + OP;
-
-			}	//Ends for loop
-
-
-			//Avg OP for this frame.
-			for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
-				OP_CG[0][currentLipid]++;
-				
-				double OP = frameOP_CG[1][currentLipid] / frameOP_CG[0][currentLipid];
-				
-				OP_CG[1][currentLipid] = OP_CG[1][currentLipid] + OP;
-				OP_CG[2][currentLipid] = OP_CG[2][currentLipid] + (OP * OP);
-
-			}	//Ends for loop
-
-			Readin.serializeFrame("falseName", frameNumber, Frame);
-
-		}	//Ends else statement
-	
 		return OP_CG;
 	}	//Ends AverageOP method
 
@@ -137,108 +137,105 @@ public class Process implements Serializable {
 		//Do this for every lipid, then save these calculation.
 	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
-//		boolean OPCalculated = Frame.allLipids[0].checkForOP();
-		boolean OPCalculated = true;
+		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
-		if (OPCalculated){
-			//Do Nothing, you've already calculated the Average OP
+		int length = Frame.allLipids.length;
+		int frameNumber = Frame.getFrameNumber();
+		int totalLipids = lipidNames.length;
+		int totalChains = OP[0][0].length;
+		int totalMembers = OP[0][0][0][0].length;
+		int totalAtoms = 4;
+
+		//The Array OP can be Defined as:
+		//OP[ Count / OP / OP^2 ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
+		//We Want to do a system average for a single frame, then average all the frames togethor.
+
+		double[][][][][] frameOP = new double[2][totalLipids][totalChains][totalAtoms][totalMembers];
+
+
+		for (int i = 0; i < length; i++){
+
+			if (!(OPCalculated)) { 
+				//This takes some time, so lets try to minimalize it.
+				Frame.allLipids[i].setOP(0,0);
+			}	//Ends if statement
+
+			String lipidName = Frame.allLipids[i].getName();
+			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
+			Atom currentAtom = Frame.allLipids[i].firstChain;
+
+			boolean keepGoing = true;
+			int chainCount = 0;
+
+			//Now we will Bin all the data in one spot so analysis can be done.
+			while (keepGoing) {
+				
+				if (currentAtom == null) {
+					chainCount++;
+					currentAtom = Frame.allLipids[i].secondChain;						
+
+					if (chainCount == 2) {
+						keepGoing = false;
+					}	//ends if statement
+
+				}	//Ends if statement
+
+				else {
+					double currentOP = currentAtom.getOP();
+					//Get the average for the Carbon Atom		
+					if (currentOP != 0) {
+						int member = currentAtom.getMember();
+						if (member == -1) { member = 0; }
+
+						frameOP[0][lipidNumber][chainCount][0][member]++;
+						frameOP[1][lipidNumber][chainCount][0][member] = frameOP[1][lipidNumber][chainCount][0][member] + currentOP;
+
+
+						Atom hydrogenAtom = currentAtom.nextHydrogen;
+						int currentHydrogen = 1;
+
+						//Get the average for the Hydrogen Atoms seperately.
+						while (hydrogenAtom != null){
+							currentOP = hydrogenAtom.getOP();
+					
+							frameOP[0][lipidNumber][chainCount][currentHydrogen][member]++;
+							frameOP[1][lipidNumber][chainCount][currentHydrogen][member] = frameOP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
+							currentHydrogen++;
+							hydrogenAtom = hydrogenAtom.nextHydrogen;
+						}	//Ends while loop
+					}	//Ends if statement
+				
+					currentAtom = currentAtom.next;
+				}	//ends else statement
+			}	//Ends while loop
+		}	//Ends for Loop
+
+		if (!(OPCalculated)) {
+			//Try to minimalize the time.
+			Readin.serializeFrame("falseName", frameNumber, Frame);
 		}	//Ends if statement
 
-		else{
+		//Now average the array given and add it into the overall Array.
+		for (int i = 0; i < totalLipids; i++){
+			for (int j = 0; j < totalChains; j++){
+				for (int k = 0; k < totalAtoms; k++){
+					for (int h = 0; h < totalMembers; h++){
 
-			int length = Frame.allLipids.length;
-			int frameNumber = Frame.getFrameNumber();
-			int totalLipids = lipidNames.length;
-			int totalChains = OP[0][0].length;
-			int totalMembers = OP[0][0][0][0].length;
-			int totalAtoms = 4;
+						double count = frameOP[0][i][j][k][h];
 
-			//The Array OP can be Defined as:
-			//OP[ Count / OP / OP^2 ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
-			//We Want to do a system average for a single frame, then average all the frames togethor.
+						OP[0][i][j][k][h] = OP[0][i][j][k][h] + count;
 
-			double[][][][][] frameOP = new double[2][totalLipids][totalChains][totalAtoms][totalMembers];
+						double currentOP = frameOP[1][i][j][k][h] / count;
 
+						if (currentOP != 0){
+							OP[1][i][j][k][h] = OP[1][i][j][k][h] + currentOP;
+							OP[2][i][j][k][h] = OP[2][i][j][k][h] + (currentOP * currentOP);
 
-			for (int i = 0; i < length; i++){
-				Frame.allLipids[i].setOP(0,0);
-
-				String lipidName = Frame.allLipids[i].getName();
-				int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
-				Atom currentAtom = Frame.allLipids[i].firstChain;
-
-				boolean keepGoing = true;
-				int chainCount = 0;
-
-				//Now we will Bin all the data in one spot so analysis can be done.
-				while (keepGoing) {
-					
-					if (currentAtom == null) {
-						chainCount++;
-						currentAtom = Frame.allLipids[i].secondChain;						
-
-						if (chainCount == 2) {
-							keepGoing = false;
-						}	//ends if statement
-
-					}	//Ends if statement
-
-					else {
-						double currentOP = currentAtom.getOP();
-						//Get the average for the Carbon Atom		
-						if (currentOP != 0) {
-							int member = currentAtom.getMember();
-							if (member == -1) { member = 0; }
-
-							frameOP[0][lipidNumber][chainCount][0][member]++;
-							frameOP[1][lipidNumber][chainCount][0][member] = frameOP[1][lipidNumber][chainCount][0][member] + currentOP;
-
-
-							Atom hydrogenAtom = currentAtom.nextHydrogen;
-							int currentHydrogen = 1;
-
-							//Get the average for the Hydrogen Atoms seperately.
-							while (hydrogenAtom != null){
-								currentOP = hydrogenAtom.getOP();
-						
-								frameOP[0][lipidNumber][chainCount][currentHydrogen][member]++;
-								frameOP[1][lipidNumber][chainCount][currentHydrogen][member] = frameOP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
-								currentHydrogen++;
-								hydrogenAtom = hydrogenAtom.nextHydrogen;
-							}	//Ends while loop
 						}	//Ends if statement
-					
-						currentAtom = currentAtom.next;
-					}	//ends else statement
-				}	//Ends while loop
-			}	//Ends for Loop
-
-			Readin.serializeFrame("falseName", frameNumber, Frame);
-
-			
-			//Now average the array given and add it into the overall Array.
-
-			for (int i = 0; i < totalLipids; i++){
-				for (int j = 0; j < totalChains; j++){
-					for (int k = 0; k < totalAtoms; k++){
-						for (int h = 0; h < totalMembers; h++){
-
-							double count = frameOP[0][i][j][k][h];
-
-							OP[0][i][j][k][h] = OP[0][i][j][k][h] + count;
-
-							double currentOP = frameOP[1][i][j][k][h] / count;
-
-							if (currentOP != 0){
-								OP[1][i][j][k][h] = OP[1][i][j][k][h] + currentOP;
-								OP[2][i][j][k][h] = OP[2][i][j][k][h] + (currentOP * currentOP);
-
-							}	//Ends if statement
-						}	//Ends for loop
 					}	//Ends for loop
 				}	//Ends for loop
 			}	//Ends for loop
-		}	//Ends else statement
+		}	//Ends for loop
 
 		return OP;
 	}	//Ends AverageOP method
