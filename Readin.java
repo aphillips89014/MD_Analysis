@@ -346,7 +346,7 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
-	public static void createOPHistogramFiles(double[][] OP_Histogram, String[] lipidNames){
+	public static void createOPHistogramFiles(double[][] OP_Histogram, String[] lipidNames, boolean Coarse_Grained){
 		PrintStream console = System.out;
 
 		int totalLipids = lipidNames.length;
@@ -367,7 +367,9 @@ public class Readin implements Serializable{
 
 					for (int j = 0; j < length; j++){
 						double binSpot = (double) j;
-						binSpot = binSpot / 2000;
+						binSpot = (binSpot / 2000) - 1;
+						
+						if (!(Coarse_Grained)) { binSpot = binSpot * -1;}
 
 //						binSpot = Mathematics.reverseOP_CosTheta(binSpot);
 
@@ -529,13 +531,8 @@ public class Readin implements Serializable{
 						double OPSquared = OPvNN[2][lipid][compLipid][neighbors] / totalFiles;
 						double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
 
-						//Magnitude of OP
-						if (OP < 0) { OP = OP * -1; }
-
-						if (OP > 0) {
-							if (proportion > 3){
-								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
-							}	//Ends if statement
+						if (proportion > 3){
+							System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 						}	//Ends if statement
 					}	//Ends for loop
 				}	//end try statement
@@ -600,13 +597,8 @@ public class Readin implements Serializable{
 							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFiles;
 							double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
 							
-							//Magnitude of OP
-							if (OP < 0) { OP = OP * -1; }
-
-							if (OP > 0) {
-								if (proportion > 1){
-									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
-								}	//Ends if statement
+							if (proportion > 1){
+								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 							}	//Ends if statement
 						}	//Ends for loop
 					}	//end try statement
@@ -755,10 +747,13 @@ public class Readin implements Serializable{
 			System.setOut(output);
 
 			double seperator = 0.33;
+			double totalDouble = totalLipids;
+			double shiftValue = 1 / totalDouble;
+
 
 			for (int i = 0; i < totalLipids; i++){
 				for (int j = 0; j < totalLipids; j++){
-					seperator = 0.33 + (i*1.33) + (0.33 * j);
+					seperator = shiftValue + (i*(1+shiftValue)) + (shiftValue * j);
 					
 					String Lipid = Mathematics.IntToLipid(i, lipidNames);
 					String compLipid = Mathematics.IntToLipid(j, lipidNames);

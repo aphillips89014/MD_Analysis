@@ -137,7 +137,8 @@ public class Process implements Serializable {
 		//Do this for every lipid, then save these calculation.
 	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
-		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+//		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+		boolean OPCalculated = true;
 
 		if (OPCalculated){
 			//Do Nothing, you've already calculated the Average OP
@@ -184,7 +185,7 @@ public class Process implements Serializable {
 
 					else {
 						double currentOP = currentAtom.getOP();
-						
+						//Get the average for the Carbon Atom		
 						if (currentOP != 0) {
 							int member = currentAtom.getMember();
 							if (member == -1) { member = 0; }
@@ -196,6 +197,7 @@ public class Process implements Serializable {
 							Atom hydrogenAtom = currentAtom.nextHydrogen;
 							int currentHydrogen = 1;
 
+							//Get the average for the Hydrogen Atoms seperately.
 							while (hydrogenAtom != null){
 								currentOP = hydrogenAtom.getOP();
 						
@@ -423,9 +425,12 @@ public class Process implements Serializable {
 			double totalChains = 2;
 			if (secondOP == 0) { totalChains = 1; }
 
-			double OP = (firstOP + secondOP) / totalChains;
-		
-			int index = (int) Math.round(OP * 2000);
+//			double OP = (firstOP + secondOP) / totalChains;
+			double OP = firstOP;
+//			double OP = secondOP;		
+
+
+			int index = (int) Math.round((OP + 1) * 2000);
 
 			OP_Histogram[lipid][index]++;
 
@@ -693,7 +698,7 @@ public class Process implements Serializable {
 			double[][] OP_CG = new double[3][totalLipids];
 			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
-			double[][] OP_Histogram = new double[totalLipids][2001];
+			double[][] OP_Histogram = new double[totalLipids][4001];
 			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
@@ -752,7 +757,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalReadFrames);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
 				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
-				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
+				Readin.createOPHistogramFiles(OP_Histogram, lipidNames, coarseGrained);
 			}	//Ends if statement
 
 			else{
@@ -761,7 +766,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalReadFrames);
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
-				Readin.createOPHistogramFiles(OP_Histogram, lipidNames);
+				Readin.createOPHistogramFiles(OP_Histogram, lipidNames, coarseGrained);
 				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);
 			}	//Ends else statement
 

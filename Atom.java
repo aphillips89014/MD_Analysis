@@ -103,7 +103,7 @@ public class Atom implements Serializable{
 
 
 		//Get the OP for any given Coarse-Grained Lipid
-		else if ((this.Name.equals("C-Bead")) || (this.Name.equals("ROH"))){
+		else if ((this.Name.equals("C-Bead")) || (this.Name.equals("ROH")) || (this.Name.equals("C1"))){
 			//Compare with the next atom always.
 				//Periodic Boundary Conditions can servely mess up a CG OP Calculation, so account for that here.
 
