@@ -21,6 +21,9 @@ public class Lipid implements java.io.Serializable {
 	double firstOP = 0;
 	double secondOP = 0;
 
+	double firstCosTheta = 0;
+	double secondCosTheta = 0;
+
 	int[] Neighbors;
 
 	Atom firstChain;
@@ -81,24 +84,32 @@ public class Lipid implements java.io.Serializable {
 
 	//Average the Order Parameter for the first Chain and the seocnd chain.
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
-	public void setOP(double xLength, double yLength){
+	public void setOP_CosTheta(double xLength, double yLength){
 
-		double[] first = new double[2];
+		double[] first_CosTheta = new double[2];
+		double[] first_OP = new double[2];
 
 		firstChain.determineOP(0, 0, 0, xLength, yLength);
-		first = firstChain.averageOP(first);		
+		first_OP = firstChain.averageOP(first_OP);		
+		first_CosTheta = firstChain.averageCosTheta(first_CosTheta);
 
-		if (first[0] != 0){
-			this.firstOP = (first[1] / first[0]);
+		if (first_OP[0] != 0){
+			this.firstOP = (first_OP[1] / first_OP[0]);
+			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]);
 		}	//Ends if statement	
 
-		double[] second = new double[2];
+
+
+		double[] second_OP = new double[2];
+		double[] second_CosTheta = new double[2];
 
 		secondChain.determineOP(0,0,0, xLength, yLength);
-		second = secondChain.averageOP(second);
+		second_OP = secondChain.averageOP(second_OP);
+		second_CosTheta = secondChain.averageCosTheta(second_CosTheta);		
 
-		if (second[0] != 0){
-			this.secondOP = (second[1] / second[0]);
+		if (second_OP[0] != 0){
+			this.secondOP = (second_OP[1] / second_OP[0]);
+			this.secondCosTheta = (second_CosTheta[1] / second_CosTheta[0]);
 		}	//ends if statement
 
 	}	//Ends average OP method

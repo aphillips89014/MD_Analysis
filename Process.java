@@ -70,7 +70,7 @@ public class Process implements Serializable {
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
-	//Use the method setOP to average the OP of all Atoms
+	//Use the method setOP_CosTheta to average the OP of all Atoms
 	//Do this for every lipid, then save these calculation.
 	public static double[][] generateOP_CG(Frame Frame, double[][] OP_CG, String[] lipidNames){
 		
@@ -89,7 +89,7 @@ public class Process implements Serializable {
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			if (!(OPCalculated)){
 				//If the OP Is not calculated then we should set it.
-				Frame.allLipids[currentLipid].setOP(xLength, yLength);
+				Frame.allLipids[currentLipid].setOP_CosTheta(xLength, yLength);
 			}	//ends if statement
 
 
@@ -135,7 +135,7 @@ public class Process implements Serializable {
 
 
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
-		//Use the method setOP to average the OP of all Atoms per Chain
+		//Use the method setOP_CosTheta to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
 	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
 		
@@ -159,7 +159,7 @@ public class Process implements Serializable {
 
 			if (!(OPCalculated)) { 
 				//This takes some time, so lets try to minimalize it.
-				Frame.allLipids[i].setOP(0,0);
+				Frame.allLipids[i].setOP_CosTheta(0,0);
 			}	//Ends if statement
 
 			String lipidName = Frame.allLipids[i].getName();
@@ -421,11 +421,7 @@ public class Process implements Serializable {
 			double totalChains = 2;
 			if (secondOP == 0) { totalChains = 1; }
 
-//			double OP = (firstOP + secondOP) / totalChains;
-			double OP = firstOP;
-//			double OP = secondOP;		
-
-
+			double OP = (firstOP + secondOP) / totalChains;
 			int index = (int) Math.round((OP + 1) * 2000);
 
 			OP_Histogram[lipid][index]++;
@@ -705,7 +701,7 @@ public class Process implements Serializable {
 			//Perform calculations for each Frame.
 			for (int i = startingFrame; i < totalFiles; i++){
 				Frame currentFrame = Readin.unserializeFrame(i);
-				
+	
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);

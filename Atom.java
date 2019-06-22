@@ -16,6 +16,7 @@ public class Atom implements Serializable{
 	double Y;
 	double Z;
 	double OP;
+	double cosTheta;
 	int ID;
 
 	//Atom is a Node in a Linked List.
@@ -63,8 +64,11 @@ public class Atom implements Serializable{
 			this.nextHydrogen.determineOP(this.X, this.Y, this.Z, 0, 0);
 
 			double[] OParray = new double[2];
+			double[] cosThetaArray = new double[2];
 			OParray = this.nextHydrogen.averageHydrogenOP(OParray);
+			cosThetaArray = this.nextHydrogen.averageHydrogenCosTheta(cosThetaArray);
 			this.OP = OParray[1] / OParray[0];
+			this.cosTheta = cosThetaArray[1] / cosThetaArray[0];
 
 
 			if (this.next != null){
@@ -74,7 +78,8 @@ public class Atom implements Serializable{
 
 
 		else if (this.Name.equals("H")) {
-			this.OP = Mathematics.calculateOP(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
+			this.cosTheta = Mathematics.calculateCosTheta(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
+			this.OP = Mathematics.calculateOP(this.cosTheta);
 
 			if (this.nextHydrogen != null){
 				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ, 0, 0);
@@ -85,7 +90,7 @@ public class Atom implements Serializable{
 		//Skip over the head
 		else if (this.Name.equals("head")){
 			if (this.next != null){
-				this.next.determineOP(0,0,0,0,0);
+				this.next.determineOP(0,0,0, xLength, yLength);
 			}	//Ends if statement
 		}	//Ends if statement
 
@@ -97,7 +102,8 @@ public class Atom implements Serializable{
 			//Its the OP between C3 and H3
 		else if (this.Name.equals("H3")) {
 			//Next item is always C3
-			this.OP = Mathematics.calculateOP(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.cosTheta = Mathematics.calculateCosTheta(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.OP = Mathematics.calculateOP(this.cosTheta);
 
 		}	//Ends if statement
 
@@ -111,9 +117,11 @@ public class Atom implements Serializable{
 
 				double currentX = this.X;
 				double currentY = this.Y;
+				double currentZ = this.Z;
 
 				double nextX = this.next.X;
 				double nextY = this.next.Y;
+				double nextZ = this.next.Z;
 
 				int shiftX = Mathematics.checkBoundary(currentX, xLength, 10, false);
 				int shiftY = Mathematics.checkBoundary(currentY, yLength, 10, false);
@@ -121,7 +129,9 @@ public class Atom implements Serializable{
 				nextX = Mathematics.applyPBC(nextX, shiftX, xLength, false);
 				nextY = Mathematics.applyPBC(nextY, shiftY, yLength, false);
 
-				this.OP = Mathematics.calculateOP(nextX, nextY, this.next.Z, currentX, currentY, this.Z);
+				this.cosTheta = Mathematics.calculateCosTheta(nextX, nextY, nextZ, currentX, currentY, currentZ);
+				this.OP = Mathematics.calculateOP(this.cosTheta);
+
 			}	//Ends if statement
 
 			else{
@@ -134,10 +144,29 @@ public class Atom implements Serializable{
 		//Iterate through the linked list until we find a suitable value
 		else{
 			if (this.next != null){
+				System.out.println("Skipped an unrecognized point, Name: " + this.Name);
 				this.next.determineOP(0,0,0, xLength, yLength);
 			}	//ends if statement
 		}	//ends else statement
 	}	//Ends determineOP
+	
+
+
+	public double[] averageHydrogenCosTheta(double[] array){
+		if (this.OP != 0) {
+			array[0]++;
+			array[1] = array[1] + this.cosTheta;
+
+		}	//Ends if statement
+		
+		if (this.nextHydrogen != null){
+			array = this.nextHydrogen.averageHydrogenCosTheta(array);
+		}	//ends if statement
+
+		return array;
+	}	//Ends averageHydrogenOP
+
+
 
 	
 	public double[] averageHydrogenOP(double[] array){
@@ -153,6 +182,23 @@ public class Atom implements Serializable{
 
 		return array;
 	}	//Ends averageHydrogenOP
+
+
+	//Iterater through the Linked list and average the Cos Theta
+	//Keep track of the total number of iterations in the first index, then the summed value itself in the second index.
+	public double[] averageCosTheta(double[] array){
+		
+		if (this.cosTheta != 0){
+			array[0]++;
+			array[1] = array[1] + this.cosTheta;
+		}	//Ends if statement
+
+		if (this.next != null){
+			array = this.next.averageCosTheta(array);
+		}	//Ends
+
+		return array;
+	}	//Ends averageOp
 
 
 
@@ -171,6 +217,7 @@ public class Atom implements Serializable{
 
 		return array;
 	}	//Ends averageOp
+
 
 	public double getPhosphateThickness(){
 		double result = 0;
