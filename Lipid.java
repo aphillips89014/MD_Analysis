@@ -93,7 +93,7 @@ public class Lipid implements java.io.Serializable {
 		first_OP = firstChain.averageOP(first_OP);		
 		first_CosTheta = firstChain.averageCosTheta(first_CosTheta);
 
-		if (first_CosTheta[0] >= -1){
+		if (first_CosTheta[0] > 0){
 			this.firstOP = (first_OP[1] / first_OP[0]);
 			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]);
 
@@ -107,7 +107,7 @@ public class Lipid implements java.io.Serializable {
 		second_OP = secondChain.averageOP(second_OP);
 		second_CosTheta = secondChain.averageCosTheta(second_CosTheta);		
 
-		if (second_CosTheta[0] >= -1){
+		if (second_CosTheta[0] > 0){
 			this.secondOP = (second_OP[1] / second_OP[0]);
 			this.secondCosTheta = (second_CosTheta[1] / second_CosTheta[0]);
 		}	//ends if statement
