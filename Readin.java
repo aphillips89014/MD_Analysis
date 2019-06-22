@@ -369,8 +369,6 @@ public class Readin implements Serializable{
 						double binSpot = (double) j;
 						binSpot = (binSpot / 2000) - 1;
 						
-						if (!(Coarse_Grained)) { binSpot = binSpot * -1;}
-
 						double count = CosTheta_Histogram[i][j];
 						String firstValue = String.format("%.0005f", binSpot);
 						System.out.println(firstValue + " " + count);
