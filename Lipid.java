@@ -21,8 +21,8 @@ public class Lipid implements java.io.Serializable {
 	double firstOP = 0;
 	double secondOP = 0;
 
-	double firstCosTheta = 0;
-	double secondCosTheta = 0;
+	double firstCosTheta = -2;
+	double secondCosTheta = -2;
 
 	int[] Neighbors;
 
@@ -93,12 +93,11 @@ public class Lipid implements java.io.Serializable {
 		first_OP = firstChain.averageOP(first_OP);		
 		first_CosTheta = firstChain.averageCosTheta(first_CosTheta);
 
-		if (first_OP[0] != 0){
+		if (first_CosTheta[0] >= -1){
 			this.firstOP = (first_OP[1] / first_OP[0]);
 			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]);
 
 		}	//Ends if statement	
-
 
 
 		double[] second_OP = new double[2];
@@ -108,7 +107,7 @@ public class Lipid implements java.io.Serializable {
 		second_OP = secondChain.averageOP(second_OP);
 		second_CosTheta = secondChain.averageCosTheta(second_CosTheta);		
 
-		if (second_OP[0] != 0){
+		if (second_CosTheta[0] >= -1){
 			this.secondOP = (second_OP[1] / second_OP[0]);
 			this.secondCosTheta = (second_CosTheta[1] / second_CosTheta[0]);
 		}	//ends if statement
@@ -130,13 +129,13 @@ public class Lipid implements java.io.Serializable {
 //		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
 		System.out.println(this.Name + " " + this.ID);
 
-//		System.out.println("firstChain:");
-//		this.firstChain.printAllAtoms();
-//		System.out.println("secondChain:");
-//		this.secondChain.printAllAtoms();
-//		System.out.println("firstOP: " + this.firstOP + "     secondOP: " + this.secondOP);
+		System.out.println("firstChain:");
+		this.firstChain.printAllAtoms();
+		System.out.println("secondChain:");
+		this.secondChain.printAllAtoms();
 
-		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
+		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
+//		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
 
 
@@ -298,6 +297,17 @@ public class Lipid implements java.io.Serializable {
 	public int getID(){
 		return this.ID;
 	}	//Ends getID Method
+
+	public double getFirstCosTheta(){
+		return this.firstCosTheta;
+	}	//ends getFirstCosTheta
+
+
+	public double getSecondCosTheta(){
+		return this.secondCosTheta;
+	}	//ends getFirstCosTheta
+
+
 
 	public double getFirstOP(){
 		return this.firstOP;

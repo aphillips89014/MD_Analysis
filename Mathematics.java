@@ -176,11 +176,15 @@ public class Mathematics{
 
 	public static double calculateCosTheta(double x1, double y1, double z1, double x2, double y2, double z2){
 	
-		double xDiff = Math.pow((x1 - x2), 2);
-		double yDiff = Math.pow((y1 - y2), 2);
-		double zDiff = Math.pow((z1 - z2), 2);
+		double xDiff = x1 - x2;
+		double yDiff = y1 - y2;
+		double zDiff = z1 - z2;
 
-		double magnitude = Math.pow((xDiff + yDiff + zDiff), 0.5);
+		double xDiff2 = xDiff * xDiff;
+		double yDiff2 = yDiff * yDiff;
+		double zDiff2 = zDiff * zDiff;
+
+		double magnitude = Math.pow((xDiff2 + yDiff2 + zDiff2), 0.5);
 		double cosTheta = (z1 - z2) / magnitude;
 	
 		return cosTheta;

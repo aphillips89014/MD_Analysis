@@ -16,7 +16,7 @@ public class Atom implements Serializable{
 	double Y;
 	double Z;
 	double OP;
-	double cosTheta;
+	double cosTheta = -2;
 	int ID;
 
 	//Atom is a Node in a Linked List.
@@ -137,6 +137,7 @@ public class Atom implements Serializable{
 					this.cosTheta = Mathematics.calculateCosTheta(nextX, nextY, nextZ, currentX, currentY, currentZ);
 				}	//ends else statement
 
+
 				this.OP = Mathematics.calculateOP(this.cosTheta);
 
 			}	//Ends if statement
@@ -160,7 +161,7 @@ public class Atom implements Serializable{
 
 
 	public double[] averageHydrogenCosTheta(double[] array){
-		if (this.OP != 0) {
+		if (this.cosTheta >= 0) {
 			array[0]++;
 			array[1] = array[1] + this.cosTheta;
 
@@ -195,7 +196,7 @@ public class Atom implements Serializable{
 	//Keep track of the total number of iterations in the first index, then the summed value itself in the second index.
 	public double[] averageCosTheta(double[] array){
 		
-		if (this.cosTheta != 0){
+		if (this.cosTheta >= -1){
 			array[0]++;
 			array[1] = array[1] + this.cosTheta;
 		}	//Ends if statement
@@ -244,7 +245,7 @@ public class Atom implements Serializable{
 
 	//System for checking debugging
 	public void printAllAtoms(){
-		System.out.println(this.ID + " " + this.Chain + " " + this.Name + " " + this.Member + " " + this.Hydrogen + " " + this.X + " " + this.Y + " " + this.Z + " " + this.OP);
+		System.out.println(this.ID + " " + this.Chain + " " + this.Name + " " + this.X + " " + this.Y + " " + this.Z);
 	
 		if (this.next != null){
 			this.next.printAllAtoms();

@@ -415,13 +415,17 @@ public class Process implements Serializable {
 			String lipidName = currentFrame.allLipids[currentLipid].getName();
 			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
 
-			double firstCosTheta = currentFrame.allLipids[currentLipid].firstCosTheta;
-			double secondCosTheta = currentFrame.allLipids[currentLipid].secondCosTheta;
+			double firstCosTheta = currentFrame.allLipids[currentLipid].getFirstCosTheta();
+			double secondCosTheta = currentFrame.allLipids[currentLipid].getSecondCosTheta();
 
-			double totalChains = 2;
-			if (secondCosTheta == 0) { totalChains = 1; }
+			double CosTheta;
+			CosTheta = (firstCosTheta + secondCosTheta) / 2;
 
-			double CosTheta = (firstCosTheta + secondCosTheta) / totalChains;
+			if (secondCosTheta < -1) {
+				CosTheta = firstCosTheta;
+			}	//Ends if statement
+
+
 			int index = (int) Math.round((CosTheta + 1) * 2000);
 
 			CosTheta_Histogram[lipid][index]++;
@@ -721,6 +725,7 @@ public class Process implements Serializable {
 					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);
 
 				}	//Ends else statement
+
 			}	//Ends for loop
 			time = progressStatement(time, "End_Calculation");
 			
