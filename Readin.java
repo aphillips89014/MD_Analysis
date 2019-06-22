@@ -346,21 +346,21 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
-	public static void createOPHistogramFiles(double[][] OP_Histogram, String[] lipidNames, boolean Coarse_Grained){
+	public static void createCosThetaHistogramFiles(double[][] CosTheta_Histogram, String[] lipidNames, boolean Coarse_Grained){
 		PrintStream console = System.out;
 
 		int totalLipids = lipidNames.length;
-		int length = OP_Histogram[0].length;
+		int length = CosTheta_Histogram[0].length;
 		double sum = 0;
 
 		for (int i = 0; i < totalLipids; i++){
 			for (int j = 0; j < length; j++){
-				sum = sum + OP_Histogram[i][j];
+				sum = sum + CosTheta_Histogram[i][j];
 			}	//Ends for loop
 
 			//Now we ignore lipids without phosphates.
 			if (sum > 1){
-				String fileName = "Graphing/Data/" + lipidNames[i] + "_OP_Histogram.dat";
+				String fileName = "Graphing/Data/" + lipidNames[i] + "_CosTheta_Histogram.dat";
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
 					System.setOut(output);
@@ -371,9 +371,7 @@ public class Readin implements Serializable{
 						
 						if (!(Coarse_Grained)) { binSpot = binSpot * -1;}
 
-//						binSpot = Mathematics.reverseOP_CosTheta(binSpot);
-
-						double count = OP_Histogram[i][j];
+						double count = CosTheta_Histogram[i][j];
 						String firstValue = String.format("%.0005f", binSpot);
 						System.out.println(firstValue + " " + count);
 
@@ -388,7 +386,7 @@ public class Readin implements Serializable{
 			}	//Ends if statement
 		}	//Ends for loop
 		System.setOut(console);
-	}	//ends createOPHistogram
+	}	//ends createCosThetaHistogram
 
 	
 

@@ -407,7 +407,7 @@ public class Process implements Serializable {
 	}	//Ends OPvNN_AA
 
 
-	public static double[][] generateOPHistogram(Frame currentFrame, double[][] OP_Histogram, String[] lipidNames){
+	public static double[][] generateCosThetaHistogram(Frame currentFrame, double[][] CosTheta_Histogram, String[] lipidNames){
 		//First index is the lipid type, second index is the binned OP
 		int totalLipids = currentFrame.allLipids.length;
 		
@@ -415,21 +415,21 @@ public class Process implements Serializable {
 			String lipidName = currentFrame.allLipids[currentLipid].getName();
 			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
 
-			double firstOP = currentFrame.allLipids[currentLipid].getFirstOP();
-			double secondOP = currentFrame.allLipids[currentLipid].getSecondOP();
+			double firstCosTheta = currentFrame.allLipids[currentLipid].firstCosTheta;
+			double secondCosTheta = currentFrame.allLipids[currentLipid].secondCosTheta;
 
 			double totalChains = 2;
-			if (secondOP == 0) { totalChains = 1; }
+			if (secondCosTheta == 0) { totalChains = 1; }
 
-			double OP = (firstOP + secondOP) / totalChains;
-			int index = (int) Math.round((OP + 1) * 2000);
+			double CosTheta = (firstCosTheta + secondCosTheta) / totalChains;
+			int index = (int) Math.round((CosTheta + 1) * 2000);
 
-			OP_Histogram[lipid][index]++;
+			CosTheta_Histogram[lipid][index]++;
 
 		}	//Ends for loop
 	
-		return OP_Histogram;
-	}	//ends generateOPHistogram
+		return CosTheta_Histogram;
+	}	//ends generateCosThetaHistogram
 
 	public static int[][] generateThickness(Frame currentFrame, int[][] Thickness, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
@@ -690,7 +690,7 @@ public class Process implements Serializable {
 			double[][] OP_CG = new double[3][totalLipids];
 			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
-			double[][] OP_Histogram = new double[totalLipids][4001];
+			double[][] CosTheta_Histogram = new double[totalLipids][4001];
 			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
@@ -701,12 +701,13 @@ public class Process implements Serializable {
 			//Perform calculations for each Frame.
 			for (int i = startingFrame; i < totalFiles; i++){
 				Frame currentFrame = Readin.unserializeFrame(i);
+
 	
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
 					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
-					OP_Histogram = generateOPHistogram(currentFrame, OP_Histogram, lipidNames);
+					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
 
 				}	//ends if statemetn
 
@@ -716,7 +717,7 @@ public class Process implements Serializable {
 					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 					PCL = generatePCL(currentFrame, PCL, lipidNames);
-					OP_Histogram = generateOPHistogram(currentFrame, OP_Histogram, lipidNames);
+					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
 					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);
 
 				}	//Ends else statement
@@ -749,7 +750,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalReadFrames);
 				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
 				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
-				Readin.createOPHistogramFiles(OP_Histogram, lipidNames, coarseGrained);
+				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 			}	//Ends if statement
 
 			else{
@@ -758,7 +759,7 @@ public class Process implements Serializable {
 				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalReadFrames);
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
-				Readin.createOPHistogramFiles(OP_Histogram, lipidNames, coarseGrained);
+				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);
 			}	//Ends else statement
 
