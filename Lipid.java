@@ -96,6 +96,7 @@ public class Lipid implements java.io.Serializable {
 		if (first_OP[0] != 0){
 			this.firstOP = (first_OP[1] / first_OP[0]);
 			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]);
+
 		}	//Ends if statement	
 
 

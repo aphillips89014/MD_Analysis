@@ -660,7 +660,7 @@ public class Process implements Serializable {
 			boolean filesExist = Readin.checkForFiles(fileName);
 			if (!filesExist) {
 				try{
-					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, coordinateFile);
+					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, finalFrame, coordinateFile);
 
 				}	//Ends try Statement
 

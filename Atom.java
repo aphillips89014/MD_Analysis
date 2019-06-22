@@ -102,7 +102,7 @@ public class Atom implements Serializable{
 			//Its the OP between C3 and H3
 		else if (this.Name.equals("H3")) {
 			//Next item is always C3
-			this.cosTheta = Mathematics.calculateCosTheta(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.cosTheta = Mathematics.calculateCosTheta(this.X, this.Y, this.Z, this.next.X, this.next.Y, this.next.Z);
 			this.OP = Mathematics.calculateOP(this.cosTheta);
 
 		}	//Ends if statement
@@ -129,7 +129,14 @@ public class Atom implements Serializable{
 				nextX = Mathematics.applyPBC(nextX, shiftX, xLength, false);
 				nextY = Mathematics.applyPBC(nextY, shiftY, yLength, false);
 
-				this.cosTheta = Mathematics.calculateCosTheta(nextX, nextY, nextZ, currentX, currentY, currentZ);
+				if (this.Name.equals("ROH")) {
+					this.cosTheta = Mathematics.calculateCosTheta(currentX, currentY, currentZ, nextX, nextY, nextZ);
+				}	//end if statement
+
+				else{
+					this.cosTheta = Mathematics.calculateCosTheta(nextX, nextY, nextZ, currentX, currentY, currentZ);
+				}	//ends else statement
+
 				this.OP = Mathematics.calculateOP(this.cosTheta);
 
 			}	//Ends if statement

@@ -898,7 +898,7 @@ public class Readin implements Serializable{
 
 	//Read Various Files and create Lipids to be associated with specific Frames.
 		//Unqiue for a specific set of file formats.
-	public static int readFile(String[] lipidNames, boolean firstFrameOnly, String fileName) throws FileNotFoundException {
+	public static int readFile(String[] lipidNames, boolean firstFrameOnly, int givenFinalFrame, String fileName) throws FileNotFoundException {
 
 		File file = new File(fileName);
 		Scanner Scan = new Scanner(file);
@@ -962,6 +962,10 @@ public class Readin implements Serializable{
 					if (firstFrameOnly == true){
 						keepGoing = false;
 					}	//Ends if statement					
+
+					else if (currentFrame == givenFinalFrame) {
+						keepGoing = false;
+					}	//Ends if statement
 
 					//Serialize Old Frame
 					//Create new Frame
