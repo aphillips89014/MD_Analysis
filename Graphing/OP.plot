@@ -22,7 +22,6 @@ set style line 4 \
 	pointtype 7 pointsize 0.3
 
 full_Title = lipid_1."'s OP"
-set xrange [0:19]
 set title full_Title
 set xlabel "Carbon Index"
 set ylabel "Order Parameter"
