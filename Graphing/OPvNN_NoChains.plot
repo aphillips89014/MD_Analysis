@@ -2,8 +2,8 @@ lipid_1 = ARG1
 lipid_2 = ARG2
 lipid_3 = ARG3
 lipid_4 = ARG4
-set xrange[-0.1:7.25]
-set yrange[0.3:1]
+set xrange[-0.1:7.1]
+set yrange[0:1]
 
 
 set style line 1 \
@@ -51,8 +51,8 @@ set ytics font ",20"
 set lmargin 13
 set bmargin 6
 
-set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
-set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4
+#set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
+#set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4
 
 fileName_1 = "Data/OP_NN_".lipid_1."_".lipid_2.".dat"
 fileName_2 = "Data/OP_NN_".lipid_3."_".lipid_4.".dat"

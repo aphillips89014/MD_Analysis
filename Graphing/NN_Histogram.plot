@@ -15,6 +15,8 @@ set style line 2 lc rgb "blue"
 set style line 3 lc rgb "green"
 set style line 4 lc rgb "purple"
 
+set yrange[0:3]
+
 set boxwidth 0.33
 set style fill solid
 
@@ -25,6 +27,10 @@ set ylabel "Number of Neighbors"
 
 fileName = "NN_Bar_Graph.dat"
 full_FileName = "Data/".fileName
+
+#plot full_FileName every 2 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
+#full_FileName every 2::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
+
 
 plot full_FileName every 3 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
 full_FileName every 3::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\

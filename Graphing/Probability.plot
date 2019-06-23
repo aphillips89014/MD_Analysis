@@ -5,8 +5,8 @@ lipid_2_ls = 3
 lipid_3 = ARG3
 lipid_4 = ARG4
 
-set yrange [0:0.8]
-set xrange[-0.2:6.2]
+set yrange [0:0.5]
+set xrange[-0.2:10.2]
 
 
 set style line 1 \
