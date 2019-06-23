@@ -7,6 +7,7 @@ fullClean:
 	rm -f *.class
 	rm -f Frames/*
 	rm -f Graphing/Data/*
+	rm -f Graphing/Graphs/*
 
 dataClean:
 	rm -f Graphing/Data/*
