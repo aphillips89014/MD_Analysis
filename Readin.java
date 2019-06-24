@@ -61,9 +61,6 @@ public class Readin implements Serializable{
 
 
 		catch(IOException e){
-			System.out.println("Issue occured accessing " + fileName);
-			System.out.println(e);
-			System.out.println("");
 		}	//Ends catch statement
 
 		return newFrame;
@@ -896,7 +893,7 @@ public class Readin implements Serializable{
 
 	//Read Various Files and create Lipids to be associated with specific Frames.
 		//Unqiue for a specific set of file formats.
-	public static int readFile(String[] lipidNames, boolean firstFrameOnly, int givenFinalFrame, String fileName) throws FileNotFoundException {
+	public static int readFile(String[] lipidNames, boolean firstFrameOnly, int givenFinalFrame, int frameSeperator, String fileName) throws FileNotFoundException {
 
 		File file = new File(fileName);
 		Scanner Scan = new Scanner(file);
@@ -967,7 +964,7 @@ public class Readin implements Serializable{
 
 					//Serialize Old Frame
 					//Create new Frame
-					String frameString = Integer.toString((previousFrame / 100)*100);
+					String frameString = Integer.toString((previousFrame / frameSeperator)*frameSeperator);
 					fileName = "Frames/frame_" + frameString + ".ser";
 	
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
@@ -979,7 +976,7 @@ public class Readin implements Serializable{
 					//Find max ID for the next Frame
 					maximumID = findMaximumID(Scout, currentFrame);
 
-					if ((currentFrame % 100) == 0){
+					if ((currentFrame % frameSeperator) == 0){
 						Frame = Frame.setFirstFrame();
 
 						serializeFrame(fileName, 9999, Frame);
@@ -1041,7 +1038,9 @@ public class Readin implements Serializable{
 		}	//Ends while loop
 
 		//Save the last Frame.
-		serializeFrame("falseName", (totalFiles-1), Frame);
+		Frame = Frame.setFirstFrame();
+
+		serializeFrame("falseName", (((totalFiles-1)/frameSeperator)*frameSeperator), Frame);
 		
 		return totalFiles;
 	}	//Ends ReadFile

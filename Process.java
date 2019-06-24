@@ -63,10 +63,6 @@ public class Process implements Serializable {
 					currentFrame.allLipids[i].setNN(j, lipidCount[j]);
 				}	//Ends for loop
 			}	//Ends for loop
-
-			//We need to update the frame as we have just done a calculation and more importantly we want to save that calculation.
-			Readin.serializeFrame("falseName", frame, currentFrame);
-
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
@@ -123,11 +119,6 @@ public class Process implements Serializable {
 
 		}	//Ends for loop
 
-
-		//If OP has been set/calculated, we should save those changes.
-		if (!(OPCalculated)) {
-			Readin.serializeFrame("falseName", frameNumber, Frame);
-		}	//Ends if statement
 
 		return OP_CG;
 	}	//Ends AverageOP method
@@ -211,11 +202,6 @@ public class Process implements Serializable {
 				}	//ends else statement
 			}	//Ends while loop
 		}	//Ends for Loop
-
-		if (!(OPCalculated)) {
-			//Try to minimalize the time.
-			Readin.serializeFrame("falseName", frameNumber, Frame);
-		}	//Ends if statement
 
 		//Now average the array given and add it into the overall Array.
 		for (int i = 0; i < totalLipids; i++){
@@ -613,6 +599,7 @@ public class Process implements Serializable {
 		boolean firstFrameOnly = false;
 		int startingFrame = 0;
 		int finalFrame = -1;
+		int frameSeperator = 10;
 
 		double searchRadius = 10;
 		int Neighbors = 20;
@@ -664,7 +651,7 @@ public class Process implements Serializable {
 			boolean filesExist = Readin.checkForFiles(fileName);
 			if (!filesExist) {
 				try{
-					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, finalFrame, coordinateFile);
+					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, finalFrame, frameSeperator, coordinateFile);
 
 				}	//Ends try Statement
 
@@ -699,14 +686,18 @@ public class Process implements Serializable {
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
 
-			if (firstFrameOnly) { totalFiles = 1; } //Allows us to skip a lot of work, this is a debugging tool.
+			if (firstFrameOnly) { finalFrame = 0; } //Allows us to skip a lot of work, this is a debugging tool.
 			else if (finalFrame != -1) { totalFiles = finalFrame; }
 
+			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;
+			Frame currentFrame = Readin.unserializeFrame(FrameTracker);
 			//Perform calculations for each Frame.
-			for (int i = startingFrame; i < totalFiles; i++){
-				Frame currentFrame = Readin.unserializeFrame(i);
-
+			while (currentFrame != null){
 	
+				while (currentFrame.frameNumber < startingFrame) { currentFrame = currentFrame.nextFrame; }
+
+				System.out.println("Frame: " + currentFrame.frameNumber);
+
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
@@ -726,8 +717,22 @@ public class Process implements Serializable {
 
 				}	//Ends else statement
 
+				if (currentFrame.frameNumber == (finalFrame-1)) {
+					currentFrame = currentFrame.setFirstFrame();
+					Readin.serializeFrame("falseName", FrameTracker, currentFrame);
+					currentFrame = null;
+				}	//Ends if statement
 
-			}	//Ends for loop
+				else {
+					if (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }
+					else { 
+						currentFrame = currentFrame.setFirstFrame();
+						Readin.serializeFrame("falseName", FrameTracker, currentFrame);
+						FrameTracker = FrameTracker + frameSeperator;
+						currentFrame = Readin.unserializeFrame(FrameTracker);
+					}	//Ends else statement
+				}	//Ends else statement
+			}	//Ends while loop
 			time = progressStatement(time, "End_Calculation");
 			
 
