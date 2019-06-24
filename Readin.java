@@ -967,7 +967,7 @@ public class Readin implements Serializable{
 
 					//Serialize Old Frame
 					//Create new Frame
-					String frameString = Integer.toString(previousFrame);
+					String frameString = Integer.toString((previousFrame / 100)*100);
 					fileName = "Frames/frame_" + frameString + ".ser";
 	
 					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
@@ -976,14 +976,29 @@ public class Readin implements Serializable{
 					//Find the bilayer Center
 					Frame.findBilayerCenter();
 
-
-					//Serialize the updated Frame			
-					serializeFrame(fileName, 9999, Frame);
-
+					//Find max ID for the next Frame
 					maximumID = findMaximumID(Scout, currentFrame);
 
-					//Create new Frame
-					Frame.resetFrame(currentFrame, maximumID);
+					if ((currentFrame % 100) == 0){
+						Frame = Frame.setFirstFrame();
+
+						serializeFrame(fileName, 9999, Frame);
+
+						Frame.resetFrame(currentFrame, maximumID);
+
+					}	//Ends if statement
+
+					else {
+						//Create next frame
+						Frame.nextFrame = new Frame(currentFrame, maximumID);						
+
+						//Set the nextFrames previous Frame, to be the current Frame
+						Frame.nextFrame.prevFrame = Frame;
+
+						//Set the currentFrame to be the next frame
+						Frame = Frame.nextFrame;
+
+					}	//Ends else statement
 				}	//Ends else statement
 			}	//Ends if statement	
 

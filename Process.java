@@ -646,7 +646,7 @@ public class Process implements Serializable {
 
 
 		//Read an input file.
-		time = progressStatement(0, "Start_Read");
+		time = progressStatement(time, "Start_Read");
 
 		String[] lipidNames = Readin.findLipidNames(coordinateFile);
 		int totalLipids = lipidNames.length;

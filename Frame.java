@@ -17,6 +17,10 @@ public class Frame implements java.io.Serializable {
 	double yLength = 0;
 	double BilayerCenter = 0;
 	int nextAvailableLipid = 0;
+	
+	Frame nextFrame = null;
+	Frame prevFrame = null;
+
 
 	//Assign the attributes of the class directly from the Constructor.
 	public Frame(int frameNumber, int totalLipids){
@@ -68,6 +72,8 @@ public class Frame implements java.io.Serializable {
 		this.allLipids = new Lipid[totalLipids];
 		this.frameNumber = frameNumber;
 		this.nextAvailableLipid = 0;
+		this.nextFrame = null;
+		this.prevFrame = null;
 
 	}	//Ends resetFrame
 
@@ -124,5 +130,17 @@ public class Frame implements java.io.Serializable {
 		this.BilayerCenter = sum / validPoints;
 		
 	}	//Ends findBilayerCenter Method
+
+	public Frame setFirstFrame(){
+		//Return the first item in the LL.
+		Frame firstFrame = this;
+		if (this.prevFrame != null) {
+			firstFrame = this.prevFrame.setFirstFrame();
+		}	//ends if statement
+
+
+		return firstFrame;
+	}	//Ends setFirstFrame
+
 
 }	//Ends class defintion
