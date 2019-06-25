@@ -696,8 +696,6 @@ public class Process implements Serializable {
 	
 				while (currentFrame.frameNumber < startingFrame) { currentFrame = currentFrame.nextFrame; }
 
-				System.out.println("Frame: " + currentFrame.frameNumber);
-
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
