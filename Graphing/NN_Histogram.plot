@@ -15,9 +15,9 @@ set style line 2 lc rgb "blue"
 set style line 3 lc rgb "green"
 set style line 4 lc rgb "purple"
 
-set yrange[0:3]
+set yrange[0:]
 
-set boxwidth 0.33
+set boxwidth 0.25
 set style fill solid
 
 
@@ -32,14 +32,14 @@ full_FileName = "Data/".fileName
 #full_FileName every 2::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
 
 
-plot full_FileName every 3 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
-full_FileName every 3::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
-full_FileName every 3::2 u 3:4 title lipid_3 with boxes ls lipid_3_ls
+#plot full_FileName every 3 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
+#full_FileName every 3::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
+#full_FileName every 3::2 u 3:4 title lipid_3 with boxes ls lipid_3_ls
 
-#plot full_FileName every 4 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
-#full_FileName every 4::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
-#full_FileName every 4::2 u 3:4 title lipid_3 with boxes ls lipid_3_ls,\
-#full_FileName every 4::3 u 3:4 title lipid_4 with boxes ls lipid_4_ls
+plot full_FileName every 4 u 3:4 title lipid_1 with boxes ls lipid_1_ls,\
+full_FileName every 4::1 u 3:4:xtic(1) title lipid_2 with boxes ls lipid_2_ls,\
+full_FileName every 4::2 u 3:4 title lipid_3 with boxes ls lipid_3_ls,\
+full_FileName every 4::3 u 3:4 title lipid_4 with boxes ls lipid_4_ls
 
 
 
