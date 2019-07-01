@@ -3,8 +3,8 @@ lipid_2 = ARG2
 lipid_3 = ARG3 
 lipid_4 = ARG4
 
-set xrange[-0.1:6.4]
-set yrange[0:0.5]
+set xrange[-0.2:7.2]
+set yrange[0:1]
 
 #set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
 #set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4 
@@ -78,15 +78,15 @@ key_2 = lipid_1."'s SN2 OP vs N ".lipid_2." Neighbors"
 key_3 = lipid_3."'s SN1 OP vs N ".lipid_4." Neighbors"
 key_4 = lipid_3."'s SN2 OP vs N ".lipid_4." Neighbors"
 
-plot fileName_1 using 1:2:($2-$3):($2+$3) with errorbars linestyle 3 title key_4,\
+plot fileName_1 using 1:2:($2-$3):($2+$3) with errorbars linestyle 3 title key_1,\
 fileName_1 using 1:2:($2-$3):($2+3) with linespoints linestyle 1 notitle,\
-fileName_2 using 1:2:($2-$3):($2+$3) with errorbars linestyle 7 title key_3,\
+fileName_2 using 1:2:($2-$3):($2+$3) with errorbars linestyle 7 title key_2,\
 fileName_2 using 1:2:($2-$3):($2+3) with linespoints linestyle 5 notitle,\
-fileName_2 using 1:2:4 with labels offset 3.5,-3 font ",10" tc ls 5 notitle,\
-fileName_3 using 1:2:($2-$3):($2+$3) with errorbars linestyle 4 title key_2,\
+fileName_1 using 1:2:4 with labels offset 3.5,-3 font ",10" tc ls 5 notitle,\
+fileName_3 using 1:2:($2-$3):($2+$3) with errorbars linestyle 4 title key_3,\
 fileName_3 using 1:2:($2-$3):($2+$3) with linespoints linestyle 2 notitle,\
-fileName_4 using 1:2:($2-$3):($2+$3) with errorbars linestyle 8 title key_1,\
+fileName_4 using 1:2:($2-$3):($2+$3) with errorbars linestyle 8 title key_4,\
 fileName_4 using 1:2:($2-$3):($2+$3) with linespoints linestyle 6 notitle,\
-fileName_4 using 1:2:4 with labels offset 3.5,2 font ",10" tc ls 6 notitle
+fileName_3 using 1:2:4 with labels offset 3.5,2 font ",10" tc ls 6 notitle
 
 pause -1 "button"

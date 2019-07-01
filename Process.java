@@ -270,71 +270,10 @@ public class Process implements Serializable {
 	}	//ends generateAngleHistogram
 
 
-
-	public static double[][][][] generateOPvNN_CG(Frame Frame, double[][][][] OPvNN, String[] lipidNames){
-		//The OPvNN Passed into the array is for all frames.	
-			//Generate a frame specific OPvNN, avg it out and then add to the passed in OPvNN Array.
-
-		int length = Frame.allLipids.length;
-		int totalLipids = lipidNames.length;
-		int totalNeighbors = OPvNN[0][0][0].length;
-
-		double[][][][] frameOPvNN = new double[2][totalLipids][totalLipids][totalNeighbors];
-
-		for (int lipid = 0; lipid < length; lipid++){
-			String lipidName = Frame.allLipids[lipid].getName();
-			int currentLipid = Mathematics.LipidToInt(lipidNames, lipidName);
-			
-			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
-
-				int neighborIndex = Frame.allLipids[lipid].Neighbors[compLipid];
-
-				double firstOP = Frame.allLipids[lipid].getFirstOP();
-				double secondOP = Frame.allLipids[lipid].getSecondOP();
-
-				double totalChains = 2;
-				if (secondOP == 0) { totalChains = 1; }
-
-				double OP = (firstOP + secondOP) / totalChains;
-				
-
-				//Add 1 to the NN Count.
-				frameOPvNN[0][currentLipid][compLipid][neighborIndex]++;
-				
-				//Add the OP
-				frameOPvNN[1][currentLipid][compLipid][neighborIndex] = frameOPvNN[1][currentLipid][compLipid][neighborIndex] + OP;
-
-			}	//Ends for Loop
-		}	//Ends for loop
-
-		//Average the frame Specific Array and add the avg to the overall Frame array.
-		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
-				for (int neighbor = 0; neighbor < totalNeighbors; neighbor++){
-
-					double frameOP = frameOPvNN[1][currentLipid][compLipid][neighbor] / frameOPvNN[0][currentLipid][compLipid][neighbor];
-
-
-
-					OPvNN[0][currentLipid][compLipid][neighbor] = OPvNN[0][currentLipid][compLipid][neighbor] + frameOPvNN[0][currentLipid][compLipid][neighbor];
-					if (frameOP > 0){
-						OPvNN[1][currentLipid][compLipid][neighbor] = OPvNN[1][currentLipid][compLipid][neighbor] + frameOP;
-						OPvNN[2][currentLipid][compLipid][neighbor] = OPvNN[2][currentLipid][compLipid][neighbor] + (frameOP * frameOP);
-
-					}	//Ends if statement
-				}	//Ends for loop
-			}	//Ends for loop
-		}	//Ends for loop
-
-		return OPvNN;
-	}	//Ends OPvNN
-
-
-
 	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
-	public static double[][][][][] generateOPvNN_AA(Frame Frame, double[][][][][] OPvNN_AA, String[] lipidNames){
+	public static double[][][][][] generateOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
 
 		//OPvNN Array can be Described as
 		//OPvNN[ Count / OP / OP^2 ][ Current Lipid ][ Comparing Lipid ][ Chain ][ # of Neighbors ]
@@ -342,10 +281,10 @@ public class Process implements Serializable {
 		//Create a frame Array and avg this and add it to the overall array.
 
 		int totalLipids = lipidNames.length;
-		int totalNeighbors = OPvNN_AA[0][0][0][0].length;
+		int totalNeighbors = OPvNN[0][0][0][0].length;
 		int totalChains = 2;
 
-		double[][][][][] frameOPvNN_AA = new double[2][totalLipids][totalLipids][totalChains][totalNeighbors];
+		double[][][][][] frameOPvNN = new double[2][totalLipids][totalLipids][totalChains][totalNeighbors];
 
 		int length = Frame.allLipids.length;
 
@@ -360,16 +299,13 @@ public class Process implements Serializable {
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
 				
-				double firstOPSquared = firstOP * firstOP;
-				double secondOPSquared = secondOP * secondOP;
-
 				//Add 1 to the NN Count.
-				frameOPvNN_AA[0][currentLipid][compLipid][0][neighborIndex]++;
-				frameOPvNN_AA[0][currentLipid][compLipid][1][neighborIndex]++;
+				frameOPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
+				if (secondOP != -2) { frameOPvNN[0][currentLipid][compLipid][1][neighborIndex]++; }
 				
 				//Add the OP
-				frameOPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] = frameOPvNN_AA[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
-				frameOPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] = frameOPvNN_AA[1][currentLipid][compLipid][1][neighborIndex] + secondOP;
+				frameOPvNN[1][currentLipid][compLipid][0][neighborIndex] = frameOPvNN[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
+				if (secondOP != -2) { frameOPvNN[1][currentLipid][compLipid][1][neighborIndex] = frameOPvNN[1][currentLipid][compLipid][1][neighborIndex] + secondOP; }
 
 			}	//Ends for Loop
 		}	//Ends for loop
@@ -380,19 +316,21 @@ public class Process implements Serializable {
 			for (int j = 0; j < totalLipids; j++){
 				for (int k = 0; k < totalChains; k++){
 					for (int h = 0; h < totalNeighbors; h++){
-						double count = frameOPvNN_AA[0][i][j][k][h];
-						double OP = frameOPvNN_AA[1][i][j][k][h] / count;
+						double count = frameOPvNN[0][i][j][k][h];
+						double OP = frameOPvNN[1][i][j][k][h] / count;
 
-						OPvNN_AA[0][i][j][k][h] = OPvNN_AA[0][i][j][k][h] + count;
-						OPvNN_AA[1][i][j][k][h] = OPvNN_AA[1][i][j][k][h] + OP;
-						OPvNN_AA[2][i][j][k][h] = OPvNN_AA[2][i][j][k][h] + (OP*OP);
+						if (OP > -2) {
+							OPvNN[0][i][j][k][h] = OPvNN[0][i][j][k][h] + count;
+							OPvNN[1][i][j][k][h] = OPvNN[1][i][j][k][h] + OP;
+							OPvNN[2][i][j][k][h] = OPvNN[2][i][j][k][h] + (OP*OP);
+						}	//Ends if statement
 					}	//Ends for loop
 				}	//ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
 
-		return OPvNN_AA;
-	}	//Ends OPvNN_AA
+		return OPvNN;
+	}	//Ends OPvNN
 
 
 	public static double[][][] generateCosThetaHistogram(Frame currentFrame, double[][][] CosTheta_Histogram, String[] lipidNames){
@@ -669,7 +607,7 @@ public class Process implements Serializable {
 			}	//Ends if statement
 
 			else{
-				totalFiles = new File("Frames/").list().length;
+				totalFiles = Readin.findTotalFrames(frameSeperator);
 			}	//Ends if statement
 
 			//Determine what Method of Simulation is used so more accurate analysis can be done. Tell the user what we are assuming it is.
@@ -687,8 +625,7 @@ public class Process implements Serializable {
 			//The DOCUMENTATION.txt file describes each of these arrays in the methods they are used in.
 			double[][][][][] OP_AA = new double[3][totalLipids][2][4][30];
 			double[][][] OP_CG = new double[3][3][totalLipids];
-			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
-			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
+			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][] CosTheta_Histogram = new double[totalLipids][3][4001];
 			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
@@ -706,7 +643,7 @@ public class Process implements Serializable {
 				if (coarseGrained){
 					generateNN(currentFrame, searchRadius, lipidNames, false);
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
-					OPvNN_CG = generateOPvNN_CG(currentFrame, OPvNN_CG, lipidNames);
+					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
 
 				}	//ends if statemetn
@@ -714,7 +651,7 @@ public class Process implements Serializable {
 				else {
 					generateNN(currentFrame, searchRadius, lipidNames, true);
 					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
-					OPvNN_AA = generateOPvNN_AA(currentFrame, OPvNN_AA, lipidNames);
+					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
 					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
 					PCL = generatePCL(currentFrame, PCL, lipidNames);
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
@@ -763,16 +700,16 @@ public class Process implements Serializable {
 			}	
 		
 			if (coarseGrained) {
-				Readin.createOPvNNFiles_CG(OPvNN_CG, lipidNames, totalReadFrames);
-				Readin.createNNFiles_CG(OPvNN_CG, lipidNames);
-				Readin.createStandardDataFiles_CG(OPvNN_CG, OP_CG, lipidNames);
+				Readin.createOPvNNFiles(OPvNN, lipidNames, totalReadFrames);
+				Readin.createNNFiles(OPvNN, lipidNames);
+				Readin.createStandardDataFiles_CG(OPvNN, OP_CG, lipidNames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 			}	//Ends if statement
 
 			else{
-				Readin.createNNFiles_AA(OPvNN_AA, lipidNames);
+				Readin.createNNFiles(OPvNN, lipidNames);
 				Readin.createOPFiles(OP_AA, lipidNames, totalReadFrames);
-				Readin.createOPvNNFiles_AA(OPvNN_AA, lipidNames, totalReadFrames);
+				Readin.createOPvNNFiles(OPvNN, lipidNames, totalReadFrames);
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);

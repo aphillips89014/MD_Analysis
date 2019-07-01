@@ -66,6 +66,20 @@ public class Readin implements Serializable{
 		return newFrame;
 	}	//Ends unserializeFrame
 
+	public static int findTotalFrames(int seperator){
+		int totalFiles = new File("Frames/").list().length;
+		int lastFile = (totalFiles*seperator) - seperator;
+	
+		Frame currentFrame = Readin.unserializeFrame(lastFile);	
+
+		while (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }
+		
+		int finalFrame = currentFrame.getFrameNumber();
+
+		return finalFrame;
+	}	//Ends findTotalFrames
+
+
 	public static boolean checkForFiles(String fileName){
 		//Checks for a specific file, if it exists return true, otherwise return false.
 		boolean result = false;
@@ -482,69 +496,7 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createOPvNNFiles_CG(double[][][][] OPvNN, String[] lipidNames, double totalFiles){
-		PrintStream console = System.out;
-		int totalLipids = OPvNN[0].length;
-
-		//Iterate through second index
-		for (int lipid = 0; lipid < totalLipids; lipid++){
-			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
-
-			//Iterate through third index
-			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
-				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
-
-				//Create a file specifically for this
-				String fileName = "Graphing/Data/OP_NN_" + lipidName + "_" + compLipidName + ".dat";
-
-				try{
-					PrintStream output = new PrintStream(new File(fileName));
-					System.setOut(output);
-
-					//First Sum the array we want to look at.
-					double sum = 0;
-					int length = OPvNN[0][lipid][compLipid].length;					
-
-					for (int neighbors = 0; neighbors < length; neighbors++){
-						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
-					}	//Ends for Loop
-
-
-					//Then find the proportion that the values in the array given occur.
-						//Then find the standard Deviation of this.						
-					for (int neighbors = 0; neighbors < length; neighbors++){
-						double count = OPvNN[0][lipid][compLipid][neighbors];
-						double proportion = count / sum;
-
-						if (proportion <= 0.001){
-							proportion = 0;
-						}	//ends if statement
-
-						proportion = proportion * 100;
-						String stringProportion = String.format("%.2f", proportion);
-
-						double OP = OPvNN[1][lipid][compLipid][neighbors] / totalFiles;
-						double OPSquared = OPvNN[2][lipid][compLipid][neighbors] / totalFiles;
-						double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
-
-						if (proportion > 3){
-							System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
-						}	//Ends if statement
-					}	//Ends for loop
-				}	//end try statement
-
-				catch (IOException e){
-					System.out.println("Error in creating Histogram Output File");
-				}	//Ends catch statement
-				System.setOut(console);
-			}	//Ends for loop
-		}	//Ends for loop
-	}	//Ends createOutputFiles Methdo
-
-
-
-	//Going to create an output file after manipulating and binning OPvNN
-	public static void createOPvNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames, double totalFiles){
+	public static void createOPvNNFiles(double[][][][][] OPvNN, String[] lipidNames, double totalFrames){
 		PrintStream console = System.out;
 		int totalLipids = OPvNN[0].length;
 
@@ -589,12 +541,14 @@ public class Readin implements Serializable{
 							proportion = proportion * 100;
 							String stringProportion = String.format("%.2f", proportion);
 
-							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / totalFiles;
-							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFiles;
+							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / totalFrames;
+							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFrames;
 							double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
-							
-							if (proportion > 1){
-								System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+						
+							if (proportion > 2){
+								if (OP > -1.01) {
+									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+								}	//Ends if statement
 							}	//Ends if statement
 						}	//Ends for loop
 					}	//end try statement
@@ -612,7 +566,7 @@ public class Readin implements Serializable{
 	//Get the avg NN for the entire system
 	//Show only that
 	//Not meant to be graphed.
-	public static void createStandardDataFiles_CG(double[][][][] OPvNN, double[][][] OP_CG, String[] lipidNames){
+	public static void createStandardDataFiles_CG(double[][][][][] OPvNN, double[][][] OP_CG, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = lipidNames.length;
 		double sum = 0;
@@ -633,17 +587,17 @@ public class Readin implements Serializable{
 					String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
 
 					sum = 0;
-					int length = OPvNN[0][lipid][compLipid].length;					
+					int length = OPvNN[0][lipid][compLipid][0].length;					
 					double avgNN = 0;
 
 					for (int neighbors = 0; neighbors < length; neighbors++){
-						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
-						overallSum = overallSum + OPvNN[0][lipid][compLipid][neighbors];
+						sum = sum + OPvNN[0][lipid][compLipid][0][neighbors];
+						overallSum = overallSum + OPvNN[0][lipid][compLipid][0][neighbors];
 					}	//Ends for Loop
 					
 					//Divide each count by the sum so we can find a proportion.
 					for (int neighbors = 0; neighbors < length; neighbors++){
-						double count = OPvNN[0][lipid][compLipid][neighbors];
+						double count = OPvNN[0][lipid][compLipid][0][neighbors];
 						double proportion = count / sum;
 						avgNN = avgNN + (proportion * neighbors);
 
@@ -681,96 +635,6 @@ public class Readin implements Serializable{
 		System.setOut(console);
 	}	//Ends createStandardDataFiles_CG
 
-
-	//Going to create an output file after manipulating and binning OPvNN
-	public static void createNNFiles_CG(double[][][][] OPvNN, String[] lipidNames){
-		PrintStream console = System.out;
-		int totalLipids = lipidNames.length;
-
-		double[][] barGraphNN = new double[totalLipids][totalLipids];
-
-		//iterate through second index
-		for (int lipid = 0; lipid < totalLipids; lipid++){
-			String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
-
-			//iterate through third index
-			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
-				String compLipidName = Mathematics.IntToLipid(compLipid, lipidNames);
-
-				String fileName = "Graphing/Data/" + lipidName + "_Histogram_" + compLipidName + ".dat";				
-
-
-				try{
-					PrintStream output = new PrintStream(new File(fileName));
-					System.setOut(output);
-
-					//First Sum the array we want to look at.
-					double sum = 0;
-					int length = OPvNN[0][lipid][compLipid].length;					
-
-					//Create a second File for Bar Graphs, 
-					double avgNN = 0;					
-
-					for (int neighbors = 0; neighbors < length; neighbors++){
-						sum = sum + OPvNN[0][lipid][compLipid][neighbors];
-					}	//Ends for Loop
-					
-					//Divide each count by the sum so we can find a proportion.
-					for (int neighbors = 0; neighbors < length; neighbors++){
-						double count = OPvNN[0][lipid][compLipid][neighbors];
-						double proportion = count / sum;
-
-						avgNN = avgNN + (proportion * neighbors);
-
-						//Probabilities cant be negative, and we want to not write zero probs.
-						if (proportion > 0.0001){
-							System.out.println(neighbors + " " + proportion);
-						}	//Ends if statement
-					}	//Ends for loop
-
-					barGraphNN[lipid][compLipid] = avgNN;
-
-				}	//end try statement
-
-				catch (IOException e){
-					System.out.println("Error in creating Histogram Output File");
-				}	//Ends catch statement
-
-				System.setOut(console);
-			}	//Ends for loop
-		}	//Ends for loop
-
-		//Now, create the bar graph graph.
-		try{
-			String fileName = "Graphing/Data/NN_Bar_Graph.dat";
-			PrintStream output = new PrintStream(new File(fileName));
-			System.setOut(output);
-
-			double seperator = 0.33;
-			double totalDouble = totalLipids;
-			double shiftValue = 1 / totalDouble;
-
-
-			for (int i = 0; i < totalLipids; i++){
-				for (int j = 0; j < totalLipids; j++){
-					seperator = shiftValue + (i*(1+shiftValue)) + (shiftValue * j);
-					
-					String Lipid = Mathematics.IntToLipid(i, lipidNames);
-					String compLipid = Mathematics.IntToLipid(j, lipidNames);
-
-					System.out.println(Lipid + " " + compLipid + " " + seperator + " " + barGraphNN[i][j]);
-
-				}	//Ends for loop
-			}	//Ends for loop
-
-		}	//Ends try statement
-
-		catch (IOException e){
-			System.out.println("Error in Creating NN Bar Graph File");
-		}	//Ends catch statement
-
-		System.setOut(console);
-	}	//Ends createOutputFiles Methdo
 
 	public static void createAngleHistogramFile(int[] Angles, String lipidName, boolean firstChain, int Member){
 		PrintStream console = System.out;
@@ -811,7 +675,7 @@ public class Readin implements Serializable{
 
 
 	//Going to create an output file after manipulating and binning OPvNN
-	public static void createNNFiles_AA(double[][][][][] OPvNN, String[] lipidNames){
+	public static void createNNFiles(double[][][][][] OPvNN, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = lipidNames.length;
 
