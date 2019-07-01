@@ -18,8 +18,8 @@ public class Lipid implements java.io.Serializable {
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
-	double firstOP = 0;
-	double secondOP = 0;
+	double firstOP = -2;
+	double secondOP = -2;
 
 	double firstCosTheta = -2;
 	double secondCosTheta = -2;
@@ -73,7 +73,7 @@ public class Lipid implements java.io.Serializable {
 	public boolean checkForOP(){
 		boolean result = false;
 
-		if (this.firstOP != 0){
+		if (this.firstOP != -2){
 			result = true;
 		}	//Ends if statement
 

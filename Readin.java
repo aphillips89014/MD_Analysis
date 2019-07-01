@@ -343,42 +343,45 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
-	public static void createCosThetaHistogramFiles(double[][] CosTheta_Histogram, String[] lipidNames, boolean Coarse_Grained){
+	public static void createCosThetaHistogramFiles(double[][][] CosTheta_Histogram, String[] lipidNames, boolean Coarse_Grained){
 		PrintStream console = System.out;
 
 		int totalLipids = lipidNames.length;
-		int length = CosTheta_Histogram[0].length;
+		int length = CosTheta_Histogram[0][0].length;
 		double sum = 0;
 
 		for (int i = 0; i < totalLipids; i++){
-			for (int j = 0; j < length; j++){
-				sum = sum + CosTheta_Histogram[i][j];
+			for (int chain = 0; chain < 3; chain++){
+				for (int j = 0; j < length; j++){
+					sum = sum + CosTheta_Histogram[i][chain][j];
+				}	//Ends for loop
+
+				if (sum > 1){
+					String fileName = "Graphing/Data/" + lipidNames[i] + "_chain_" + (chain+1) + "_CosTheta_Histogram.dat";
+
+					try{
+						PrintStream output = new PrintStream(new File(fileName));
+						System.setOut(output);
+
+						for (int j = 0; j < length; j++){
+							double binSpot = (double) j;
+							binSpot = (binSpot / 2000) - 1;
+							
+							double count = CosTheta_Histogram[i][chain][j];
+							String firstValue = String.format("%.0005f", binSpot);
+							System.out.println(firstValue + " " + count);
+
+						}	//Ends for loop
+						System.setOut(console);
+					}	//Ends try statement
+
+					catch (IOException e){
+						System.setOut(console);
+						System.out.println("Error in Creating " + fileName);
+						System.out.println(e);
+					}	//Ends catch
+				}	//Ends if statement
 			}	//Ends for loop
-
-			//Now we ignore lipids without phosphates.
-			if (sum > 1){
-				String fileName = "Graphing/Data/" + lipidNames[i] + "_CosTheta_Histogram.dat";
-				try{
-					PrintStream output = new PrintStream(new File(fileName));
-					System.setOut(output);
-
-					for (int j = 0; j < length; j++){
-						double binSpot = (double) j;
-						binSpot = (binSpot / 2000) - 1;
-						
-						double count = CosTheta_Histogram[i][j];
-						String firstValue = String.format("%.0005f", binSpot);
-						System.out.println(firstValue + " " + count);
-
-					}	//Ends for loop
-				}	//Ends try statement
-
-				catch (IOException e){
-					System.setOut(console);
-					System.out.println("Error in Creating " + fileName);
-					System.out.println(e);
-				}	//Ends catch
-			}	//Ends if statement
 		}	//Ends for loop
 		System.setOut(console);
 	}	//ends createCosThetaHistogram
@@ -609,7 +612,7 @@ public class Readin implements Serializable{
 	//Get the avg NN for the entire system
 	//Show only that
 	//Not meant to be graphed.
-	public static void createStandardDataFiles_CG(double[][][][] OPvNN, double[][] OP_CG, String[] lipidNames){
+	public static void createStandardDataFiles_CG(double[][][][] OPvNN, double[][][] OP_CG, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = lipidNames.length;
 		double sum = 0;
@@ -650,19 +653,23 @@ public class Readin implements Serializable{
 					System.out.println(lipidName + " has " + avgNN + " neighbors of " + compLipidName);
 
 				}	//Ends for loop
+
+				System.out.println("");
 			}	//Ends for loop
 
 			//iterate through second index
 			for (int lipid = 0; lipid < totalLipids; lipid++){
-				String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+				for (int chain = 0; chain < 3; chain++){
+					String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
 
-				double OP = OP_CG[1][lipid] / OP_CG[0][lipid];
-				double OP_Squared = OP_CG[2][lipid] / OP_CG[0][lipid];
+					double OP = OP_CG[1][chain][lipid] / OP_CG[0][chain][lipid];
+					double OP_Squared = OP_CG[2][chain][lipid] / OP_CG[0][chain][lipid];
 
+					double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
+					System.out.println("OP of " + lipidName + " chain " + (chain+1) + " is " + OP + "    +-" + deviation);
+				}	//Ends for loop
 
-				double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
-				System.out.println("OP of " + lipidName + " is " + OP + "    +-" + deviation);
-
+				System.out.println("");
 			}	//Ends for loop
 		}	//Ends try statement
 

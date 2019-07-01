@@ -68,7 +68,7 @@ public class Process implements Serializable {
 
 	//Use the method setOP_CosTheta to average the OP of all Atoms
 	//Do this for every lipid, then save these calculation.
-	public static double[][] generateOP_CG(Frame Frame, double[][] OP_CG, String[] lipidNames){
+	public static double[][][] generateOP_CG(Frame Frame, double[][][] OP_CG, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -80,7 +80,7 @@ public class Process implements Serializable {
 		double yLength = Frame.getYLength();
 
 		//Get the OP for this frame, avg it, then avg that over the total frames.
-		double[][] frameOP_CG = new double[2][totalLipids];
+		double[][][] frameOP_CG = new double[2][3][totalLipids];
 
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			if (!(OPCalculated)){
@@ -92,33 +92,35 @@ public class Process implements Serializable {
 			String lipidName = Frame.allLipids[currentLipid].getName();
 			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
 
-
-	
 			double firstOP = Frame.allLipids[currentLipid].getFirstOP();
 			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
+			double avgOP = firstOP;
 
-			double totalChains = 2;
-			if (secondOP == 0) { totalChains = 1; }
+			frameOP_CG[0][0][lipidNumber]++;
+			frameOP_CG[1][0][lipidNumber] = frameOP_CG[1][0][lipidNumber] + firstOP;;
 
-			double OP = (firstOP + secondOP) / totalChains;
+			if (secondOP != 0) { 
+				avgOP = (firstOP + secondOP) / 2; 
 
-			frameOP_CG[0][lipidNumber]++;
-			frameOP_CG[1][lipidNumber] = frameOP_CG[1][lipidNumber] + OP;
-
+				frameOP_CG[0][1][lipidNumber]++;
+				frameOP_CG[1][1][lipidNumber] = frameOP_CG[1][1][lipidNumber] + secondOP;;
+			}	//Ends if statement
+	
+				frameOP_CG[0][2][lipidNumber]++;
+				frameOP_CG[1][2][lipidNumber] = frameOP_CG[1][2][lipidNumber] + avgOP;;
 		}	//Ends for loop
 
-
-		//Avg OP for this frame.
 		for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
-			OP_CG[0][currentLipid]++;
-			
-			double OP = frameOP_CG[1][currentLipid] / frameOP_CG[0][currentLipid];
-			
-			OP_CG[1][currentLipid] = OP_CG[1][currentLipid] + OP;
-			OP_CG[2][currentLipid] = OP_CG[2][currentLipid] + (OP * OP);
-
+			for (int chain = 0; chain < 3; chain++){
+				OP_CG[0][chain][currentLipid]++;
+				
+				//Might be NaN in some circumstances
+				double OP = frameOP_CG[1][chain][currentLipid] / frameOP_CG[0][chain][currentLipid];
+				
+				OP_CG[1][chain][currentLipid] = OP_CG[1][chain][currentLipid] + OP;
+				OP_CG[2][chain][currentLipid] = OP_CG[2][chain][currentLipid] + (OP * OP);
+			}	//Ends for loop
 		}	//Ends for loop
-
 
 		return OP_CG;
 	}	//Ends AverageOP method
@@ -393,7 +395,7 @@ public class Process implements Serializable {
 	}	//Ends OPvNN_AA
 
 
-	public static double[][] generateCosThetaHistogram(Frame currentFrame, double[][] CosTheta_Histogram, String[] lipidNames){
+	public static double[][][] generateCosThetaHistogram(Frame currentFrame, double[][][] CosTheta_Histogram, String[] lipidNames){
 		//First index is the lipid type, second index is the binned OP
 		int totalLipids = currentFrame.allLipids.length;
 		
@@ -404,17 +406,23 @@ public class Process implements Serializable {
 			double firstCosTheta = currentFrame.allLipids[currentLipid].getFirstCosTheta();
 			double secondCosTheta = currentFrame.allLipids[currentLipid].getSecondCosTheta();
 
-			double CosTheta;
-			CosTheta = (firstCosTheta + secondCosTheta) / 2;
+			double avgCosTheta;
+			avgCosTheta = (firstCosTheta + secondCosTheta) / 2;
+
+			int firstIndex = (int) Math.round((firstCosTheta + 1) * 2000);
+			CosTheta_Histogram[lipid][0][firstIndex]++;
 
 			if (secondCosTheta < -1) {
-				CosTheta = firstCosTheta;
+				avgCosTheta = firstCosTheta;
 			}	//Ends if statement
+		
+			else {
+				int secondIndex = (int) Math.round((secondCosTheta + 1) * 2000);
+				CosTheta_Histogram[lipid][1][secondIndex]++;
+			}	//Ends else statemnt
 
-
-			int index = (int) Math.round((CosTheta + 1) * 2000);
-
-			CosTheta_Histogram[lipid][index]++;
+			int avgIndex = (int) Math.round((avgCosTheta + 1) * 2000);
+			CosTheta_Histogram[lipid][2][avgIndex]++;
 
 		}	//Ends for loop
 	
@@ -678,10 +686,10 @@ public class Process implements Serializable {
 			//Arrays for binning data so that it can be organized into a nice output file later.
 			//The DOCUMENTATION.txt file describes each of these arrays in the methods they are used in.
 			double[][][][][] OP_AA = new double[3][totalLipids][2][4][30];
-			double[][] OP_CG = new double[3][totalLipids];
+			double[][][] OP_CG = new double[3][3][totalLipids];
 			double[][][][][] OPvNN_AA = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][][] OPvNN_CG = new double[3][totalLipids][totalLipids][Neighbors];
-			double[][] CosTheta_Histogram = new double[totalLipids][4001];
+			double[][][] CosTheta_Histogram = new double[totalLipids][3][4001];
 			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
@@ -693,7 +701,6 @@ public class Process implements Serializable {
 			Frame currentFrame = Readin.unserializeFrame(FrameTracker);
 			//Perform calculations for each Frame.
 			while (currentFrame != null){
-	
 				while (currentFrame.frameNumber < startingFrame) { currentFrame = currentFrame.nextFrame; }
 
 				if (coarseGrained){
