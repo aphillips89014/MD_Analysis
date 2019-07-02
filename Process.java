@@ -299,7 +299,7 @@ public class Process implements Serializable {
 				
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
-				
+		
 				//Add 1 to the NN Count.
 				frameOPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
 				if (secondOP != -2) { frameOPvNN[0][currentLipid][compLipid][1][neighborIndex]++; }

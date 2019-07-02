@@ -366,6 +366,7 @@ public class Readin implements Serializable{
 
 		for (int i = 0; i < totalLipids; i++){
 			for (int chain = 0; chain < 3; chain++){
+				sum = 0;
 				for (int j = 0; j < length; j++){
 					sum = sum + CosTheta_Histogram[i][chain][j];
 				}	//Ends for loop
@@ -395,6 +396,7 @@ public class Readin implements Serializable{
 						System.out.println(e);
 					}	//Ends catch
 				}	//Ends if statement
+				else{ chain = 3; }	//Quick way to skip ahead
 			}	//Ends for loop
 		}	//Ends for loop
 		System.setOut(console);
@@ -515,9 +517,6 @@ public class Readin implements Serializable{
 					String fileName = "Graphing/Data/OP_NN_" + lipidName + "_chain_" + chain + "_" + compLipidName + ".dat";
 
 					try{
-						PrintStream output = new PrintStream(new File(fileName));
-						System.setOut(output);
-
 						//First Sum the array we want to look at.
 						double sum = 0;
 						int length = OPvNN[0][lipid][compLipid][chain].length;					
@@ -526,31 +525,34 @@ public class Readin implements Serializable{
 							sum = sum + OPvNN[0][lipid][compLipid][chain][neighbors];
 						}	//Ends for Loop
 
+						if (sum > 1) {
+							//Then find the proportion that the values in the array given occur.
+								//Then find the standard Deviation of this.						
+							PrintStream output = new PrintStream(new File(fileName));
+							System.setOut(output);
 
+							for (int neighbors = 0; neighbors < length; neighbors++){
+								double count = OPvNN[0][lipid][compLipid][chain][neighbors];
+								double proportion = count / sum;
 
-						//Then find the proportion that the values in the array given occur.
-							//Then find the standard Deviation of this.						
-						for (int neighbors = 0; neighbors < length; neighbors++){
-							double count = OPvNN[0][lipid][compLipid][chain][neighbors];
-							double proportion = count / sum;
+								if (proportion <= 0.001){
+									proportion = 0;
+								}	//ends if statement
 
-							if (proportion <= 0.001){
-								proportion = 0;
-							}	//ends if statement
+								proportion = proportion * 100;
+								String stringProportion = String.format("%.2f", proportion);
 
-							proportion = proportion * 100;
-							String stringProportion = String.format("%.2f", proportion);
-
-							double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / totalFrames;
-							double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFrames;
-							double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
-						
-							if (proportion > 2){
-								if (OP > -1.01) {
-									System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+								double OP = OPvNN[1][lipid][compLipid][chain][neighbors] / totalFrames;
+								double OPSquared = OPvNN[2][lipid][compLipid][chain][neighbors] / totalFrames;
+								double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
+							
+								if (proportion > 2){
+									if (OP > -1.01) {
+										System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
+									}	//Ends if statement
 								}	//Ends if statement
-							}	//Ends if statement
-						}	//Ends for loop
+							}	//Ends for loop
+						}	//Ends if statement
 					}	//end try statement
 
 					catch (IOException e){
