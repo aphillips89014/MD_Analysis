@@ -542,21 +542,26 @@ public class Process implements Serializable {
 	}	//Ends changeLipidNames
 
 	public static void main(String[] args){
+
+		//Some starter variables
+		int frameSeperator = 10;	//Set to be 10 by default, different numbers could bring better results based of the Hard Drive Specs.
+		double searchRadius = 10; 	//Set to be 10 by default, can change in the future.
+		int Neighbors = 20;		//Also set to be 20 by default
+
+		//These shouldn't be changed.
+		long time = 0;
+		boolean coarseGrained = false;
 		boolean firstFrameOnly = false;
 		int startingFrame = 0;
 		int finalFrame = -1;
-		int frameSeperator = 10;
-
-		double searchRadius = 10;
-		int Neighbors = 20;
-		long time = 0;
-
-		boolean coarseGrained = false;
 		boolean userResponse = false;
-
 		String coordinateFile = "Coordinates.dat";
 
+
+
+
 		//Determine if there is a specific set number of frames to use.
+		//This will be checked via command line arguements
 		if (args.length > 0){
 			String CommandLineArguement = args[0];
 			if (CommandLineArguement.equals("FirstFrame")) { firstFrameOnly = true; }
@@ -567,6 +572,12 @@ public class Process implements Serializable {
 			 }	// Ends else statement
 		}	//Ends if statement
 
+
+
+
+
+
+		//Get user input, use this to see if we should ask for input in the future (Input will be requested to aide in file naming process. This is optional)
 		Scanner userInput = new Scanner(System.in);
 		System.out.println("Would you like to edit settings as the program runs? (Y/N)");
 		String response = userInput.nextLine();
@@ -578,37 +589,38 @@ public class Process implements Serializable {
 
 
 
-		//Read an input file.
-		time = progressStatement(time, "Start_Read");
 
-		String[] lipidNames = Readin.findLipidNames(coordinateFile);
-		int totalLipids = lipidNames.length;
+		//Now we will read an Input File and begin the program
+		time = progressStatement(time, "Start_Read");	//This function will be used intermittenly to aide in console output
+								//Could be removed, is purely for visual effects so if the program crashes it can be seen when.
+		String[] lipidNames = Readin.findLipidNames(coordinateFile);	//The default names in the coordinate file for each lipid
+		int totalLipids = lipidNames.length;				//The total number of unique lipids in the system
 
 		if (lipidNames[0].equals("null")){
 			//There would be an error accessing the file, so the whole program must end.
 		}	//Ends if statement
 
 		else{
-			int totalFiles = 0;
+			
+			int totalFiles = 0;		//Will tell us the total number of files we have.
 			String fileName = "Frames/frame_0.ser";
 
-			//Create a bunch of serialized objects so that the memory usage won't be as great.
-			//If the files already exist then find out how many there are.
-			boolean filesExist = Readin.checkForFiles(fileName);
+			boolean filesExist = Readin.checkForFiles(fileName);	//Make sure we haven't already read the file in the past.
+
 			if (!filesExist) {
 				try{
 					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, finalFrame, frameSeperator, coordinateFile);
-
 				}	//Ends try Statement
-
 				catch(FileNotFoundException ex){
 					System.out.println("Could not find initial input file");
 				}	//Ends catch statement
 			}	//Ends if statement
 
 			else{
-				totalFiles = Readin.findTotalFrames(frameSeperator);
+				totalFiles = Readin.findTotalFrames(frameSeperator);	
 			}	//Ends if statement
+
+
 
 			//Determine what Method of Simulation is used so more accurate analysis can be done. Tell the user what we are assuming it is.
 			coarseGrained = Readin.determineSimulationMethod();
@@ -616,7 +628,12 @@ public class Process implements Serializable {
 			else { System.out.println("System is assumed to be Atomistic"); }
 
 			time = progressStatement(time, "End_Read");
+			//File reading has finished, move on to Analysis.
 	
+
+
+
+
 
 			//Now we will do the actual Analysis.
 			time = progressStatement(time, "Start_Calculation");
@@ -632,55 +649,67 @@ public class Process implements Serializable {
 			double[][][][] PCL = new double[3][totalLipids][2][30];
 
 			if (firstFrameOnly) { finalFrame = 0; } //Allows us to skip a lot of work, this is a debugging tool.
-			else if (finalFrame != -1) { totalFiles = finalFrame; }
+			else if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
 
-			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;
-			Frame currentFrame = Readin.unserializeFrame(FrameTracker);
-			//Perform calculations for each Frame.
+			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;	//Little equation that forces Java to return a whole rounded number.
+			Frame currentFrame = Readin.unserializeFrame(FrameTracker);		//Use that number to unserialze an object associated with that number.
+
+			//Perform calculations for each Frame/File.
 			while (currentFrame != null){
-				while (currentFrame.frameNumber < startingFrame) { currentFrame = currentFrame.nextFrame; }
+				while (currentFrame.frameNumber < startingFrame) { currentFrame = currentFrame.nextFrame; } //If we are given a start point, go there.
 
+				//Analysis for Coarse-Grained Systems vs AA Systems are uniquely different, sometimes we need to differentiate.
 				if (coarseGrained){
-					generateNN(currentFrame, searchRadius, lipidNames, false);
-					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);
-					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
-					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
+					generateNN(currentFrame, searchRadius, lipidNames, false);					//Find Nearest Neighbors
+					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);						//Find Order Parameter
+					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
+					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
 
 				}	//ends if statemetn
 
 				else {
-					generateNN(currentFrame, searchRadius, lipidNames, true);
-					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);
-					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);
-					Thickness = generateThickness(currentFrame, Thickness, lipidNames);
-					PCL = generatePCL(currentFrame, PCL, lipidNames);
-					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);
-					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);
+					generateNN(currentFrame, searchRadius, lipidNames, true);					//Find Nearest Neighbors
+					OP_AA = generateOP_AA(currentFrame, OP_AA, lipidNames);						//Find Order Parameter
+					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
+					Thickness = generateThickness(currentFrame, Thickness, lipidNames);				//Bin all Thicknesses
+					PCL = generatePCL(currentFrame, PCL, lipidNames);						//Bin all PCL
+					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
+					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);	//Bin all Angle Values
 
 				}	//Ends else statement
 
+
+				//Special if statement for when we reach the final frame
 				if (currentFrame.frameNumber == (finalFrame-1)) {
-					currentFrame = currentFrame.setFirstFrame();
-					Readin.serializeFrame("falseName", FrameTracker, currentFrame);
-					currentFrame = null;
+
+					currentFrame = currentFrame.setFirstFrame();				//Go to beginning of LL
+					Readin.serializeFrame("falseName", FrameTracker, currentFrame);		//Serialize all Changes Made
+
+					currentFrame = null;							//End the entire while loop.
 				}	//Ends if statement
 
 				else {
-					if (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }
+					if (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }		//If not at the end of the LL, go next.
 					else { 
-						currentFrame = currentFrame.setFirstFrame();
-						Readin.serializeFrame("falseName", FrameTracker, currentFrame);
-						FrameTracker = FrameTracker + frameSeperator;
-						currentFrame = Readin.unserializeFrame(FrameTracker);
+						currentFrame = currentFrame.setFirstFrame();					//Go to beginning of LL
+						Readin.serializeFrame("falseName", FrameTracker, currentFrame);			//Save/Serialize all Changes Made
+
+						FrameTracker = FrameTracker + frameSeperator;					//Get number for next Frame Set
+						currentFrame = Readin.unserializeFrame(FrameTracker);				//Unserialize next frame set.
 					}	//Ends else statement
 				}	//Ends else statement
 			}	//Ends while loop
+
 			time = progressStatement(time, "End_Calculation");
-			
+			//Analysis finished.			
 
-			if (userResponse) { lipidNames = changeLipidNames(lipidNames); }
 
-			//Now Create output files for graphing.
+
+			if (userResponse) { lipidNames = changeLipidNames(lipidNames); }	//If the user wanted to change the names of the files, they do it now.
+
+
+
+			//Begin File Output
 			time = progressStatement(time, "Start_Output");
 
 			//We may have chosen to only look at specific frames, so lets modify how many we actually looked at for binning purposes.
@@ -699,6 +728,7 @@ public class Process implements Serializable {
 				}	//ends else if statement
 			}	
 		
+			//Create different files for the different simulation types.
 			if (coarseGrained) {
 				Readin.createOPvNNFiles(OPvNN, lipidNames, totalReadFrames);
 				Readin.createNNFiles(OPvNN, lipidNames);
@@ -713,10 +743,12 @@ public class Process implements Serializable {
 				Readin.createThicknessFiles(Thickness, lipidNames);
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
-				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);
+				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);		//This needs to be set manually. (Too ambiguous)
 			}	//Ends else statement
 
 			time = progressStatement(time, "End_Output");
+			//Output finished.
+	
 		}	//Ends else statement
 		System.out.println("");
 	}	//Ends Main
