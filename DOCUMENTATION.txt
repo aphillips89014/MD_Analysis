@@ -10,7 +10,7 @@ It should be noted that time-efficiency is not a concern of this program as of v
 
 
 Process.java
-	This class is for directing the whole program, and various binning of data is done here so that it can be output.	
+	This class is for directing the whole program, and various binning of data is done here so that it can be outputted.
 
 
 
@@ -21,6 +21,12 @@ Process.java
 	generateOP_CG
 		This method iterates through every item in the Frame Object's allLipids array and calculates the order parameter (OP) of each lipid.
 		There is a generateOP_AA counterpart. Since the OP needs to be treated differently in each due to an inconsistent application of periodic boundary conditions, there are two functions.
+		This method uses a 3-D double array.
+			First Index: Data that needs to be Tracked
+			Second Index: Chain Number (3 --> Avg of one and two)
+			Third Index: Current Lipid we are looking at.
+
+
 
 	generateOP_AA
 		This method iterates through every item in the Frame Object's allLipids array and calculates the order parameter (OP) of each lipid.
@@ -55,7 +61,7 @@ Process.java
 
 	generateOPvNN_CG
 		This method iterates through every item in the Frame Object's allLipids array and bins both the OP and NN of each lipid.
-		This uses a 4-d array. that is very similar to the 5-d array used in generateOP_AA
+		This uses a 5-D array
 
 			First Index: Data that needs to be tracked
 				(0) == Count :: How often a single occurance is found, will be used to help average later value.
@@ -64,26 +70,19 @@ Process.java
 
 			Second Index: The current lipid we are looking at.
 			Third Index : The lipid we are comparing the current lipid with.
-			Fourth Index : The number of comparing lipid neighbors.
+			Fourth Index : The current Chain we are looking at 
+				(0) == Sn1
+				(1) == Sn2
+			Fifth Index : The number of comparing lipid neighbors.
 
 			So for each lipid we find the number of neighbors of every other lipid type (including the same type).
 			Then we simply add the OP into the array and then average this later on, essentially binning the OP based off the number of NN.
-
 			
-			Similar to the generateOP_AA function, there is a System Average and then this is added togethor and then a Time Average is performed.
+			There is a System Average and then this is added togethor and then a Time Average is performed.
 
 
-
-	generateOPvNN_AA
-		This method is identical to the previous one, but adapted for AA simulations.
-		This one uses a 5-d array, because in AA we track specific chains.
-		The Fourth index in this array is the chain number
-			(0) == Sn1
-			(1) == Sn2
-		The Fifth index in this array is the number of Neighbors of Comparing Lipids.
-
-	generateOPHistogram
-		This method iterates through every item in the Frame Object's allLipids array and bins the OP for every lipid.
+	generateAngleHistogram
+		This method iterates through every item in the Frame Object's allLipids array and bins the Angle for every lipid.
 		
 		It does this by applying the OP to a simple equation and binning it based off increments of 0.0005
 		There are 2000 bins in total.
@@ -122,6 +121,21 @@ Process.java
 				(0) == Sn1
 				(1) == Sn2
 			Fourth Index == Carbon Index
+
+
+	generateCosThetaHistograms
+		This method iterates through every item in the Frame Object's allLipids array and bins the Cos Theta value for each lipid.
+
+		Uses 3-D Array
+			First Index: Current Lipid we are looking at
+			Second Index: Current Chain we are looking at
+			Third Index: Bin Spot.
+
+
+	changeLipidNames
+		Allows the user to change the default names of the lipids to be something they prefer.
+
+
 
 
 	progressStatement

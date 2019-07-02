@@ -15,7 +15,7 @@ public class Process implements Serializable {
 	//Calculate Nearest Neighbors for a Frame that consists of many Points (Lipids).
 	public static void generateNN(Frame currentFrame, double searchRadius, String[] lipidNames, boolean canLengthBeNegative){
 	
-		//May already be done, so lets try to skip this lengthy calculation if it is already done.
+		//NN May have been calculated and we are looking at an old set of objects, so let's skip the lengthy process of finding NN.
 		boolean alreadyCalculated = currentFrame.allLipids[0].checkForNN();
 	
 		if (alreadyCalculated) {
@@ -27,7 +27,7 @@ public class Process implements Serializable {
 			int frame = currentFrame.getFrameNumber();	
 
 			//Find the X and Y for a single point, compare it to every other point.
-				//If it is within a radius of 10 of the first point then it can be defined as a Neighbor, so add 1 to a counter.
+				//If it is within a given radius of the first point then it can be defined as a Neighbor, so add 1 to a counter.
 			for (int i = 0; i < length; i++){
 				double x = currentFrame.allLipids[i].getX();
 				double y = currentFrame.allLipids[i].getY();
@@ -36,6 +36,7 @@ public class Process implements Serializable {
 				double xLength = currentFrame.getXLength();
 				double yLength = currentFrame.getYLength();
 
+				//There are periodic boundaries, so special things happen when a point is near one. Check for that here.
 				int shiftX = Mathematics.checkBoundary(x, xLength, searchRadius, canLengthBeNegative);
 				int shiftY = Mathematics.checkBoundary(y, yLength, searchRadius, canLengthBeNegative);
 
@@ -47,6 +48,7 @@ public class Process implements Serializable {
 					double y2 = currentFrame.allLipids[j].getY();
 					String Name2 = currentFrame.allLipids[j].getName();
 
+					//In case the points given are special and near a boundary, fully account for it here.
 					x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
 					y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
 
@@ -59,6 +61,7 @@ public class Process implements Serializable {
 					}	//Ends if statement
 				}	//Ends for loop
 
+				//Save your findings.
 				for (int j = 0; j < totalLipids; j++){
 					currentFrame.allLipids[i].setNN(j, lipidCount[j]);
 				}	//Ends for loop
@@ -70,7 +73,7 @@ public class Process implements Serializable {
 	//Do this for every lipid, then save these calculation.
 	public static double[][][] generateOP_CG(Frame Frame, double[][][] OP_CG, String[] lipidNames){
 		
-		boolean OPCalculated = Frame.allLipids[0].checkForOP();
+		boolean OPCalculated = Frame.allLipids[0].checkForOP();		//Make sure we aren't looking at an old object that already has OP calculated.
 
 		int totalLipids = Frame.allLipids.length;
 		int frameNumber = Frame.getFrameNumber();
@@ -88,7 +91,6 @@ public class Process implements Serializable {
 				Frame.allLipids[currentLipid].setOP_CosTheta(xLength, yLength);
 			}	//ends if statement
 
-
 			String lipidName = Frame.allLipids[currentLipid].getName();
 			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
 
@@ -96,6 +98,7 @@ public class Process implements Serializable {
 			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
 			double avgOP = firstOP;
 
+			//Save those OP in specific spots.
 			frameOP_CG[0][0][lipidNumber]++;
 			frameOP_CG[1][0][lipidNumber] = frameOP_CG[1][0][lipidNumber] + firstOP;;
 
@@ -110,6 +113,7 @@ public class Process implements Serializable {
 				frameOP_CG[1][2][lipidNumber] = frameOP_CG[1][2][lipidNumber] + avgOP;;
 		}	//Ends for loop
 
+		//Place the OP for the frame into the OP of the entire time frame.
 		for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
 			for (int chain = 0; chain < 3; chain++){
 				OP_CG[0][chain][currentLipid]++;
@@ -139,7 +143,7 @@ public class Process implements Serializable {
 		int totalLipids = lipidNames.length;
 		int totalChains = OP[0][0].length;
 		int totalMembers = OP[0][0][0][0].length;
-		int totalAtoms = 4;
+		int totalAtoms = 4;	//There are at most 4 atoms involved with a single carbon: Carbon itself, and 3 Seperate Hydrogen (typically just 2 hydrgogen)
 
 		//The Array OP can be Defined as:
 		//OP[ Count / OP / OP^2 ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
@@ -149,7 +153,6 @@ public class Process implements Serializable {
 
 
 		for (int i = 0; i < length; i++){
-
 			if (!(OPCalculated)) { 
 				//This takes some time, so lets try to minimalize it.
 				Frame.allLipids[i].setOP_CosTheta(0,0);
@@ -164,7 +167,6 @@ public class Process implements Serializable {
 
 			//Now we will Bin all the data in one spot so analysis can be done.
 			while (keepGoing) {
-				
 				if (currentAtom == null) {
 					chainCount++;
 					currentAtom = Frame.allLipids[i].secondChain;						
@@ -172,7 +174,6 @@ public class Process implements Serializable {
 					if (chainCount == 2) {
 						keepGoing = false;
 					}	//ends if statement
-
 				}	//Ends if statement
 
 				else {
