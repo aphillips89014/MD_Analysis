@@ -18,6 +18,7 @@ public class Frame implements java.io.Serializable {
 	double BilayerCenter = 0;
 	int nextAvailableLipid = 0;
 	
+	//Frame is a 2 directional LL, it is 2 Directional because the programmer wanted to be lazy.
 	Frame nextFrame = null;
 	Frame prevFrame = null;
 
@@ -138,9 +139,6 @@ public class Frame implements java.io.Serializable {
 			firstFrame = this.prevFrame.setFirstFrame();
 		}	//ends if statement
 
-
 		return firstFrame;
 	}	//Ends setFirstFrame
-
-
 }	//Ends class defintion

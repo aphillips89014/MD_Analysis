@@ -254,6 +254,14 @@ Frame.java
 		It iterates through every lipid in the allLipids array, and finds the maximum and mimumum X and Y of the entire system.
 			The difference is found between these and it is set as the totalX or totalY Length.
 
+	findBilayerCenter
+		Each frame has a different center of the bilayer
+		This method estimates that.
+		This is used primarily for AA simulations which are not large enough to experience membrane undulations.
+
+	setFirstFrame
+		Returns the first frame in the Linked List of Frames.
+
 
 
 Lipid.java
