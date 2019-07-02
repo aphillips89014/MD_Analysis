@@ -173,6 +173,9 @@ Readin.java
 	unserializeFrame
 		Unserializes a given Frame Object.
 
+	findTotalFrames
+		Goes through every frame and finds the last one, aka the maximum amount of frames.
+
 	checkForFiles
 		A string, which is a fileName, is passed.
 		This string is then used to see if a file with a matching name is found.
@@ -212,7 +215,7 @@ Readin.java
 	create_XX_Files
 		There are multiple methods with the name create_XX_Files
 		These methods are for taking the binned data from Process.java and then actually outputting it to a single file so that it can immediately be plotted.
-
+		The majority of these methods are the same, they are kept seperate so they can each be changed at will with ease.
 
 
 

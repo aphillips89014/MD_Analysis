@@ -791,13 +791,14 @@ public class Readin implements Serializable{
 	
 		int totalFiles = 0;
 
-		//Probe Forward
-		int maximumID = findMaximumID(Scout, 0);
+		int maximumID = findMaximumID(Scout, 0);	//Probe forward, find maximum ID
 		
 		boolean keepGoing = true;
 
-		//Scane the whole file
+		//Now read the entire file.
 		while (keepGoing){
+
+			//Variables that are readin each line.
 			currentFrame = Scan.nextInt();
 			Lipid = Scan.next();
 			ID = Scan.nextInt();
@@ -848,17 +849,17 @@ public class Readin implements Serializable{
 					maximumID = findMaximumID(Scout, currentFrame);
 
 					if ((currentFrame % frameSeperator) == 0){
-						Frame = Frame.setFirstFrame();
+						Frame = Frame.setFirstFrame();			//Go to first frame in LL
 
-						serializeFrame(fileName, 9999, Frame);
+						serializeFrame(fileName, 9999, Frame);		//Serialize/Save that Frame
 
-						Frame.resetFrame(currentFrame, maximumID);
+						Frame.resetFrame(currentFrame, maximumID);	//Reset the frame you have and get ready for a new one.
 
 					}	//Ends if statement
 
 					else {
-						//Create next frame
-						Frame.nextFrame = new Frame(currentFrame, maximumID);						
+						//Create next frame, adding it to a LL
+						Frame.nextFrame = new Frame(currentFrame, maximumID);
 
 						//Set the nextFrames previous Frame, to be the current Frame
 						Frame.nextFrame.prevFrame = Frame;
@@ -910,7 +911,6 @@ public class Readin implements Serializable{
 
 		//Save the last Frame.
 		Frame = Frame.setFirstFrame();
-
 		serializeFrame("falseName", (((totalFiles-1)/frameSeperator)*frameSeperator), Frame);
 		
 		return totalFiles;
