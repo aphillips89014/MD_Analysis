@@ -335,8 +335,8 @@ Atom.java
 
 			For CG simulations we need to account for periodic boundary conditions, this is done here.
 
-	averageOP
-		Averages an array of OP and then returns this average.
+	averageOP/CosTheta
+		Averages an array of OP/CosTheta and then returns this average.
 
 	printAllAtoms
 		Prints information about the atom and the next atom in the LL
