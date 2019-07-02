@@ -280,8 +280,9 @@ Lipid.java
 	checkForOP
 		Same as the checkForNN method, but rather for OP instead.
 
-	setOP
+	setOP_CosTheta
 		OP's are complicated and unique to each atom in a system, so this method helps jump-start that process.
+		Also saves the associated CosTheta Value
 
 	getInformation
 		Returns information about a given Lipid
@@ -306,6 +307,9 @@ Lipid.java
 
 	findPhosphateThickness
 		Finds the thickness of Phosphate by choosing phosphate directly and returning it's Z-Value.
+
+	getTerminalCarbonHeight
+		Goes to the end of the Linked List of Carbon and returns Z.
 
 	get_XX
 		Various get methods for returning specific attributes of the Lipid Class.

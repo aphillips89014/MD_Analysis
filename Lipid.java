@@ -302,12 +302,9 @@ public class Lipid implements java.io.Serializable {
 		return this.firstCosTheta;
 	}	//ends getFirstCosTheta
 
-
 	public double getSecondCosTheta(){
 		return this.secondCosTheta;
 	}	//ends getFirstCosTheta
-
-
 
 	public double getFirstOP(){
 		return this.firstOP;
@@ -316,5 +313,4 @@ public class Lipid implements java.io.Serializable {
 	public double getSecondOP(){
 		return this.secondOP;
 	}	//Ends getFirstOP()
-
 }	//Ends Lipid Class Defintion
