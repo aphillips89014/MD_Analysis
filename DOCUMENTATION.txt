@@ -367,10 +367,18 @@ Mathematics.java
 
 			Requires the squared average and the average.
 
+	calculateCosTheta
+		Calculates cosTheta, this will then be used in the OP equation.
+		Theta is the angle between two points (a vector) and the bilayer normal (typically assumed to be < 0 , 0 , 1 >
+
 	calcultateOP
 		Calculates the OP between two given points by establishing a vector between them
 			The angle between this vector and the Z-Axis is found and then applied to a 2nd order LeGrange Polynomial
 				This is the standard method of calcualting OP
+	reverseOP
+		Calculate Cos Theta from OP
+			This may be outdated and may be able to be ignored.
+
 
 	sumArray
 		Sum a given array.

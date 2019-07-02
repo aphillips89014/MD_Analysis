@@ -165,8 +165,6 @@ public class Mathematics{
 		value = value * value;
 
 		double deviation = squaredValue - value;
-		
-//		if (deviation < 0) { deviation = deviation * -1; }
 
 		deviation = Math.pow(deviation, 0.5);
 
