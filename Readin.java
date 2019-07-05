@@ -658,8 +658,8 @@ public class Readin implements Serializable{
 				for (int i = 0; i < length; i++){
 					int count = Angles[i];
 					float givenAngle = (float) i;
-					givenAngle = (givenAngle / 10) - 180;
-					String givenOutput = String.format("%.01f", givenAngle);		
+					givenAngle = givenAngle / 20;
+					String givenOutput = String.format("%.05f", givenAngle);		
 					
 					System.out.println(givenOutput + " " + count);
 				}	//Ends for loop

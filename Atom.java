@@ -260,6 +260,10 @@ public class Atom implements Serializable{
 		return this.Member;
 	}	//Ends getMember Method
 
+	public double getCosTheta(){
+		return this.cosTheta;
+	}	//Ends getCosTheta Method
+
 	public double getOP(){
 		return this.OP;
 	}	//Ends getOP

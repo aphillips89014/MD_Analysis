@@ -254,10 +254,10 @@ public class Process implements Serializable {
 				//Now, view every C-H Bond, and get the Angle of the bond by reverse engineering the OP associated with the approporiate Hydrogen.
 				while (probingAtom != null) {
 					if (probingAtom.Hydrogen != -1) {
-						double Angle = Mathematics.reverseOP(probingAtom.OP);
+						double cosTheta = probingAtom.getCosTheta();
+						double Angle = Math.acos(cosTheta) * (180/Math.PI);
 
-						double newAngle = Angle + 180;	
-						int index = (int) Math.round(newAngle * 10);
+						int index = (int) Math.round(Angle*20);
 						
 						Angles[index]++;
 					}	//Ends if statement
