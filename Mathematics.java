@@ -195,25 +195,6 @@ public class Mathematics{
 		return OP;
 	}       //Ends calculateOP method
 
-	//Take an OP and transform it into the appropraite angle.
-	public static double reverseOP(double OP){
-		double Angle = ((OP * 2) + 1) / 3;	//Undo OP equation
-		Angle = Math.pow(Angle, 0.5);		//Make it not squared
-		Angle = Math.acos(Angle);		//Make it an angle (radians)
-		Angle = Angle * (180 / Math.PI);	//Make it in terms of degrees.
-
-		return Angle;
-	}	//Ends reverseOP
-
-	//Get the OP, but in terms of cos Theta
-	public static double reverseOP_CosTheta(double OP){
-		double cosTheta = ((OP * 2) + 1) /3;
-		cosTheta = Math.pow(cosTheta, 0.5);
-
-		return cosTheta;
-	}	//Ends reverseOP_CostTheta
-
-
 	public double sumArray(double[] array){
 		int length = array.length;
 		double sum = 0;
