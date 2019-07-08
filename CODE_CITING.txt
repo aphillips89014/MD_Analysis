@@ -1,0 +1,10 @@
+The Jama Package is used in this code.
+
+
+Specifically the usage of the Matrix, SingleValueDecomposition, and Maths class are used from the Jama package.
+
+These were pulled from the jar File on the website:
+https://math.nist.gov/javanumerics/jama/
+
+Pulled on July 7th, 2019 (7/8/2019)
+Version 1.0.3
