@@ -77,7 +77,7 @@ public class Process implements Serializable {
 
 	//Use the method setOP_CosTheta to average the OP of all Atoms
 	//Do this for every lipid, then save these calculation.
-	public static double[][][] generateOP_CG(Frame Frame, double[][][] OP_CG, String[] lipidNames){
+	public static double[][][][] generateOP_CG(Frame Frame, double[][][][] OP_CG, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();		//Make sure we aren't looking at an old object that already has OP calculated.
 
@@ -89,7 +89,7 @@ public class Process implements Serializable {
 		double yLength = Frame.getYLength();
 
 		//Get the OP for this frame, avg it, then avg that over the total frames.
-		double[][][] frameOP_CG = new double[2][3][totalLipids];
+		double[][][][] frameOP_CG = new double[2][2][3][totalLipids];
 
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			if (!(OPCalculated)){
@@ -99,36 +99,39 @@ public class Process implements Serializable {
 
 			String lipidName = Frame.allLipids[currentLipid].getName();
 			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
+			int Leaflet = Mathematics.LeafletToInt(Frame.allLipids[currentLipid].getLeaflet());
 
 			double firstOP = Frame.allLipids[currentLipid].getFirstOP();
 			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
 			double avgOP = firstOP;
 
 			//Save those OP in specific spots.
-			frameOP_CG[0][0][lipidNumber]++;
-			frameOP_CG[1][0][lipidNumber] = frameOP_CG[1][0][lipidNumber] + firstOP;;
+			frameOP_CG[0][Leaflet][0][lipidNumber]++;
+			frameOP_CG[1][Leaflet][0][lipidNumber] = frameOP_CG[1][Leaflet][0][lipidNumber] + firstOP;;
 
 			if (secondOP != 0) { 
 				avgOP = (firstOP + secondOP) / 2; 
 
-				frameOP_CG[0][1][lipidNumber]++;
-				frameOP_CG[1][1][lipidNumber] = frameOP_CG[1][1][lipidNumber] + secondOP;;
+				frameOP_CG[0][Leaflet][1][lipidNumber]++;
+				frameOP_CG[1][Leaflet][1][lipidNumber] = frameOP_CG[1][Leaflet][1][lipidNumber] + secondOP;;
 			}	//Ends if statement
 	
-				frameOP_CG[0][2][lipidNumber]++;
-				frameOP_CG[1][2][lipidNumber] = frameOP_CG[1][2][lipidNumber] + avgOP;;
+			frameOP_CG[0][Leaflet][2][lipidNumber]++;
+			frameOP_CG[1][Leaflet][2][lipidNumber] = frameOP_CG[1][Leaflet][2][lipidNumber] + avgOP;;
 		}	//Ends for loop
 
 		//Place the OP for the frame into the OP of the entire time frame.
 		for (int currentLipid = 0; currentLipid < totalLipidTypes; currentLipid++){
-			for (int chain = 0; chain < 3; chain++){
-				OP_CG[0][chain][currentLipid]++;
-				
-				//Might be NaN in some circumstances
-				double OP = frameOP_CG[1][chain][currentLipid] / frameOP_CG[0][chain][currentLipid];
-				
-				OP_CG[1][chain][currentLipid] = OP_CG[1][chain][currentLipid] + OP;
-				OP_CG[2][chain][currentLipid] = OP_CG[2][chain][currentLipid] + (OP * OP);
+			for (int Leaflet = 0; Leaflet < 2; Leaflet++){
+				for (int chain = 0; chain < 3; chain++){
+					OP_CG[0][Leaflet][chain][currentLipid]++;
+					
+					//Might be NaN in some circumstances
+					double OP = frameOP_CG[1][Leaflet][chain][currentLipid] / frameOP_CG[0][Leaflet][chain][currentLipid];
+					
+					OP_CG[1][Leaflet][chain][currentLipid] = OP_CG[1][Leaflet][chain][currentLipid] + OP;
+					OP_CG[2][Leaflet][chain][currentLipid] = OP_CG[2][Leaflet][chain][currentLipid] + (OP * OP);
+				}	//Ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
 
@@ -140,7 +143,7 @@ public class Process implements Serializable {
 	//Each lipid has 2 chains, each chain has many Atoms. Each atom has an OP.
 		//Use the method setOP_CosTheta to average the OP of all Atoms per Chain
 		//Do this for every lipid, then save these calculation.
-	public static double[][][][][] generateOP_AA(Frame Frame, double[][][][][] OP, String[] lipidNames){
+	public static double[][][][][][] generateOP_AA(Frame Frame, double[][][][][][] OP, String[] lipidNames){
 		
 		boolean OPCalculated = Frame.allLipids[0].checkForOP();
 
@@ -152,10 +155,10 @@ public class Process implements Serializable {
 		int totalAtoms = 4;	//There are at most 4 atoms involved with a single carbon: Carbon itself, and 3 Seperate Hydrogen (typically just 2 hydrgogen)
 
 		//The Array OP can be Defined as:
-		//OP[ Count / OP / OP^2 ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
+		//OP[ Count / OP / OP^2 ][ Leaflet ][ Lipid ID ][ Chain Number ][ Carbon / H1 / H2 / H3 ][ Carbon Index ]
 		//We Want to do a system average for a single frame, then average all the frames togethor.
 
-		double[][][][][] frameOP = new double[2][totalLipids][totalChains][totalAtoms][totalMembers];
+		double[][][][][][] frameOP = new double[2][2][totalLipids][totalChains][totalAtoms][totalMembers];
 
 
 		for (int i = 0; i < length; i++){
@@ -166,6 +169,7 @@ public class Process implements Serializable {
 
 			String lipidName = Frame.allLipids[i].getName();
 			int lipidNumber = Mathematics.LipidToInt(lipidNames, lipidName);
+			int Leaflet = Mathematics.LeafletToInt(Frame.allLipids[i].getLeaflet());
 			Atom currentAtom = Frame.allLipids[i].firstChain;
 
 			boolean keepGoing = true;
@@ -189,8 +193,8 @@ public class Process implements Serializable {
 						int member = currentAtom.getMember();
 						if (member == -1) { member = 0; }
 
-						frameOP[0][lipidNumber][chainCount][0][member]++;
-						frameOP[1][lipidNumber][chainCount][0][member] = frameOP[1][lipidNumber][chainCount][0][member] + currentOP;
+						frameOP[0][Leaflet][lipidNumber][chainCount][0][member]++;
+						frameOP[1][Leaflet][lipidNumber][chainCount][0][member] = frameOP[1][Leaflet][lipidNumber][chainCount][0][member] + currentOP;
 
 
 						Atom hydrogenAtom = currentAtom.nextHydrogen;
@@ -200,8 +204,8 @@ public class Process implements Serializable {
 						while (hydrogenAtom != null){
 							currentOP = hydrogenAtom.getOP();
 					
-							frameOP[0][lipidNumber][chainCount][currentHydrogen][member]++;
-							frameOP[1][lipidNumber][chainCount][currentHydrogen][member] = frameOP[1][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
+							frameOP[0][Leaflet][lipidNumber][chainCount][currentHydrogen][member]++;
+							frameOP[1][Leaflet][lipidNumber][chainCount][currentHydrogen][member] = frameOP[1][Leaflet][lipidNumber][chainCount][currentHydrogen][member] + currentOP;
 							currentHydrogen++;
 							hydrogenAtom = hydrogenAtom.nextHydrogen;
 						}	//Ends while loop
@@ -213,22 +217,24 @@ public class Process implements Serializable {
 		}	//Ends for Loop
 
 		//Now average the array given and add it into the overall Array.
-		for (int i = 0; i < totalLipids; i++){
-			for (int j = 0; j < totalChains; j++){
-				for (int k = 0; k < totalAtoms; k++){
-					for (int h = 0; h < totalMembers; h++){
+		for (int L = 0; L < 2; L++){
+			for (int i = 0; i < totalLipids; i++){
+				for (int j = 0; j < totalChains; j++){
+					for (int k = 0; k < totalAtoms; k++){
+						for (int h = 0; h < totalMembers; h++){
 
-						double count = frameOP[0][i][j][k][h];
+							double count = frameOP[0][L][i][j][k][h];
 
-						OP[0][i][j][k][h] = OP[0][i][j][k][h] + count;
+							OP[0][L][i][j][k][h] = OP[0][L][i][j][k][h] + count;
 
-						double currentOP = frameOP[1][i][j][k][h] / count;
+							double currentOP = frameOP[1][L][i][j][k][h] / count;
 
-						if (currentOP != 0){
-							OP[1][i][j][k][h] = OP[1][i][j][k][h] + currentOP;
-							OP[2][i][j][k][h] = OP[2][i][j][k][h] + (currentOP * currentOP);
+							if (currentOP != 0){
+								OP[1][L][i][j][k][h] = OP[1][L][i][j][k][h] + currentOP;
+								OP[2][L][i][j][k][h] = OP[2][L][i][j][k][h] + (currentOP * currentOP);
 
-						}	//Ends if statement
+							}	//Ends if statement
+						}	//Ends for loop
 					}	//Ends for loop
 				}	//Ends for loop
 			}	//Ends for loop
@@ -558,7 +564,6 @@ public class Process implements Serializable {
 		//These shouldn't be changed.
 		long time = 0;
 		boolean coarseGrained = false;
-		boolean firstFrameOnly = false;
 		int startingFrame = 0;
 		int finalFrame = -1;
 		boolean userResponse = false;
@@ -644,17 +649,15 @@ public class Process implements Serializable {
 			time = progressStatement(time, "Start_Calculation");
 
 			//Arrays for binning data so that it can be organized into a nice output file later.
-			//The DOCUMENTATION.txt file describes each of these arrays in the methods they are used in.
-			double[][][][][] OP_AA = new double[3][totalLipids][2][4][30];
-			double[][][] OP_CG = new double[3][3][totalLipids];
+			double[][][][][][] OP_AA = new double[3][2][totalLipids][2][4][30];
+			double[][][][] OP_CG = new double[3][2][3][totalLipids];
 			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][Neighbors];
 			double[][][] CosTheta_Histogram = new double[totalLipids][3][4001];
 			int[] Angle_Histogram_AA = new int[3601];
 			int[][] Thickness = new int[totalLipids][2000];
 			double[][][][] PCL = new double[3][totalLipids][2][30];
 
-			if (firstFrameOnly) { finalFrame = 0; } //Allows us to skip a lot of work, this is a debugging tool.
-			else if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
+			if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
 
 			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;	//Little equation that forces Java to return a whole rounded number.
 			Frame currentFrame = Readin.unserializeFrame(FrameTracker);		//Use that number to unserialze an object associated with that number.

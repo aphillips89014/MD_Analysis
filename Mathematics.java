@@ -224,6 +224,23 @@ public class Mathematics{
 		return result;
 	}	//Ends isValidLipid
 
+	public static int LeafletToInt(String Leaflet){
+		int result = -1;
+		if (Leaflet.equals("Upper")){ result = 0; }
+		else if (Leaflet.equals("Lower")) { result = 1; }
+		else { System.out.println("NOT UPPER OR LOWER LEAFLET!!!"); }
+
+		return result;
+	}	//Ends LeafletToInt Method
+
+	public static String IntToLeaflet(int x){
+		String result = "";
+		if (x == 0) { result = "Upper";}
+		else if (x == 1) { result = "Lower";}
+		else { System.out.println("NOT UPPER OR LOWER"); }
+
+		return result;
+	}	//Ends IntToLeaflet Method
 
 
 	public static String IntToLipid(int x, String[] lipidNames){

@@ -286,53 +286,37 @@ public class Readin implements Serializable{
 	}	//Ends if statement
 
 
-	public static void createOPFiles(double[][][][][] OP, String[] lipidNames, double totalFiles){
+	public static void createOPFiles(double[][][][][][] OP, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 	
 		int totalLipids = lipidNames.length;
+		
+		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
+			String Leaflet_Name = Mathematics.IntToLeaflet(Leaflet);
 
-		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-			for (int currentChain = 0; currentChain < 2; currentChain++){
-				//Check to see if there is valid data.
-				double sum = 0;
-				int length = OP[0][currentLipid][currentChain][0].length;
-				for (int i = 0; i < length; i++){
-					sum = sum + OP[0][currentLipid][currentChain][0][i];
+			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+				for (int currentChain = 0; currentChain < 2; currentChain++){
+					//Check to see if there is valid data.
+					double sum = 0;
+					int length = OP[0][Leaflet][currentLipid][currentChain][0].length;
+					for (int i = 0; i < length; i++){
+						sum = sum + OP[0][Leaflet][currentLipid][currentChain][0][i];
 
-				}	//ends for loop
+					}	//ends for loop
 
-				if (sum > 0){
-					String fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP.dat";
+					if (sum > 0){
+						String fileName = "Graphing/Data/" + Leaflet_Name + "_" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP.dat";
 
-					try{
-						PrintStream output = new PrintStream(new File(fileName));
-						System.setOut(output);
+						try{
+							PrintStream output = new PrintStream(new File(fileName));
+							System.setOut(output);
 
-						for (int i = 0; i < length; i++){
-							double count = OP[0][currentLipid][currentChain][0][i];
-
-							if (count > 0) {
-								double currentOP = OP[1][currentLipid][currentChain][0][i] / totalFiles;
-								double squaredOP = OP[2][currentLipid][currentChain][0][i] / totalFiles;
-
-								double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
-								
-								System.out.println(i + " " + currentOP + " " + deviation);
-
-							}	//Ends if statement
-						}	//Ends for loop
-
-						fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP_H.dat";
-						PrintStream output2 = new PrintStream(new File(fileName));
-						System.setOut(output2);
-
-						for (int currentHydrogen = 1; currentHydrogen < 4; currentHydrogen++){
 							for (int i = 0; i < length; i++){
-								double count = OP[0][currentLipid][currentChain][currentHydrogen][i];
+								double count = OP[0][Leaflet][currentLipid][currentChain][0][i];
 
 								if (count > 0) {
-									double currentOP = OP[1][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
-									double squaredOP = OP[2][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
+									double currentOP = OP[1][Leaflet][currentLipid][currentChain][0][i] / totalFiles;
+									double squaredOP = OP[2][Leaflet][currentLipid][currentChain][0][i] / totalFiles;
 
 									double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
 									
@@ -340,16 +324,36 @@ public class Readin implements Serializable{
 
 								}	//Ends if statement
 							}	//Ends for loop
-						}	//Ends for loop
 
-					}	//Ends try statement
+							fileName = "Graphing/Data/" + Leaflet_Name + "_" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP_H.dat";
+							PrintStream output2 = new PrintStream(new File(fileName));
+							System.setOut(output2);
 
-					catch (IOException e){
-						System.setOut(console);
-						System.out.println("Error in Creating " + fileName);
-						System.out.println(e);
-					}	//Ends catch
-				}	//Ends if statement
+							for (int currentHydrogen = 1; currentHydrogen < 4; currentHydrogen++){
+								for (int i = 0; i < length; i++){
+									double count = OP[0][Leaflet][currentLipid][currentChain][currentHydrogen][i];
+
+									if (count > 0) {
+										double currentOP = OP[1][Leaflet][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
+										double squaredOP = OP[2][Leaflet][currentLipid][currentChain][currentHydrogen][i] / totalFiles;
+
+										double deviation = Mathematics.calculateDeviation(currentOP, squaredOP);
+										
+										System.out.println(i + " " + currentOP + " " + deviation);
+
+									}	//Ends if statement
+								}	//Ends for loop
+							}	//Ends for loop
+
+						}	//Ends try statement
+
+						catch (IOException e){
+							System.setOut(console);
+							System.out.println("Error in Creating " + fileName);
+							System.out.println(e);
+						}	//Ends catch
+					}	//Ends if statement
+				}	//Ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
 
@@ -568,7 +572,7 @@ public class Readin implements Serializable{
 	//Get the avg NN for the entire system
 	//Show only that
 	//Not meant to be graphed.
-	public static void createStandardDataFiles_CG(double[][][][][] OPvNN, double[][][] OP_CG, String[] lipidNames){
+	public static void createStandardDataFiles_CG(double[][][][][] OPvNN, double[][][][] OP_CG, String[] lipidNames){
 		PrintStream console = System.out;
 		int totalLipids = lipidNames.length;
 		double sum = 0;
@@ -615,17 +619,20 @@ public class Readin implements Serializable{
 
 			//iterate through second index
 			for (int lipid = 0; lipid < totalLipids; lipid++){
-				for (int chain = 0; chain < 3; chain++){
-					String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+				for (int Leaflet = 0; Leaflet < 2; Leaflet++){
+					for (int chain = 0; chain < 3; chain++){
+						String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
+						String Leaflet_String = Mathematics.IntToLeaflet(Leaflet);
 
-					double OP = OP_CG[1][chain][lipid] / OP_CG[0][chain][lipid];
-					double OP_Squared = OP_CG[2][chain][lipid] / OP_CG[0][chain][lipid];
+						double OP = OP_CG[1][Leaflet][chain][lipid] / OP_CG[0][Leaflet][chain][lipid];
+						double OP_Squared = OP_CG[2][Leaflet][chain][lipid] / OP_CG[0][Leaflet][chain][lipid];
 
-					double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
-					System.out.println("OP of " + lipidName + " chain " + (chain+1) + " is " + OP + "    +-" + deviation);
+						double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
+						System.out.println("OP of " + lipidName + " chain " + (chain+1) + " in the " + Leaflet_String + " is " + OP + "    +-" + deviation);
+					}	//Ends for loop
+
+					System.out.println("");
 				}	//Ends for loop
-
-				System.out.println("");
 			}	//Ends for loop
 		}	//Ends try statement
 
