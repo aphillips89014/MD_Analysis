@@ -137,11 +137,7 @@ public class Readin implements Serializable{
 		String Chain;
 		String Element;
 
-		//In Coarse-Grained Simulations there is a variant amount of lipids due to the inconsistent flip-flop of Cholesterol.
-			//So therefore we must do some gymnastics to make sure we can figure this out exactly every time.
-
 		while (keepGoing){
-
 			try{
 				currentFrame = Scan.nextInt();
 			}	//Ends try Statement
@@ -161,6 +157,8 @@ public class Readin implements Serializable{
 			}	//Ends if statement
 
 			else if (currentFrame == targetFrame){
+				Scan.next();
+				Scan.next();
 				Scan.next();
 				Scan.next();
 				Chain = Scan.next();
@@ -184,6 +182,8 @@ public class Readin implements Serializable{
 
 		return totalLipids;
 	}	//Ends findMaximumId
+
+
 
 	//Parse forward through the file we are interested in
 		//Find each lipid in the systme by searching through the first frame.
@@ -783,6 +783,8 @@ public class Readin implements Serializable{
 		int previousFrame = 1000;
 		String Lipid;
 		int ID;
+		String Leaflet;
+		String FlipFloppable;
 		String Chain;
 		String Element;
 		int Member;
@@ -794,7 +796,7 @@ public class Readin implements Serializable{
 		int totalFiles = 0;
 
 		int maximumID = findMaximumID(Scout, 0);	//Probe forward, find maximum ID
-		
+
 		boolean keepGoing = true;
 
 		//Now read the entire file.
@@ -804,6 +806,8 @@ public class Readin implements Serializable{
 			currentFrame = Scan.nextInt();
 			Lipid = Scan.next();
 			ID = Scan.nextInt();
+			Leaflet = Scan.next();
+			FlipFloppable = Scan.next();
 			Chain = Scan.next();
 			Element = Scan.next();
 			Member = Scan.nextInt();
@@ -836,54 +840,51 @@ public class Readin implements Serializable{
 						keepGoing = false;
 					}	//Ends if statement
 
+	
+
 					//Serialize Old Frame
 					//Create new Frame
+
+
 					String frameString = Integer.toString((previousFrame / frameSeperator)*frameSeperator);
 					fileName = "Frames/frame_" + frameString + ".ser";
 	
-					//Find the maximum X and Y length that is unique to every frame. Can only be done after every lipid has been viewed.
-					Frame.findDimensions();
-
-					//Find the bilayer Center
-					Frame.findBilayerCenter();
-
-					//Find max ID for the next Frame
-					maximumID = findMaximumID(Scout, currentFrame);
+					Frame.findDimensions();			//Find X and Y Length of the entire system.
+					Frame.findBilayerCenter();		//Find the generalized center of the system.
 
 					if ((currentFrame % frameSeperator) == 0){
 						Frame = Frame.setFirstFrame();			//Go to first frame in LL
-
 						serializeFrame(fileName, 9999, Frame);		//Serialize/Save that Frame
-
 						Frame.resetFrame(currentFrame, maximumID);	//Reset the frame you have and get ready for a new one.
 
 					}	//Ends if statement
 
 					else {
-						//Create next frame, adding it to a LL
-						Frame.nextFrame = new Frame(currentFrame, maximumID);
-
-						//Set the nextFrames previous Frame, to be the current Frame
-						Frame.nextFrame.prevFrame = Frame;
-
-						//Set the currentFrame to be the next frame
-						Frame = Frame.nextFrame;
+						Frame.nextFrame = new Frame(currentFrame, maximumID);	//Create next Frame, add to LL
+						Frame.nextFrame.prevFrame = Frame;			//Set the nextFrame's previousFrame to be the current Frame.
+						Frame = Frame.nextFrame;				//Set the currentFrame to be the next Frame
 
 					}	//Ends else statement
 				}	//Ends else statement
 			}	//Ends if statement	
+
+
+
+
 
 			//Now, assign values to the item it corresponds to.
 
 			if ( (Chain.equals("null")) && (Element.equals("null")) ){
 				//New lipid identifiers have no chain or element
 
-				Frame.createLipid(Lipid, ID, X, Y, Z, lipidNames);
+				Frame.createLipid(Lipid, ID, X, Y, Z, Leaflet, FlipFloppable, lipidNames);
 			}	//Ends if statement
 
 			else if ( (Hydrogen == -1) ){
-				//This implies that it is either Carbon or a special element.
-				if (Element.equals("C") || (Element.equals("C3")) || (Element.equals("H3"))) {
+				//This implies that it is either a standard Element, or Special Element
+				String[] standardElements = new String[]{ "C", "C3", "H3", "C-Bead", "R3", "ROH", "C1" };
+
+				if (Mathematics.isValidLipid(Element, standardElements)) {
 
 					Frame.allLipids[ID - 1].assignChainIdentifier(Chain);
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
@@ -893,13 +894,6 @@ public class Readin implements Serializable{
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//ends if statement
-
-				else if ((Element.equals("C-Bead")) || (Element.equals("R3")) || (Element.equals("ROH") || (Element.equals("C1")))){
-					//This elese statement will group up all the Coarse-Grained Atoms.
-					Frame.allLipids[Frame.nextAvailableLipid - 1].assignChainIdentifier(Chain);
-					Frame.allLipids[Frame.nextAvailableLipid - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
-
-				}	//Ends else statement
 			}	//Ends if statment
 
 			else {

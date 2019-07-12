@@ -18,6 +18,9 @@ public class Lipid implements java.io.Serializable {
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
+	String Leaflet;
+	String FlipFloppable;
+
 	double firstOP = -2;
 	double secondOP = -2;
 
@@ -33,12 +36,15 @@ public class Lipid implements java.io.Serializable {
 	Atom specialAtoms;
 
 	//Assign some attributes
-	public Lipid(String Name, int ID, double X, double Y, double Z, String[] lipidNames){
+	public Lipid(String Name, int ID, double X, double Y, double Z, String Leaflet, String FlipFloppable, String[] lipidNames){
 		this.Name = Name;
 		this.ID = ID;
 		this.X = X;
 		this.Y = Y;
 		this.Z = Z;
+		this.Leaflet = Leaflet;
+		this.FlipFloppable = FlipFloppable;
+
 		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 		this.secondChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 		this.specialAtoms = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
@@ -125,16 +131,18 @@ public class Lipid implements java.io.Serializable {
 	//Return Various Information
 	public void getInformation(){
 		System.out.println("");
+		System.out.println("Get Info:");
+
 
 //		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
-		System.out.println(this.Name + " " + this.ID);
+		System.out.println(this.Name + " " + this.ID + " " + this.Leaflet + " " + this.FlipFloppable);
 
-		System.out.println("firstChain:");
-		this.firstChain.printAllAtoms();
-		System.out.println("secondChain:");
-		this.secondChain.printAllAtoms();
+//		System.out.println("firstChain:");
+//		this.firstChain.printAllAtoms();
+//		System.out.println("secondChain:");
+//		this.secondChain.printAllAtoms();
 
-		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
+//		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
 //		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
 
@@ -285,6 +293,10 @@ public class Lipid implements java.io.Serializable {
 	public String getName(){
 		return this.Name;
 	}	//Ends getName Method
+
+	public String getLeaflet(){
+		return this.Leaflet;
+	}	//Ends getLeaflet Method
 
 	public double getX(){
 		return this.X;

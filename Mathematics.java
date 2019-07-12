@@ -195,7 +195,7 @@ public class Mathematics{
 		return OP;
 	}       //Ends calculateOP method
 
-	public double sumArray(double[] array){
+	public static double sumArray(double[] array){
 		int length = array.length;
 		double sum = 0;
 
@@ -206,6 +206,24 @@ public class Mathematics{
 
 		return sum;
 	}	//Ends average array method
+	
+
+
+	public static boolean isValidLipid(String name, String[] validLipidArray){
+		//Checks the given name against the given array, if the given name is inside the given array it is TRUE
+		int length = validLipidArray.length;		
+		boolean result = false;
+		
+		for (int i = 0; i < length; i++){
+			if (name.equals(validLipidArray[i])){
+				result = true;
+			}	//Ends if statement
+		}	//Ends for loop
+
+
+		return result;
+	}	//Ends isValidLipid
+
 
 
 	public static String IntToLipid(int x, String[] lipidNames){

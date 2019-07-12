@@ -32,6 +32,7 @@ public class Process implements Serializable {
 				double x = currentFrame.allLipids[i].getX();
 				double y = currentFrame.allLipids[i].getY();
 				String Name = currentFrame.allLipids[i].getName();
+				String Leaflet = currentFrame.allLipids[i].getLeaflet();
 
 				double xLength = currentFrame.getXLength();
 				double yLength = currentFrame.getYLength();
@@ -44,20 +45,25 @@ public class Process implements Serializable {
 				int[] lipidCount = new int[totalLipids];
 
 				for (int j = 0; j < length; j++){
-					double x2 = currentFrame.allLipids[j].getX();
-					double y2 = currentFrame.allLipids[j].getY();
-					String Name2 = currentFrame.allLipids[j].getName();
+					String Leaflet2 = currentFrame.allLipids[j].getLeaflet();
+					
+					if (Leaflet.equals(Leaflet2)){
 
-					//In case the points given are special and near a boundary, fully account for it here.
-					x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
-					y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
+						double x2 = currentFrame.allLipids[j].getX();
+						double y2 = currentFrame.allLipids[j].getY();
+						String Name2 = currentFrame.allLipids[j].getName();
 
-					double radius = Mathematics.calculateRadius(x, y, x2, y2);
+						//In case the points given are special and near a boundary, fully account for it here.
+						x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
+						y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
 
-					if ((radius <= searchRadius) && (radius != 0)){
-						for (int k = 0; k < totalLipids; k++){
-							if (Name2.equals(lipidNames[k])) { lipidCount[k]++;}
-						}	//Ends for loop
+						double radius = Mathematics.calculateRadius(x, y, x2, y2);
+
+						if ((radius <= searchRadius) && (radius != 0)){
+							for (int k = 0; k < totalLipids; k++){
+								if (Name2.equals(lipidNames[k])) { lipidCount[k]++;}
+							}	//Ends for loop
+						}	//Ends if statement
 					}	//Ends if statement
 				}	//Ends for loop
 
@@ -565,12 +571,10 @@ public class Process implements Serializable {
 		//This will be checked via command line arguements
 		if (args.length > 0){
 			String CommandLineArguement = args[0];
-			if (CommandLineArguement.equals("FirstFrame")) { firstFrameOnly = true; }
-			else {
-				//Set the beginning and end Frame
-				startingFrame = Integer.parseInt(CommandLineArguement);
-				finalFrame = Integer.parseInt(args[1]);
-			 }	// Ends else statement
+
+			//Set the beginning and end Frame
+			startingFrame = Integer.parseInt(CommandLineArguement);
+			finalFrame = Integer.parseInt(args[1]);
 		}	//Ends if statement
 
 
@@ -665,6 +669,7 @@ public class Process implements Serializable {
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);						//Find Order Parameter
 					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
+
 
 				}	//ends if statemetn
 
