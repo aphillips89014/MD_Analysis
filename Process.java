@@ -614,7 +614,7 @@ public class Process implements Serializable {
 
 			if (!filesExist) {
 				try{
-					totalFiles = Readin.readFile(lipidNames, firstFrameOnly, finalFrame, frameSeperator, coordinateFile);
+					totalFiles = Readin.readFile(lipidNames, finalFrame, frameSeperator, coordinateFile);
 				}	//Ends try Statement
 				catch(FileNotFoundException ex){
 					System.out.println("Could not find initial input file");
