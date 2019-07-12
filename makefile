@@ -8,6 +8,7 @@ fullClean:
 	rm -f Frames/*
 	rm -f Graphing/Data/*
 	rm -f Graphing/Graphs/*
+	clear
 
 dataClean:
 	rm -f Graphing/Data/*
@@ -23,4 +24,4 @@ nFrames: Process
 	java Process $(s) $(f)
 
 firstFrame: Process
-	java Process FirstFrame
+	java Process 0 1
