@@ -105,11 +105,12 @@ public class Process implements Serializable {
 			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
 			double avgOP = firstOP;
 
+
 			//Save those OP in specific spots.
 			frameOP_CG[0][Leaflet][0][lipidNumber]++;
 			frameOP_CG[1][Leaflet][0][lipidNumber] = frameOP_CG[1][Leaflet][0][lipidNumber] + firstOP;;
 
-			if (secondOP != 0) { 
+			if (secondOP != -2) { 
 				avgOP = (firstOP + secondOP) / 2; 
 
 				frameOP_CG[0][Leaflet][1][lipidNumber]++;
@@ -128,7 +129,7 @@ public class Process implements Serializable {
 					
 					//Might be NaN in some circumstances
 					double OP = frameOP_CG[1][Leaflet][chain][currentLipid] / frameOP_CG[0][Leaflet][chain][currentLipid];
-					
+
 					OP_CG[1][Leaflet][chain][currentLipid] = OP_CG[1][Leaflet][chain][currentLipid] + OP;
 					OP_CG[2][Leaflet][chain][currentLipid] = OP_CG[2][Leaflet][chain][currentLipid] + (OP * OP);
 				}	//Ends for loop
@@ -289,7 +290,7 @@ public class Process implements Serializable {
 	public static double[][][][][] generateOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
 
 		//OPvNN Array can be Described as
-		//OPvNN[ Count / OP / OP^2 ][ Current Lipid ][ Comparing Lipid ][ Chain ][ # of Neighbors ]
+		//OPvNN[ Count / OP / OP^2 ][ Leaflet ][ Current Lipid ][ Comparing Lipid ][ Chain ][ # of Neighbors ]
 		
 		//Create a frame Array and avg this and add it to the overall array.
 
@@ -648,14 +649,35 @@ public class Process implements Serializable {
 			//Now we will do the actual Analysis.
 			time = progressStatement(time, "Start_Calculation");
 
+
+
 			//Arrays for binning data so that it can be organized into a nice output file later.
+
+
 			double[][][][][][] OP_AA = new double[3][2][totalLipids][2][4][30];
+			//OP_AA[ Count / OP / OP^2 ][ Leaflet ][ Lipid ][ Chain ][ Carbon / Hydrogen 1-3 ][ Carbon Index ]
+
 			double[][][][] OP_CG = new double[3][2][3][totalLipids];
+			//OP_CG[ Count / OP / OP^2 ][ Leaflet ][ Chain 1,2,Avg ][ Lipid ]
+
 			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][Neighbors];
+			//OPvNN[ Count / OP / OP^2 ][ Current Lipid ][ Comparing Lipid ][ Chain ][ Number of Neighbors ]
+
 			double[][][] CosTheta_Histogram = new double[totalLipids][3][4001];
+			//CosTheta_Histogram[ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
+
 			int[] Angle_Histogram_AA = new int[3601];
+			//Angle_Histogram_AA[ Bin Spot ]
+
 			int[][] Thickness = new int[totalLipids][2000];
+			//Thickness[ Lipid ][ Bin Spot ]			
+
 			double[][][][] PCL = new double[3][totalLipids][2][30];
+			// PCL[ Count / PCL / PCL^2 ][ Lipid ][ Chain ][ Carbon Index ]
+
+
+
+
 
 			if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
 

@@ -15,7 +15,7 @@ public class Atom implements Serializable{
 	double X;
 	double Y;
 	double Z;
-	double OP;
+	double OP = -2;
 	double cosTheta = -2;
 	int ID;
 
@@ -161,7 +161,7 @@ public class Atom implements Serializable{
 
 
 	public double[] averageHydrogenCosTheta(double[] array){
-		if (this.cosTheta >= 0) {
+		if (this.cosTheta >= -1) {
 			array[0]++;
 			array[1] = array[1] + this.cosTheta;
 
@@ -178,7 +178,7 @@ public class Atom implements Serializable{
 
 	
 	public double[] averageHydrogenOP(double[] array){
-		if (this.OP != 0) {
+		if (this.OP != -2) {
 			array[0]++;
 			array[1] = array[1] + this.OP;
 
@@ -214,7 +214,7 @@ public class Atom implements Serializable{
 	//Keep track of the total number of iterations in the first index, then the summed value itself in the second index.
 	public double[] averageOP(double[] array){
 		
-		if (this.OP != 0){
+		if (this.OP != -2){
 			array[0]++;
 			array[1] = array[1] + this.OP;
 		}	//Ends if statement

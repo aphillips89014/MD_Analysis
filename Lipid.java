@@ -137,13 +137,13 @@ public class Lipid implements java.io.Serializable {
 //		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
 		System.out.println(this.Name + " " + this.ID + " " + this.Leaflet + " " + this.FlipFloppable);
 
-//		System.out.println("firstChain:");
-//		this.firstChain.printAllAtoms();
-//		System.out.println("secondChain:");
-//		this.secondChain.printAllAtoms();
+		System.out.println("firstChain:");
+		this.firstChain.printAllAtoms();
+		System.out.println("secondChain:");
+		this.secondChain.printAllAtoms();
 
-//		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
-//		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
+		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
+		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
 
 

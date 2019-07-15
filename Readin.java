@@ -628,7 +628,7 @@ public class Readin implements Serializable{
 						double OP_Squared = OP_CG[2][Leaflet][chain][lipid] / OP_CG[0][Leaflet][chain][lipid];
 
 						double deviation = Mathematics.calculateDeviation(OP, OP_Squared);
-						System.out.println("OP of " + lipidName + " chain " + (chain+1) + " in the " + Leaflet_String + " is " + OP + "    +-" + deviation);
+						System.out.println("OP of " + lipidName + " chain " + (chain+1) + " in the " + Leaflet_String + " Leaflet is " + OP + "    +-" + deviation);
 					}	//Ends for loop
 
 					System.out.println("");
