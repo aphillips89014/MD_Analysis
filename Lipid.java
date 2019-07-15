@@ -94,6 +94,14 @@ public class Lipid implements java.io.Serializable {
 
 		double[] first_CosTheta = new double[2];
 		double[] first_OP = new double[2];
+	
+		//The orientation is mathematically flipped if a lipid is in the lower leaflet.
+		//We can fix that here so we can perform comparitive analysis easier.
+		//May want to change this in the future to be more elegant...
+		double modifier = 1;
+		if (this.Leaflet.equals("Lower")) { modifier = -1; }
+		
+
 
 		firstChain.determineOP(0, 0, 0, xLength, yLength);
 		first_OP = firstChain.averageOP(first_OP);		
@@ -101,7 +109,7 @@ public class Lipid implements java.io.Serializable {
 
 		if (first_CosTheta[0] > 0){
 			this.firstOP = (first_OP[1] / first_OP[0]);
-			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]);
+			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]) * modifier;
 
 		}	//Ends if statement	
 
@@ -115,7 +123,7 @@ public class Lipid implements java.io.Serializable {
 
 		if (second_CosTheta[0] > 0){
 			this.secondOP = (second_OP[1] / second_OP[0]);
-			this.secondCosTheta = (second_CosTheta[1] / second_CosTheta[0]);
+			this.secondCosTheta = (second_CosTheta[1] / second_CosTheta[0]) * modifier;
 		}	//ends if statement
 
 	}	//Ends average OP method

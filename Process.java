@@ -287,7 +287,7 @@ public class Process implements Serializable {
 	//At this point every lipid should have an amount of Nearest Neighbors, and an Averaged OP.
 		//Bin these data points such that we can average the OP for when there are specifically 2 (for example) Neighbors only.
 		//This will be done in a large 5d array.
-	public static double[][][][][] generateOPvNN(Frame Frame, double[][][][][] OPvNN, String[] lipidNames){
+	public static double[][][][][][] generateOPvNN(Frame Frame, double[][][][][][] OPvNN, String[] lipidNames){
 
 		//OPvNN Array can be Described as
 		//OPvNN[ Count / OP / OP^2 ][ Leaflet ][ Current Lipid ][ Comparing Lipid ][ Chain ][ # of Neighbors ]
@@ -295,10 +295,11 @@ public class Process implements Serializable {
 		//Create a frame Array and avg this and add it to the overall array.
 
 		int totalLipids = lipidNames.length;
-		int totalNeighbors = OPvNN[0][0][0][0].length;
+		int totalNeighbors = OPvNN[0][0][0][0][0].length;
 		int totalChains = 2;
+		int totalLeaflets = 2;
 
-		double[][][][][] frameOPvNN = new double[2][totalLipids][totalLipids][totalChains][totalNeighbors];
+		double[][][][][][] frameOPvNN = new double[2][totalLeaflets][totalLipids][totalLipids][totalChains][totalNeighbors];
 
 		int length = Frame.allLipids.length;
 
@@ -309,37 +310,42 @@ public class Process implements Serializable {
 			for (int compLipid = 0; compLipid < totalLipids; compLipid++){
 
 				int neighborIndex = Frame.allLipids[i].Neighbors[compLipid];
+				int Leaflet = Mathematics.LeafletToInt(Frame.allLipids[i].getLeaflet());
 				
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
 		
+
+
 				//Add 1 to the NN Count.
-				frameOPvNN[0][currentLipid][compLipid][0][neighborIndex]++;
-				if (secondOP != -2) { frameOPvNN[0][currentLipid][compLipid][1][neighborIndex]++; }
+				frameOPvNN[0][Leaflet][currentLipid][compLipid][0][neighborIndex]++;
+				if (secondOP != -2) { frameOPvNN[0][Leaflet][currentLipid][compLipid][1][neighborIndex]++; }
 				
 				//Add the OP
-				frameOPvNN[1][currentLipid][compLipid][0][neighborIndex] = frameOPvNN[1][currentLipid][compLipid][0][neighborIndex] + firstOP;
-				if (secondOP != -2) { frameOPvNN[1][currentLipid][compLipid][1][neighborIndex] = frameOPvNN[1][currentLipid][compLipid][1][neighborIndex] + secondOP; }
+				frameOPvNN[1][Leaflet][currentLipid][compLipid][0][neighborIndex] = frameOPvNN[1][Leaflet][currentLipid][compLipid][0][neighborIndex] + firstOP;
+				if (secondOP != -2) { frameOPvNN[1][Leaflet][currentLipid][compLipid][1][neighborIndex] = frameOPvNN[1][Leaflet][currentLipid][compLipid][1][neighborIndex] + secondOP; }
 
 			}	//Ends for Loop
 		}	//Ends for loop
 
 		//Now average the frame array and put it into the overall array.
 
-		for (int i = 0; i < totalLipids; i++){
-			for (int j = 0; j < totalLipids; j++){
-				for (int k = 0; k < totalChains; k++){
-					for (int h = 0; h < totalNeighbors; h++){
-						double count = frameOPvNN[0][i][j][k][h];
-						double OP = frameOPvNN[1][i][j][k][h] / count;
+		for (int Le = 0; Le < totalLeaflets; Le++){
+			for (int i = 0; i < totalLipids; i++){
+				for (int j = 0; j < totalLipids; j++){
+					for (int k = 0; k < totalChains; k++){
+						for (int h = 0; h < totalNeighbors; h++){
+							double count = frameOPvNN[0][Le][i][j][k][h];
+							double OP = frameOPvNN[1][Le][i][j][k][h] / count;
 
-						if (OP > -2) {
-							OPvNN[0][i][j][k][h] = OPvNN[0][i][j][k][h] + count;
-							OPvNN[1][i][j][k][h] = OPvNN[1][i][j][k][h] + OP;
-							OPvNN[2][i][j][k][h] = OPvNN[2][i][j][k][h] + (OP*OP);
-						}	//Ends if statement
-					}	//Ends for loop
-				}	//ends for loop
+							if (OP > -2) {
+								OPvNN[0][Le][i][j][k][h] = OPvNN[0][Le][i][j][k][h] + count;
+								OPvNN[1][Le][i][j][k][h] = OPvNN[1][Le][i][j][k][h] + OP;
+								OPvNN[2][Le][i][j][k][h] = OPvNN[2][Le][i][j][k][h] + (OP*OP);
+							}	//Ends if statement
+						}	//Ends for loop
+					}	//ends for loop
+				}	//Ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
 
@@ -347,13 +353,14 @@ public class Process implements Serializable {
 	}	//Ends OPvNN
 
 
-	public static double[][][] generateCosThetaHistogram(Frame currentFrame, double[][][] CosTheta_Histogram, String[] lipidNames){
-		//First index is the lipid type, second index is the binned OP
+	public static double[][][][] generateCosThetaHistogram(Frame currentFrame, double[][][][] CosTheta_Histogram, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
-		
+
+
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			String lipidName = currentFrame.allLipids[currentLipid].getName();
 			int lipid = Mathematics.LipidToInt(lipidNames, lipidName);
+			int Leaflet = Mathematics.LeafletToInt(currentFrame.allLipids[currentLipid].getLeaflet());
 
 			double firstCosTheta = currentFrame.allLipids[currentLipid].getFirstCosTheta();
 			double secondCosTheta = currentFrame.allLipids[currentLipid].getSecondCosTheta();
@@ -362,7 +369,7 @@ public class Process implements Serializable {
 			avgCosTheta = (firstCosTheta + secondCosTheta) / 2;
 
 			int firstIndex = (int) Math.round((firstCosTheta + 1) * 2000);
-			CosTheta_Histogram[lipid][0][firstIndex]++;
+			CosTheta_Histogram[Leaflet][lipid][0][firstIndex]++;
 
 			if (secondCosTheta < -1) {
 				avgCosTheta = firstCosTheta;
@@ -370,11 +377,11 @@ public class Process implements Serializable {
 		
 			else {
 				int secondIndex = (int) Math.round((secondCosTheta + 1) * 2000);
-				CosTheta_Histogram[lipid][1][secondIndex]++;
+				CosTheta_Histogram[Leaflet][lipid][1][secondIndex]++;
 			}	//Ends else statemnt
 
 			int avgIndex = (int) Math.round((avgCosTheta + 1) * 2000);
-			CosTheta_Histogram[lipid][2][avgIndex]++;
+			CosTheta_Histogram[Leaflet][lipid][2][avgIndex]++;
 
 		}	//Ends for loop
 	
@@ -660,11 +667,11 @@ public class Process implements Serializable {
 			double[][][][] OP_CG = new double[3][2][3][totalLipids];
 			//OP_CG[ Count / OP / OP^2 ][ Leaflet ][ Chain 1,2,Avg ][ Lipid ]
 
-			double[][][][][] OPvNN = new double[3][totalLipids][totalLipids][2][Neighbors];
-			//OPvNN[ Count / OP / OP^2 ][ Current Lipid ][ Comparing Lipid ][ Chain ][ Number of Neighbors ]
+			double[][][][][][] OPvNN = new double[3][2][totalLipids][totalLipids][2][Neighbors];
+			//OPvNN[ Count / OP / OP^2 ][ Leaflet ][ Current Lipid ][ Comparing Lipid ][ Chain ][ Number of Neighbors ]
 
-			double[][][] CosTheta_Histogram = new double[totalLipids][3][4001];
-			//CosTheta_Histogram[ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
+			double[][][][] CosTheta_Histogram = new double[2][totalLipids][3][4001];
+			//CosTheta_Histogram[ Leaflet ][ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
 
 			int[] Angle_Histogram_AA = new int[3601];
 			//Angle_Histogram_AA[ Bin Spot ]
