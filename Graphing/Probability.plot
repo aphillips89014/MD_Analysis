@@ -1,9 +1,11 @@
-lipid_1 = ARG1
+Leaflet = ARG1
+
+lipid_1 = ARG2
 lipid_1_ls = 4
-lipid_2 = ARG2
+lipid_2 = ARG3
 lipid_2_ls = 3
-lipid_3 = ARG3
-lipid_4 = ARG4
+lipid_3 = ARG4
+lipid_4 = ARG5
 
 set yrange [0:0.5]
 set xrange[-0.2:10.2]
@@ -48,8 +50,8 @@ set ytics font ",10"
 set lmargin 13
 set bmargin 6
 
-file_One = "Data/".lipid_1."_Histogram_".lipid_2.".dat"
-file_Two = "Data/".lipid_3."_Histogram_".lipid_4.".dat"
+file_One = "Data/".Leaflet."_Leaflet_".lipid_1."_Histogram_".lipid_2.".dat"
+file_Two = "Data/".Leaflet."_Leaflet_".lipid_3."_Histogram_".lipid_4.".dat"
 
 key_1 = lipid_1." Having N ".lipid_2." Neighbors"
 key_2 = lipid_3." Having N ".lipid_4." Neighbors"

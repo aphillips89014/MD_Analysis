@@ -1,7 +1,9 @@
-lipid_1 = ARG1
-lipid_2 = ARG2
-lipid_3 = ARG3 
-lipid_4 = ARG4
+Leaflet = ARG1
+
+lipid_1 = ARG2
+lipid_2 = ARG3
+lipid_3 = ARG4 
+lipid_4 = ARG5
 
 set xrange[-0.2:7.2]
 set yrange[0:1]
@@ -68,10 +70,11 @@ set ytics font ",10"
 set lmargin 13
 set bmargin 6
 
-fileName_1 = "Data/OP_NN_".lipid_1."_chain_0_".lipid_2.".dat"
-fileName_2 = "Data/OP_NN_".lipid_1."_chain_1_".lipid_2.".dat"
-fileName_3 = "Data/OP_NN_".lipid_3."_chain_0_".lipid_4.".dat"
-fileName_4 = "Data/OP_NN_".lipid_3."_chain_1_".lipid_4.".dat"
+
+fileName_1 = "Data/".Leaflet."_Leaflet_OP_NN_".lipid_1."_chain_0_".lipid_2.".dat"
+fileName_2 = "Data/".Leaflet."_Leaflet_OP_NN_".lipid_1."_chain_1_".lipid_2.".dat"
+fileName_3 = "Data/".Leaflet."_Leaflet_OP_NN_".lipid_3."_chain_0_".lipid_4.".dat"
+fileName_4 = "Data/".Leaflet."_Leaflet_OP_NN_".lipid_3."_chain_1_".lipid_4.".dat"
 
 key_1 = lipid_1."'s SN1 OP vs N ".lipid_2." Neighbors"
 key_2 = lipid_1."'s SN2 OP vs N ".lipid_2." Neighbors"

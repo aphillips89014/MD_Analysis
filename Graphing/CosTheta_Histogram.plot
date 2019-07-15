@@ -1,5 +1,7 @@
-lipid_1 = ARG1
-chain = ARG2
+Leaflet = ARG1
+
+lipid_1 = ARG2
+chain = ARG3
 
 set style line 1 \
     linecolor rgb '#0060ad' \
@@ -20,7 +22,7 @@ set key left top
 set key font ",14"
 
 
-fileName = "Data/".lipid_1."_chain_".chain."_CosTheta_Histogram.dat"
+fileName = "Data/".Leaflet."_Leaflet_".lipid_1."_chain_".chain."_CosTheta_Histogram.dat"
 
 key_1 = lipid_1." Cos Theta"
 
