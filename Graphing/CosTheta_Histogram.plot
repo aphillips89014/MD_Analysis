@@ -29,4 +29,3 @@ key_1 = lipid_1." Cos Theta"
 plot fileName with linespoints linestyle 2 t key_1
 
 
-pause -1 "Press button"

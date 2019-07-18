@@ -53,6 +53,25 @@ set bmargin 6
 file_One = "Data/".Leaflet."_Leaflet_".lipid_1."_Histogram_".lipid_2.".dat"
 file_Two = "Data/".Leaflet."_Leaflet_".lipid_3."_Histogram_".lipid_4.".dat"
 
+stats file_One nooutput
+Max_X_1 = STATS_max_x
+Max = Max_X_1
+
+stats file_Two nooutput
+Max_X_2 = STATS_max_x
+
+if (Max_X_2 > Max) { 
+        Max = Max_X_2
+}
+
+
+set xrange[-0.2:(Max+0.35)]
+
+
+
+
+
+
 key_1 = lipid_1." Having N ".lipid_2." Neighbors"
 key_2 = lipid_3." Having N ".lipid_4." Neighbors"
 
@@ -60,4 +79,3 @@ plot file_One with linespoints linestyle 4 title key_1,\
 file_Two with linespoints linestyle 3 title key_2,\
 
 
-pause -1 "Press button"

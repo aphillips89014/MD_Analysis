@@ -53,4 +53,3 @@ fileName_1 using 1:2:($2-$3):($2+$3) with linespoints linestyle 1 notitle,\
 fileName_2 using 1:2:($2-$3):($2+$3) with errorbars linestyle 4 title second_File_Chain,\
 fileName_2 using 1:2:($2-$3):($2+$3) with linespoints linestyle 2 notitle,\
 
-pause -1 "button"

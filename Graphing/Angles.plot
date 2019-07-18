@@ -23,4 +23,3 @@ key_1 = "C-H Angles"
 plot fileName with linespoints linestyle 1 t key_1
 
 
-pause -1 "Press button"

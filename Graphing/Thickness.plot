@@ -21,4 +21,3 @@ key_1 = lipid_1." Thickness"
 plot fileName with linespoints linestyle 1 t key_1
 
 
-pause -1 "Press button"

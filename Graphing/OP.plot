@@ -38,4 +38,3 @@ fileName_2 u 1:($2 * -1) notitle  with linespoints linestyle 2,\
 fileName_2 u 1:($2 * -1):(($2 * -1) + $3):(($2 * -1) - $3) notitle with errorbars linestyle 4,\
 fileName_3 u 1:($2 * -1) title "Sn1" with linespoints linestyle 3,\
 fileName_4 u 1:($2 * -1) title "Sn2" with linespoints linestyle 4
-pause -1 "button"
