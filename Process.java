@@ -1,7 +1,4 @@
 //Processes Data and Interprets it.
-//Processes very specific data files, check README for more information.
-
-//Added this comment ot test gitHub
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -104,7 +101,6 @@ public class Process implements Serializable {
 			double firstOP = Frame.allLipids[currentLipid].getFirstOP();
 			double secondOP = Frame.allLipids[currentLipid].getSecondOP();
 			double avgOP = firstOP;
-
 
 			//Save those OP in specific spots.
 			frameOP_CG[0][Leaflet][0][lipidNumber]++;
@@ -701,7 +697,6 @@ public class Process implements Serializable {
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);						//Find Order Parameter
 					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
-
 
 				}	//ends if statemetn
 

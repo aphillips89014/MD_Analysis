@@ -508,8 +508,7 @@ public class Readin implements Serializable{
 	//Going to create an output file after manipulating and binning OPvNN
 	public static void createOPvNNFiles(double[][][][][][] OPvNN, String[] lipidNames, double totalFrames){
 		PrintStream console = System.out;
-		int totalLipids = OPvNN[0].length;
-
+		int totalLipids = OPvNN[0][0].length;
 
 		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
 			String LeafletName = Mathematics.IntToLeaflet(Leaflet);
@@ -527,6 +526,7 @@ public class Readin implements Serializable{
 
 						try{
 							//First Sum the array we want to look at.
+							//OPvNN[ Count / OP / OP^2 ][ Leaflet ][ Current Lipid ][ Comparing Lipid ][ Chain ][ Number of Neighbors ]
 							double sum = 0;
 							int length = OPvNN[0][Leaflet][lipid][compLipid][chain].length;					
 
@@ -534,34 +534,34 @@ public class Readin implements Serializable{
 								sum = sum + OPvNN[0][Leaflet][lipid][compLipid][chain][neighbors];
 							}	//Ends for Loop
 
-							if (sum > 1) {
-								//Then find the proportion that the values in the array given occur.
-									//Then find the standard Deviation of this.						
-								PrintStream output = new PrintStream(new File(fileName));
-								System.setOut(output);
+							PrintStream output = new PrintStream(new File(fileName));
+							System.setOut(output);
 
-								for (int neighbors = 0; neighbors < length; neighbors++){
-									double count = OPvNN[0][Leaflet][lipid][compLipid][chain][neighbors];
-									double proportion = count / sum;
+							if (sum == 0) {
+								System.out.println("0 0 0 0.0%");
+							}
 
-									if (proportion <= 0.001){
-										proportion = 0;
-									}	//ends if statement
+							for (int neighbors = 0; neighbors < length; neighbors++){
+								double count = OPvNN[0][Leaflet][lipid][compLipid][chain][neighbors];
+								double proportion = count / sum;
 
-									proportion = proportion * 100;
-									String stringProportion = String.format("%.2f", proportion);
+								if (proportion <= 0.001){
+									proportion = 0;
+								}	//ends if statement
 
-									double OP = OPvNN[1][Leaflet][lipid][compLipid][chain][neighbors] / totalFrames;
-									double OPSquared = OPvNN[2][Leaflet][lipid][compLipid][chain][neighbors] / totalFrames;
-									double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
-								
-									if (proportion > 2){
-										if (OP > -1.01) {
-											System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
-										}	//Ends if statement
+								proportion = proportion * 100;
+								String stringProportion = String.format("%.2f", proportion);
+
+								double OP = OPvNN[1][Leaflet][lipid][compLipid][chain][neighbors] / totalFrames;
+								double OPSquared = OPvNN[2][Leaflet][lipid][compLipid][chain][neighbors] / totalFrames;
+								double Deviation = Mathematics.calculateDeviation(OP, OPSquared);
+							
+								if (proportion > 2){
+									if (OP > -1.01) {
+										System.out.println(neighbors + " " + OP + " " + Deviation + " " + stringProportion + "%");
 									}	//Ends if statement
-								}	//Ends for loop
-							}	//Ends if statement
+								}	//Ends if statement
+							}	//Ends for loop
 						}	//end try statement
 
 						catch (IOException e){
