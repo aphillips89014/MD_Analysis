@@ -1,5 +1,11 @@
 set overrideTotalFrames 0
 
+##	CG_GC Stands for Coarse_Grained_GrabCoordinates
+##	TCL Script designned to grab specific coordinates system to system
+##	Slightly Different between AA and CG
+##	This is the Coarse-Grained Version
+
+
 
 #Set System Specififcs Here.
 
