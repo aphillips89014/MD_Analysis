@@ -5,7 +5,7 @@ lipid_2 = ARG3
 lipid_3 = ARG4 
 lipid_4 = ARG5
 
-set yrange[0:1]
+set yrange[-1:1]
 
 #set arrow 1 from -0.13,0.35 to -0.07,0.33 nohead front lw 4
 #set arrow 2 from -0.13,0.33 to -0.07,0.31 nohead front lw 4 

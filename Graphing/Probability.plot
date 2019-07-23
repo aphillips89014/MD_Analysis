@@ -7,7 +7,7 @@ lipid_2_ls = 3
 lipid_3 = ARG4
 lipid_4 = ARG5
 
-set yrange [0:0.5]
+set yrange [0:1]
 set xrange[-0.2:10.2]
 
 

@@ -1,5 +1,4 @@
 lipid_1 = ARG1
-set xrange[-1:31]
 
 
 

@@ -62,9 +62,9 @@ GraphNames = ["CosTheta_Histogram.plot ", "NN_Histogram.plot ", "OP.plot ", "OPv
 
 addLines(w, baseStatement, GraphNames[0], "Lipid Chain", "True")
 addLines(w, baseStatement, GraphNames[1], "Maximum_Lipids L1 ... LN", "True")
-addLines(w, baseStatement, GraphNames[2], "Lipid", "False")
+addLines(w, baseStatement, GraphNames[2], "Lipid", "True")
 addLines(w, baseStatement, GraphNames[3], "L1 L2 L3 L4", "True")
-addLines(w, baseStatement, GraphNames[4], "Lipid", "False")
+addLines(w, baseStatement, GraphNames[4], "Lipid", "True")
 addLines(w, baseStatement, GraphNames[5], "L1 L2 L3 L4", "True")
 addLines(w, baseStatement, GraphNames[6], "Lipid", "False")
 

@@ -1,6 +1,6 @@
-lipid_1 = ARG1
+Leaflet = ARG1
+lipid_1 = ARG2
 
-set yrange [-1:21]
 set xrange [0:19]
 
 first_File_Chain = "SN1"
@@ -45,8 +45,8 @@ set ytics font ",20"
 set lmargin 13
 set bmargin 6
 
-fileName_1 = "Data/".lipid_1."_chain_0_PCL.dat"
-fileName_2 = "Data/".lipid_1."_chain_1_PCL.dat"
+fileName_1 = "Data/".Leaflet."_Leaflet_".lipid_1."_chain_0_PCL.dat"
+fileName_2 = "Data/".Leaflet."_Leaflet_".lipid_1."_chain_1_PCL.dat"
 
 plot fileName_1 using 1:2:($2-$3):($2+$3) with errorbars linestyle 3 title first_File_Chain,\
 fileName_1 using 1:2:($2-$3):($2+$3) with linespoints linestyle 1 notitle,\
