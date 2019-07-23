@@ -454,53 +454,58 @@ public class Readin implements Serializable{
 
 
 
-	public static void createPCLFiles(double[][][][] PCL, String[] lipidNames, double totalFiles){
+	public static void createPCLFiles(double[][][][][] PCL, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 		
 		int totalLipids = lipidNames.length;
 	 	double sum = 0;
-		int length = PCL[0][0][1].length;
+		int length = PCL[0][0][0][1].length;
 
-		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-			sum = 0;
-			for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
-				sum = sum + PCL[0][currentLipid][1][carbonIndex];
-			}	//Ends for loop
+		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
+			String Leaflet_Name = Mathematics.IntToLeaflet(Leaflet);
 
-			//Now we ignore lipids without 2 chains
-			if (sum > 1){
-				for (int chainCount = 0; chainCount < 2; chainCount++) {
-					String fileName = "Graphing/Data/" + lipidNames[currentLipid] + "_chain_" + chainCount + "_PCL.dat";
+			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+				sum = 0;
+				for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
+					sum = sum + PCL[0][Leaflet][currentLipid][1][carbonIndex];
+				}	//Ends for loop
 
-					try{
-						PrintStream output = new PrintStream(new File(fileName));
+				//Now we ignore lipids without 2 chains
+				if (sum > 1){
+					for (int chainCount = 0; chainCount < 2; chainCount++) {
+						String fileName = "Graphing/Data/" + Leaflet_Name + "_Leaflet_" + lipidNames[currentLipid] + "_chain_" + chainCount + "_PCL.dat";
 
-						for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
+						try{
+							PrintStream output = new PrintStream(new File(fileName));
+
+							for (int carbonIndex = 0; carbonIndex < length; carbonIndex++){
+								System.setOut(console);
+							
+								double count = PCL[0][Leaflet][currentLipid][chainCount][carbonIndex];
+								if (count > 0) {
+									if (carbonIndex != 0) {
+										double carbonLength = PCL[1][Leaflet][currentLipid][chainCount][carbonIndex] / totalFiles;
+										double squaredLength = PCL[2][Leaflet][currentLipid][chainCount][carbonIndex] / totalFiles;
+			
+										double deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
+											
+										System.setOut(output);
+										System.out.println(carbonIndex + " " + carbonLength + " " + deviation);
+									}	//Ends if statement
+								}	// ends if statement
+							}	//Ends for loop
+						}	//Ends try statement
+
+						catch (IOException e){
 							System.setOut(console);
-						
-							double count = PCL[0][currentLipid][chainCount][carbonIndex];
-							if (count > 0) {
-								if (carbonIndex != 0) {
-									double carbonLength = PCL[1][currentLipid][chainCount][carbonIndex] / totalFiles;
-									double squaredLength = PCL[2][currentLipid][chainCount][carbonIndex] / totalFiles;
-		
-									double deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
-										
-									System.setOut(output);
-									System.out.println(carbonIndex + " " + carbonLength + " " + deviation);
-								}	//Ends if statement
-							}	// ends if statement
-						}	//Ends for loop
-					}	//Ends try statement
-
-					catch (IOException e){
-						System.setOut(console);
-						System.out.println("Error in Creating " + fileName);
-						System.out.println(e);
-					}	//Ends catch
-				}	//Ends for Loop
-			}	//Ends if statement
+							System.out.println("Error in Creating " + fileName);
+							System.out.println(e);
+						}	//Ends catch
+					}	//Ends for Loop
+				}	//Ends if statement
+			}	//Ends for loop
 		}	//Ends for loop
+
 		System.setOut(console);
 	}	//ends createPCLFiles Method
 

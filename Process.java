@@ -147,8 +147,8 @@ public class Process implements Serializable {
 		int length = Frame.allLipids.length;
 		int frameNumber = Frame.getFrameNumber();
 		int totalLipids = lipidNames.length;
-		int totalChains = OP[0][0].length;
-		int totalMembers = OP[0][0][0][0].length;
+		int totalChains = OP[0][0][0].length;
+		int totalMembers = OP[0][0][0][0][0].length;
 		int totalAtoms = 4;	//There are at most 4 atoms involved with a single carbon: Carbon itself, and 3 Seperate Hydrogen (typically just 2 hydrgogen)
 
 		//The Array OP can be Defined as:
@@ -185,14 +185,14 @@ public class Process implements Serializable {
 
 				else {
 					double currentOP = currentAtom.getOP();
+
 					//Get the average for the Carbon Atom		
-					if (currentOP != 0) {
+					if (currentOP != -2) {
 						int member = currentAtom.getMember();
 						if (member == -1) { member = 0; }
 
 						frameOP[0][Leaflet][lipidNumber][chainCount][0][member]++;
 						frameOP[1][Leaflet][lipidNumber][chainCount][0][member] = frameOP[1][Leaflet][lipidNumber][chainCount][0][member] + currentOP;
-
 
 						Atom hydrogenAtom = currentAtom.nextHydrogen;
 						int currentHydrogen = 1;
@@ -214,7 +214,7 @@ public class Process implements Serializable {
 		}	//Ends for Loop
 
 		//Now average the array given and add it into the overall Array.
-		for (int L = 0; L < 2; L++){
+		for (int L = 0; L < 2; L++){	//Leaflet
 			for (int i = 0; i < totalLipids; i++){
 				for (int j = 0; j < totalChains; j++){
 					for (int k = 0; k < totalAtoms; k++){
@@ -310,9 +310,7 @@ public class Process implements Serializable {
 				
 				double firstOP = Frame.allLipids[i].getFirstOP();
 				double secondOP = Frame.allLipids[i].getSecondOP();
-		
-
-
+				
 				//Add 1 to the NN Count.
 				frameOPvNN[0][Leaflet][currentLipid][compLipid][0][neighborIndex]++;
 				if (secondOP != -2) { frameOPvNN[0][Leaflet][currentLipid][compLipid][1][neighborIndex]++; }
@@ -407,21 +405,21 @@ public class Process implements Serializable {
 
 	//PCL Stands for Project Chain Length, it a a measurement of the height of each carbon on a carbon chain.
 		//For this program it can be a simple binning algorithm.
-	public static double[][][][] generatePCL(Frame currentFrame, double[][][][] PCL, String[] lipidNames){
+	public static double[][][][][] generatePCL(Frame currentFrame, double[][][][][] PCL, String[] lipidNames){
 		int totalLipids = currentFrame.allLipids.length;
 		double BilayerCenter = currentFrame.getBilayerCenter();
 
 		int totalLipidTypes = lipidNames.length;		
 		int totalChains = 2;
-		int totalCarbonIndex = PCL[0][0][0].length;
+		int totalCarbonIndex = PCL[0][0][0][0].length;
 		double Z = 0;
 
 		//The PCL Array can be Defined as
-		// PCL[ Count / PCL / PCL^2 ][ Lipid ][ Chain ][ Carbon Index ]
+		// PCL[ Count / PCL / PCL^2 ][ Leaflet ][ Lipid ][ Chain ][ Carbon Index ]
 
 		//Now average it for every frame and add this to an overall Array.
 
-		double[][][][] framePCL = new double[2][totalLipidTypes][totalChains][totalCarbonIndex];
+		double[][][][][] framePCL = new double[2][2][totalLipidTypes][totalChains][totalCarbonIndex];
 
 		for (int i = 0; i < totalLipids; i++){
 			//Skip any lipid that does not have 2 chains.
@@ -435,15 +433,15 @@ public class Process implements Serializable {
 				int currentLipid = Mathematics.LipidToInt(lipidNames, lipidName);
 				Atom firstChain = currentFrame.allLipids[i].firstChain;
 				Atom secondChain = currentFrame.allLipids[i].secondChain;
-
+				int Leaflet = Mathematics.LeafletToInt(currentFrame.allLipids[i].getLeaflet());
 
 				while (firstChain != null){
 					int Member = firstChain.getMember();
 					Z = firstChain.Z;
 					Z = Z - BilayerCenter;
 
-					framePCL[0][currentLipid][0][Member]++;
-					framePCL[1][currentLipid][0][Member] = framePCL[1][currentLipid][0][Member] + Z;
+					framePCL[0][Leaflet][currentLipid][0][Member]++;
+					framePCL[1][Leaflet][currentLipid][0][Member] = framePCL[1][Leaflet][currentLipid][0][Member] + Z;
 
 					firstChain = firstChain.next;
 				}	//Ends while loop
@@ -453,8 +451,8 @@ public class Process implements Serializable {
 					Z = secondChain.Z;
 					Z = Z - BilayerCenter;
 
-					framePCL[0][currentLipid][1][Member]++;
-					framePCL[1][currentLipid][1][Member] = framePCL[1][currentLipid][1][Member] + Z;
+					framePCL[0][Leaflet][currentLipid][1][Member]++;
+					framePCL[1][Leaflet][currentLipid][1][Member] = framePCL[1][Leaflet][currentLipid][1][Member] + Z;
 
 					secondChain = secondChain.next;
 				}	//Ends while loop
@@ -462,21 +460,23 @@ public class Process implements Serializable {
 		}	//Ends for loop
 
 		//Now average the frame and add it into the overall.
+		for (int Le = 0; Le < 2; Le++){		//Leaflet
+			for (int i = 0; i < totalLipidTypes; i++){
+				for (int j = 0; j < totalChains; j++){
+					for (int k = 0; k < totalCarbonIndex; k++){
+						double count = framePCL[0][Le][i][j][k];
+						double currentPCL = framePCL[1][Le][i][j][k] / count;
+						if (Le == 1) { currentPCL = currentPCL * -1; } 	//If its the lower leaflet invert the Z axis to be positive
 
-		for (int i = 0; i < totalLipidTypes; i++){
-			for (int j = 0; j < totalChains; j++){
-				for (int k = 0; k < totalCarbonIndex; k++){
-					double count = framePCL[0][i][j][k];
-					double currentPCL = framePCL[1][i][j][k] / count;
 
-					PCL[0][i][j][k] = PCL[0][i][j][k] + count;
-					PCL[1][i][j][k] = PCL[1][i][j][k] + currentPCL;
-					PCL[2][i][j][k] = PCL[2][i][j][k] + (currentPCL * currentPCL);
+						PCL[0][Le][i][j][k] = PCL[0][Le][i][j][k] + count;
+						PCL[1][Le][i][j][k] = PCL[1][Le][i][j][k] + currentPCL;
+						PCL[2][Le][i][j][k] = PCL[2][Le][i][j][k] + (currentPCL * currentPCL);
 
+					}	//Ends for loop
 				}	//Ends for loop
 			}	//Ends for loop
 		}	//Ends for loop
-
 
 		return PCL;
 	}	//Ends calculate PCL
@@ -675,8 +675,8 @@ public class Process implements Serializable {
 			int[][] Thickness = new int[totalLipids][2000];
 			//Thickness[ Lipid ][ Bin Spot ]			
 
-			double[][][][] PCL = new double[3][totalLipids][2][30];
-			// PCL[ Count / PCL / PCL^2 ][ Lipid ][ Chain ][ Carbon Index ]
+			double[][][][][] PCL = new double[3][2][totalLipids][2][30];
+			// PCL[ Count / PCL / PCL^2 ][ Leaflet ][ Lipid ][ Chain ][ Carbon Index ]
 
 
 
