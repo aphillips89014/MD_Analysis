@@ -292,7 +292,7 @@ public class Readin implements Serializable{
 		int totalLipids = lipidNames.length;
 		
 		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-			String Leaflet_Name = Mathematics.IntToLeaflet(Leaflet);
+			String Leaflet_Name = Mathematics.IntToLeaflet_STR(Leaflet);
 
 			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 				for (int currentChain = 0; currentChain < 2; currentChain++){
@@ -370,7 +370,7 @@ public class Readin implements Serializable{
 		double sum = 0;
 
 		for (int Leaflet = 0; Leaflet < totalLeaflets; Leaflet++){
-			String LeafletName = Mathematics.IntToLeaflet(Leaflet);
+			String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);
 
 			for (int i = 0; i < totalLipids; i++){
 				for (int chain = 0; chain < 3; chain++){
@@ -462,7 +462,7 @@ public class Readin implements Serializable{
 		int length = PCL[0][0][0][1].length;
 
 		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-			String Leaflet_Name = Mathematics.IntToLeaflet(Leaflet);
+			String Leaflet_Name = Mathematics.IntToLeaflet_STR(Leaflet);
 
 			for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 				sum = 0;
@@ -516,7 +516,7 @@ public class Readin implements Serializable{
 		int totalLipids = OPvNN[0][0].length;
 
 		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-			String LeafletName = Mathematics.IntToLeaflet(Leaflet);
+			String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);
 
 			for (int lipid = 0; lipid < totalLipids; lipid++){
 				String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
@@ -596,7 +596,7 @@ public class Readin implements Serializable{
 			System.setOut(output);
 
 			for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-				String Leaflet_Name = Mathematics.IntToLeaflet(Leaflet);
+				String Leaflet_Name = Mathematics.IntToLeaflet_STR(Leaflet);
 
 				for (int lipid = 0; lipid < totalLipids; lipid++){
 					String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
@@ -634,7 +634,7 @@ public class Readin implements Serializable{
 				for (int Leaflet = 0; Leaflet < 2; Leaflet++){
 					for (int chain = 0; chain < 3; chain++){
 						String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
-						String Leaflet_String = Mathematics.IntToLeaflet(Leaflet);
+						String Leaflet_String = Mathematics.IntToLeaflet_STR(Leaflet);
 
 						double OP = OP_CG[1][Leaflet][chain][lipid] / OP_CG[0][Leaflet][chain][lipid];
 						double OP_Squared = OP_CG[2][Leaflet][chain][lipid] / OP_CG[0][Leaflet][chain][lipid];
@@ -704,7 +704,7 @@ public class Readin implements Serializable{
 		//barGraphNN[ Leaflet ][ Curernt Lipid ][ Comp Lipid ]
 
 		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-			String LeafletName = Mathematics.IntToLeaflet(Leaflet);
+			String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);
 
 			for (int lipid = 0; lipid < totalLipids; lipid++){
 				String lipidName = Mathematics.IntToLipid(lipid, lipidNames);
@@ -753,7 +753,8 @@ public class Readin implements Serializable{
 		//Now, create the bar graph graph.
 		try{
 			for (int Leaflet = 0; Leaflet < 2; Leaflet++){
-				String LeafletName = Mathematics.IntToLeaflet(Leaflet);
+				String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);
+
 				String fileName = "Graphing/Data/" + LeafletName + "_Leaflet_NN_Bar_Graph.dat";
 				PrintStream output = new PrintStream(new File(fileName));
 				System.setOut(output);

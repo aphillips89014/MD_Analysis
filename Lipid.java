@@ -18,8 +18,8 @@ public class Lipid implements java.io.Serializable {
 	String firstChainIdentifier = "null";
 	String secondChainIdentifier = "null";
 
-	String Leaflet;
-	String FlipFloppable;
+	boolean Leaflet;		//True Leaflet implies upper leaflet, false implies Lower
+	boolean FlipFloppable;	
 
 	double firstOP = -2;
 	double secondOP = -2;
@@ -42,8 +42,20 @@ public class Lipid implements java.io.Serializable {
 		this.X = X;
 		this.Y = Y;
 		this.Z = Z;
-		this.Leaflet = Leaflet;
-		this.FlipFloppable = FlipFloppable;
+
+		if (Leaflet == "Upper") { 
+			this.Leaflet = true; 
+		}	//Ends If Statement
+		else{ 
+			this.Leaflet = false; 
+		}	//Ends else statement
+
+		if (FlipFloppable == "Yes") {
+			this.FlipFloppable = true;
+		}	//Ends if statement
+		else{
+			this.FlipFloppable = false;
+		}	//Ends else statement
 
 		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 		this.secondChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
@@ -51,7 +63,6 @@ public class Lipid implements java.io.Serializable {
 
 		int length = lipidNames.length;
 		this.Neighbors = new int[length];
-
 
 	}	//Ends Constructor
 
@@ -99,7 +110,7 @@ public class Lipid implements java.io.Serializable {
 		//We can fix that here so we can perform comparitive analysis easier.
 		//May want to change this in the future to be more elegant...
 		double modifier = 1;
-		if (this.Leaflet.equals("Lower")) { modifier = -1; }
+		if (this.Leaflet == false) { modifier = -1; }
 		
 
 
@@ -302,7 +313,7 @@ public class Lipid implements java.io.Serializable {
 		return this.Name;
 	}	//Ends getName Method
 
-	public String getLeaflet(){
+	public boolean getLeaflet(){
 		return this.Leaflet;
 	}	//Ends getLeaflet Method
 

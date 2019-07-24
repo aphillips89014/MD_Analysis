@@ -29,7 +29,7 @@ public class Process implements Serializable {
 				double x = currentFrame.allLipids[i].getX();
 				double y = currentFrame.allLipids[i].getY();
 				String Name = currentFrame.allLipids[i].getName();
-				String Leaflet = currentFrame.allLipids[i].getLeaflet();
+				boolean Leaflet = currentFrame.allLipids[i].getLeaflet();
 
 				double xLength = currentFrame.getXLength();
 				double yLength = currentFrame.getYLength();
@@ -42,9 +42,9 @@ public class Process implements Serializable {
 				int[] lipidCount = new int[totalLipids];
 
 				for (int j = 0; j < length; j++){
-					String Leaflet2 = currentFrame.allLipids[j].getLeaflet();
+					boolean Leaflet2 = currentFrame.allLipids[j].getLeaflet();
 					
-					if (Leaflet.equals(Leaflet2)){
+					if (Leaflet == Leaflet2){
 
 						double x2 = currentFrame.allLipids[j].getX();
 						double y2 = currentFrame.allLipids[j].getY();
