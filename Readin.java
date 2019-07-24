@@ -361,6 +361,48 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
+	public static void createRegistrationFiles(int[][][] Registration, String[] lipidNames){
+		PrintStream console = System.out;
+		
+		int totalLipids = lipidNames.length;
+		int totalFrames = Registration[0].length;
+		
+		for (int Lipid = 0; Lipid < totalLipids; Lipid++){
+
+			String LipidName = lipidNames[Lipid];
+
+			String fileName = "Graphing/Data/" + LipidName + "_Registration.dat";
+
+			try{
+				PrintStream output = new PrintStream(new File(fileName));
+				System.setOut(output);
+
+				for (int Frame = 0; Frame < totalFrames; Frame++){
+					double totalCounted = Registration[0][Frame][Lipid];
+					double acceptedCounts = Registration[1][Frame][Lipid];
+				
+					if (totalCounted != 0) {
+						double registrationValue = acceptedCounts / totalCounted;
+						System.out.println(Frame + " " + registrationValue);
+					}	//Ends if statement
+				}	//Ends for loop
+				System.setOut(console);
+			}	//Ends try statement
+
+			catch (IOException e){
+				System.setOut(console);
+				System.out.println("Error in Creating " + fileName);
+				System.out.println(e);
+			}	//Ends catch
+		}	//Ends for loop	
+
+
+
+		System.setOut(console);
+	}	//Ends createRegistrationFiles
+
+
+
 	public static void createCosThetaHistogramFiles(double[][][][] CosTheta_Histogram, String[] lipidNames, boolean Coarse_Grained){
 		PrintStream console = System.out;
 

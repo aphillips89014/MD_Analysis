@@ -72,6 +72,57 @@ public class Process implements Serializable {
 		}	//Ends else statement
 	}	//Ends CalcualteNN Method
 
+
+	public static int[][][] generateRegistration(Frame currentFrame, int[][][] Registration, String[] lipidNames, double searchRadius, boolean canLengthBeNegative){
+		//Go through every lipid in the upper leaflet only and see if the lower leaflet around the same spot holds the same Lipid Type (Determined by Name)
+		int totalLipids = currentFrame.allLipids.length;
+		int frameNumber = currentFrame.getFrameNumber();
+
+		//Registration[ Total Count / Registered Count ][ Frame Number ][ Lipid ]
+		for (int i = 0; i < totalLipids; i++){
+			if (currentFrame.allLipids[i].getLeaflet() == true) {				//If it's in the upper leaflet
+
+				int lipid1 = Mathematics.LipidToInt(lipidNames, currentFrame.allLipids[i].getName());
+				double x1 = currentFrame.allLipids[i].getX();
+				double y1 = currentFrame.allLipids[i].getY();
+
+				double xLength = currentFrame.getXLength();
+				double yLength = currentFrame.getYLength();
+
+				//There are periodic boundaries, so special things happen when a point is near one.
+				int shiftX = Mathematics.checkBoundary(x1, xLength, searchRadius, canLengthBeNegative);
+				int shiftY = Mathematics.checkBoundary(y1, yLength, searchRadius, canLengthBeNegative);
+
+
+				for (int j = 0; j < totalLipids; j++){
+					if (currentFrame.allLipids[j].getLeaflet() == false) {		//If it's in the lower leaflet
+
+						int lipid2 = Mathematics.LipidToInt(lipidNames, currentFrame.allLipids[j].getName());
+						double x2 = currentFrame.allLipids[j].getX();
+						double y2 = currentFrame.allLipids[j].getY();
+
+						x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
+						y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
+						
+						double radius = Mathematics.calculateRadius(x1, y1, x2, y2);
+
+						if (radius <= 50) {
+							Registration[0][frameNumber][lipid1]++;
+							
+							if (lipid1 == lipid2) {
+								Registration[1][frameNumber][lipid1]++;
+							}	//Ends if statement
+						}	//Ends if statement
+					}	//Ends if statement
+				}	//Ends for loop
+			}	//Ends if statement
+		}	//Ends for loop
+
+		return Registration;
+	}	//Ends gneerateRegistration Method
+
+
+
 	//Use the method setOP_CosTheta to average the OP of all Atoms
 	//Do this for every lipid, then save these calculation.
 	public static double[][][][] generateOP_CG(Frame Frame, double[][][][] OP_CG, String[] lipidNames){
@@ -641,6 +692,26 @@ public class Process implements Serializable {
 			if (coarseGrained) { System.out.println("System is assumed to be Coarse-Grained"); }
 			else { System.out.println("System is assumed to be Atomistic"); }
 
+
+
+			if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
+
+			//We may have chosen to only look at specific frames, so lets modify how many we actually looked at for binning purposes.
+			int totalReadFrames = totalFiles;
+			if ((startingFrame != 0) || (finalFrame != -1)) {
+				if ((startingFrame != 0) && (finalFrame == -1)){
+					totalReadFrames = totalFiles - startingFrame;
+				}	//Ends if statement
+
+				else if ((startingFrame == 0) && (finalFrame != -1)){
+					totalReadFrames = finalFrame;
+				}	//Ends else if statement
+
+				else if ((startingFrame != 0) && (finalFrame != -1)){
+					totalReadFrames = finalFrame - startingFrame;
+				}	//ends else if statement
+			}	
+	
 			time = progressStatement(time, "End_Read");
 			//File reading has finished, move on to Analysis.
 	
@@ -675,14 +746,11 @@ public class Process implements Serializable {
 			int[][] Thickness = new int[totalLipids][2000];
 			//Thickness[ Lipid ][ Bin Spot ]			
 
+			int[][][] Registration = new int[2][totalFiles][totalLipids];
+			//Registration[ Total Count / Registered Count ][ Frame Number ][ Lipid ]
+
 			double[][][][][] PCL = new double[3][2][totalLipids][2][30];
 			// PCL[ Count / PCL / PCL^2 ][ Leaflet ][ Lipid ][ Chain ][ Carbon Index ]
-
-
-
-
-
-			if (finalFrame != -1) { totalFiles = finalFrame; } //If we are given a set final frame, set it now.
 
 			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;	//Little equation that forces Java to return a whole rounded number.
 			Frame currentFrame = Readin.unserializeFrame(FrameTracker);		//Use that number to unserialze an object associated with that number.
@@ -697,6 +765,7 @@ public class Process implements Serializable {
 					OP_CG = generateOP_CG(currentFrame, OP_CG, lipidNames);						//Find Order Parameter
 					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
+					Registration = generateRegistration(currentFrame, Registration, lipidNames, (searchRadius / 2), false); //Bin Registration
 
 				}	//ends if statemetn
 
@@ -708,6 +777,7 @@ public class Process implements Serializable {
 					PCL = generatePCL(currentFrame, PCL, lipidNames);						//Bin all PCL
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
 					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);	//Bin all Angle Values
+					Registration = generateRegistration(currentFrame, Registration, lipidNames, (searchRadius / 2), true);	//Bin Registration
 
 				}	//Ends else statement
 
@@ -736,37 +806,17 @@ public class Process implements Serializable {
 			time = progressStatement(time, "End_Calculation");
 			//Analysis finished.			
 
-
-
 			if (userResponse) { lipidNames = changeLipidNames(lipidNames); }	//If the user wanted to change the names of the files, they do it now.
-
-
-
 			//Begin File Output
 			time = progressStatement(time, "Start_Output");
-
-			//We may have chosen to only look at specific frames, so lets modify how many we actually looked at for binning purposes.
-			int totalReadFrames = totalFiles;
-			if ((startingFrame != 0) || (finalFrame != -1)) {
-				if ((startingFrame != 0) && (finalFrame == -1)){
-					totalReadFrames = totalFiles - startingFrame;
-				}	//Ends if statement
-
-				else if ((startingFrame == 0) && (finalFrame != -1)){
-					totalReadFrames = finalFrame;
-				}	//Ends else if statement
-
-				else if ((startingFrame != 0) && (finalFrame != -1)){
-					totalReadFrames = finalFrame - startingFrame;
-				}	//ends else if statement
-			}	
-		
+	
 			//Create different files for the different simulation types.
 			if (coarseGrained) {
 				Readin.createOPvNNFiles(OPvNN, lipidNames, totalReadFrames);
 				Readin.createNNFiles(OPvNN, lipidNames);
 				Readin.createStandardDataFiles_CG(OPvNN, OP_CG, lipidNames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
+				Readin.createRegistrationFiles(Registration, lipidNames);
 			}	//Ends if statement
 
 			else{
@@ -777,6 +827,7 @@ public class Process implements Serializable {
 				Readin.createPCLFiles(PCL, lipidNames, totalReadFrames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);		//This needs to be set manually. (Too ambiguous)
+				Readin.createRegistrationFiles(Registration, lipidNames);
 			}	//Ends else statement
 
 			time = progressStatement(time, "End_Output");

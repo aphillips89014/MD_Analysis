@@ -43,14 +43,14 @@ public class Lipid implements java.io.Serializable {
 		this.Y = Y;
 		this.Z = Z;
 
-		if (Leaflet == "Upper") { 
+		if (Leaflet.equals("Upper")) { 
 			this.Leaflet = true; 
 		}	//Ends If Statement
 		else{ 
 			this.Leaflet = false; 
 		}	//Ends else statement
 
-		if (FlipFloppable == "Yes") {
+		if (FlipFloppable.equals("Yes")) {
 			this.FlipFloppable = true;
 		}	//Ends if statement
 		else{
