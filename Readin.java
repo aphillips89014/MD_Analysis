@@ -953,7 +953,7 @@ public class Readin implements Serializable{
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 				}	//Ends if statemenet
 			
-				else if (Element.equals("P")){
+				else if ((Element.equals("P")) || (Element.equals("N"))){
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//ends if statement

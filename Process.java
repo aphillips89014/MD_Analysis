@@ -121,6 +121,27 @@ public class Process implements Serializable {
 		return Registration;
 	}	//Ends gneerateRegistration Method
 
+	public static double[] generateDipoleField(Frame currentFrame, double[] DipoleField, String[] lipidNames){
+		
+		int totalLipids = currentFrame.allLipids.length;
+
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			boolean validDipole = currentFrame.allLipids[currentLipid].checkForDipole(false);	//Check to see if it has a valid dipole
+
+			if (validDipole){
+				validDipole = currentFrame.allLipids[currentLipid].checkForDipole(true);	//Check to see if the valid dipole has been calcualted.
+				if (!(validDipole)){
+					currentFrame.allLipids[currentLipid].setDipoleVector();
+				}	//Ends if statement
+
+
+			}	//Ends if statemetn
+
+
+		}	//Ends for loop
+
+		return DipoleField;
+	}	//Ends generateDipoleField Method
 
 
 	//Use the method setOP_CosTheta to average the OP of all Atoms
@@ -740,6 +761,10 @@ public class Process implements Serializable {
 			double[][][][] CosTheta_Histogram = new double[2][totalLipids][3][4001];
 			//CosTheta_Histogram[ Leaflet ][ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
 
+			double[] DipoleField = new double[1];
+			//DipoleField[ invalid ]
+
+
 			int[] Angle_Histogram_AA = new int[3601];
 			//Angle_Histogram_AA[ Bin Spot ]
 
@@ -778,9 +803,10 @@ public class Process implements Serializable {
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
 					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);	//Bin all Angle Values
 					Registration = generateRegistration(currentFrame, Registration, lipidNames, (searchRadius / 2), true);	//Bin Registration
+					DipoleField = generateDipoleField(currentFrame, DipoleField, lipidNames);			//Bin all Dipoles
+
 
 				}	//Ends else statement
-
 
 				//Special if statement for when we reach the final frame
 				if (currentFrame.frameNumber == (finalFrame-1)) {
@@ -805,6 +831,7 @@ public class Process implements Serializable {
 
 			time = progressStatement(time, "End_Calculation");
 			//Analysis finished.			
+
 
 			if (userResponse) { lipidNames = changeLipidNames(lipidNames); }	//If the user wanted to change the names of the files, they do it now.
 			//Begin File Output

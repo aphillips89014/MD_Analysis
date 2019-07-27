@@ -7,6 +7,28 @@
 //Access a method here by typing::: Mathematics.methodName()
 public class Mathematics{
 
+	public static double[] normalizeVector(double[] vector){
+		//Take a given vector of any dimensions and normalize it.
+		int totalCoordinates = vector.length;
+		double magnitude = 0;	
+
+		for (int i = 0; i < totalCoordinates; i++){
+			double squared = vector[i] * vector[i];
+			magnitude = magnitude + squared;
+
+		}	//Ends for loop
+
+		magnitude = Math.pow(magnitude, 0.5);
+
+		for (int i = 0; i < totalCoordinates; i++){
+			vector[i] = vector[i] / magnitude;
+
+		}	//Ends for loop
+
+		return vector;
+	}	//Ends normalizeVector method
+
+
 	//Find the length (radius) between two points
 	public static double calculateRadius(double firstX, double firstY, double secondX, double secondY){
 

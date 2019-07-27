@@ -29,10 +29,12 @@ public class Lipid implements java.io.Serializable {
 
 	int[] Neighbors;
 
+	double[] dipoleVector = {0,0,0};
+
 	Atom firstChain;
 	Atom secondChain;
 
-	//Special atoms such as Phosphourous
+	//Special atoms such as Phosphourous, Nitrogen
 	Atom specialAtoms;
 
 	//Assign some attributes
@@ -85,6 +87,45 @@ public class Lipid implements java.io.Serializable {
 		return result;
 	}	//Ends checkForNN Method
 
+	public boolean checkForDipole(boolean numeric){
+		//Check to see if special atoms has a P and an N atom.
+		//If it doesn't return false
+		//If we are looking for a numeric value, ensure if the dipole has been calculated yet.
+		boolean result = false;
+
+		if (!(numeric)){
+			Atom head = this.specialAtoms;
+
+			boolean N = false;
+			boolean P = false;
+
+			while (head != null){
+				if (head.Name.equals("N")){
+					N = true;
+				}	//Ends if statement
+				
+				else if (head.Name.equals("P")){
+					P = true;
+				}	//ends if statement
+
+				head = head.next;
+			}	//Ends while loop
+
+			if (P && N) { result = true; }
+
+		}	//Ends if statement
+
+		else if (numeric){
+			double sum = Mathematics.sumArray(this.dipoleVector);
+	
+			if (sum == 0) { result = false; }
+			else if (sum != 0) { result = true; }
+
+		}	//Ends if statment
+
+		return result;
+	}	//ends checkForDipole Method
+
 
 	//Checks if OP has been Calculated yet.
 	public boolean checkForOP(){
@@ -98,6 +139,55 @@ public class Lipid implements java.io.Serializable {
 
 	}	//Ends checkForOP method
 
+
+	public void setDipoleVector(){
+		//If the lipid has a Phosphorous and Nitrogen, use that to generate the vector in question.
+		
+		if (this.specialAtoms.next != null){
+			double[] dipoleVector = new double[3];
+			Atom head = this.specialAtoms.next;
+
+			double x1 = 0;
+			double y1 = 0;
+			double z1 = 0;
+
+			double x2 = 0;
+			double y2 = 0;
+			double z2 = 0;
+			while (head != null){
+				if (head.Name.equals("N")){ 
+					x1 = head.X;
+					y1 = head.Y;
+					z1 = head.Z;
+
+				}	//ends if statement
+
+				else if (head.Name.equals("P")){
+					x2 = head.X;
+					y2 = head.Y;
+					z2 = head.Z;
+
+				}	//Ends else if statement
+
+				else{
+
+				}	//Ends if statement
+
+				head = head.next;
+			}	//Ends while loop
+
+			dipoleVector[0] = x1 - x2;
+			dipoleVector[1] = y1 - y2;
+			dipoleVector[2] = z1 - z2;
+
+			dipoleVector = Mathematics.normalizeVector(dipoleVector);
+			this.dipoleVector = dipoleVector;
+
+		}	//Ends if statement
+
+
+
+	}	//Ends setDipoleVector method
 
 	//Average the Order Parameter for the first Chain and the seocnd chain.
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
@@ -150,20 +240,24 @@ public class Lipid implements java.io.Serializable {
 	//Return Various Information
 	public void getInformation(){
 		System.out.println("");
-		System.out.println("Get Info:");
+//		System.out.println("Get Info:");
 
 
 //		System.out.println(this.Name + " " + this.ID + " " +  this.X + " " +  this.Y + " " + this.Z);
 		System.out.println(this.Name + " " + this.ID + " ");
 
-		System.out.println("firstChain:");
-		this.firstChain.printAllAtoms();
+//		System.out.println("firstChain:");
+//		this.firstChain.printAllAtoms();
 //		System.out.println("secondChain:");
 //		this.secondChain.printAllAtoms();
 
-		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
-		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
+		System.out.println("SpecialAtoms:");
+		this.specialAtoms.printAllAtoms();
+
+//		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
+//		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
+		System.out.println(Arrays.toString(this.dipoleVector));
 
 
 		System.out.println("");
@@ -224,6 +318,12 @@ public class Lipid implements java.io.Serializable {
 
 		}	//Ends if statement
 		
+		else if (Name.equals("N")) {
+			addAtom(this.specialAtoms, newAtom);
+
+		}	//Ends if statement
+
+
 		else {
 			//Group up all the Coarse-Grained Beads in this else statement
 			addAtom(thisChain, newAtom);
