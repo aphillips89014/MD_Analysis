@@ -993,6 +993,7 @@ public class Readin implements Serializable{
 			else if ( (Hydrogen == -1) ){
 				//This implies that it is either a standard Element, or Special Element
 				String[] standardElements = new String[]{ "C", "C3", "H3", "C-Bead", "R3", "ROH", "C1" };
+				String[] nonStandardElements = new String[]{ "P", "N", "PO4", "NC3" };
 
 				if (Mathematics.isValidLipid(Element, standardElements)) {
 
@@ -1000,7 +1001,7 @@ public class Readin implements Serializable{
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 				}	//Ends if statemenet
 			
-				else if ((Element.equals("P")) || (Element.equals("N"))){
+				else if (Mathematics.isValidLipid(Element, nonStandardElements)){
 					Frame.allLipids[ID - 1].createAtom(Chain, Member, Hydrogen, Element, X, Y, Z);
 
 				}	//ends if statement

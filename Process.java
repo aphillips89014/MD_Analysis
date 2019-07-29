@@ -833,7 +833,7 @@ public class Process implements Serializable {
 			double[][][][] CosTheta_Histogram = new double[2][totalLipids][3][4001];
 			//CosTheta_Histogram[ Leaflet ][ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
 
-			double[][][][][] DipoleField = new double[3][2][totalLipids][totalLipids][dipoleSpaces];
+			double[][][][][] DipoleField = new double[3][2][totalLipids][totalLipids][dipoleSpaces + 1];
 			//DipoleField[ Count / Dipole / Dipole^2 ][ Leaflet ][ Lipid ][ Comparting Lipid ][ Radial Distance ]
 
 			int[] Angle_Histogram_AA = new int[3601];
@@ -842,7 +842,7 @@ public class Process implements Serializable {
 			int[][] Thickness = new int[totalLipids][2000];
 			//Thickness[ Lipid ][ Bin Spot ]			
 
-			int[][][] Registration = new int[2][totalFiles][totalLipids];
+			int[][][] Registration = new int[2][totalFiles + 1][totalLipids];
 			//Registration[ Total Count / Registered Count ][ Frame Number ][ Lipid ]
 
 			double[][][][][] PCL = new double[3][2][totalLipids][2][30];
@@ -862,6 +862,7 @@ public class Process implements Serializable {
 					OPvNN = generateOPvNN(currentFrame, OPvNN, lipidNames);						//Plot the previous 2
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
 					Registration = generateRegistration(currentFrame, Registration, lipidNames, (searchRadius / 2), false); //Bin Registration
+//					DipoleField = generateDipoleField(currentFrame, DipoleField, lipidNames, dipoleSearchRadius, false, dipoleSpacing);	//Bin all Dipoles
 
 				}	//ends if statemetn
 
@@ -914,6 +915,7 @@ public class Process implements Serializable {
 				Readin.createStandardDataFiles_CG(OPvNN, OP_CG, lipidNames);
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 				Readin.createRegistrationFiles(Registration, lipidNames);
+				Readin.createDipoleFiles(DipoleField, dipoleSpacing, lipidNames, totalReadFrames);
 			}	//Ends if statement
 
 			else{

@@ -100,11 +100,11 @@ public class Lipid implements java.io.Serializable {
 			boolean P = false;
 
 			while (head != null){
-				if (head.Name.equals("N")){
+				if ((head.Name.equals("N") || (head.Name.equals("NC3")))){
 					N = true;
 				}	//Ends if statement
 				
-				else if (head.Name.equals("P")){
+				else if ((head.Name.equals("P") || (head.Name.equals("PO4")))){
 					P = true;
 				}	//ends if statement
 
@@ -155,14 +155,14 @@ public class Lipid implements java.io.Serializable {
 			double y2 = 0;
 			double z2 = 0;
 			while (head != null){
-				if (head.Name.equals("N")){ 
+				if ((head.Name.equals("N")) || (head.Name.equals("NC3"))){ 
 					x1 = head.X;
 					y1 = head.Y;
 					z1 = head.Z;
 
 				}	//ends if statement
 
-				else if (head.Name.equals("P")){
+				if ((head.Name.equals("P")) || (head.Name.equals("PO4"))){ 
 					x2 = head.X;
 					y2 = head.Y;
 					z2 = head.Z;
@@ -291,6 +291,10 @@ public class Lipid implements java.io.Serializable {
 			thisChain = this.secondChain;
 		}	// Ends else if statement
 
+		else if (Chain.equals("null")){
+			//Do Nothing, this should currently only occur if a CG PO4 or CG NC3 is being looked at.
+		}	//ends if statement
+
 		else{
 			System.out.println("Error in creating atom");
 			//This shouldn't ever happen.
@@ -310,16 +314,15 @@ public class Lipid implements java.io.Serializable {
 
 		}	//Ends if statement
 
-		else if (Name.equals("P")) {
+		else if ((Name.equals("P")) || (Name.equals("PO4"))) {
 			addAtom(this.specialAtoms, newAtom);	
 
 		}	//Ends if statement
 		
-		else if (Name.equals("N")) {
+		else if ((Name.equals("N")) || (Name.equals("NC3"))) {
 			addAtom(this.specialAtoms, newAtom);
 
 		}	//Ends if statement
-
 
 		else {
 			//Group up all the Coarse-Grained Beads in this else statement
