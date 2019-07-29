@@ -361,6 +361,53 @@ public class Readin implements Serializable{
 
 	}	//Ends createOPFiles method
 
+	public static void createDipoleFiles(double[][][][][] DipoleField, double Spacing, String[] lipidNames, double totalFrames){
+		//DipoleField[ Count / Dipole / Dipole^2][ Leaflet ][ Lipid ][ CompLipid ][ Radial Distance ]
+
+		PrintStream console = System.out;
+		int totalLipids = lipidNames.length;
+		int totalLeaflets = DipoleField[0].length;
+		int totalRadialSpaces = DipoleField[0][0][0][0].length;
+		
+		for (int Leaflet = 0; Leaflet < totalLeaflets; Leaflet++){
+			String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);			
+
+			for (int Lipid = 0; Lipid < totalLipids; Lipid++){
+				String LipidName = lipidNames[Lipid];
+
+				for (int compLipid = 0; compLipid < totalLipids; compLipid++){
+					String compLipidName = lipidNames[compLipid];
+
+					String FileName = "Graphing/Data/" + LeafletName + "_Leaflet_" + LipidName + "_" + compLipidName + "_Dipole.dat";
+
+					try{
+						PrintStream output = new PrintStream(new File(FileName));
+						System.setOut(output);
+
+
+						for (int radial = 0; radial < totalRadialSpaces; radial++){
+							double radius = radial * Spacing; 					
+							double count = DipoleField[0][Leaflet][Lipid][compLipid][radial];
+							double dipole = DipoleField[1][Leaflet][Lipid][compLipid][radial] / totalFrames;
+							double dipoleSquared = DipoleField[2][Leaflet][Lipid][compLipid][radial] / totalFrames;
+
+							System.out.println(radius + " " + dipole + " " + dipoleSquared);
+
+						}	//Ends for loop
+
+						System.setOut(console);
+					}	//Ends try statement
+
+					catch (IOException e){
+						System.setOut(console);
+						System.out.println("Error in Creating " + FileName);
+						System.out.println(e);
+					}	//Ends catch
+				}	//Ends for loop
+			}	//ends for loop
+		}	//Ends for loop
+	}	//Ends createDipoleFiles method
+
 	public static void createRegistrationFiles(int[][][] Registration, String[] lipidNames){
 		PrintStream console = System.out;
 		

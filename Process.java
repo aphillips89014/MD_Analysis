@@ -121,9 +121,17 @@ public class Process implements Serializable {
 		return Registration;
 	}	//Ends gneerateRegistration Method
 
-	public static double[] generateDipoleField(Frame currentFrame, double[] DipoleField, String[] lipidNames){
-		
+	public static double[][][][][] generateDipoleField(Frame currentFrame, double[][][][][] DipoleField, String[] lipidNames, double searchRadius, boolean canLengthBeNegative, double Spacing){
+
 		int totalLipids = currentFrame.allLipids.length;
+		int totalLipidTypes = lipidNames.length;
+		int totalSpaces = DipoleField[0][0][0][0].length;
+
+		double[][][][][] frameDipoleField = new double[2][2][totalLipidTypes][totalLipidTypes][totalSpaces];
+		//DipoleField[ Count / Dipole / Dipole^2 ][ Leaflet ][ Lipid ][ Comparting Lipid ][ Radial Distance ]
+
+		double xLength = currentFrame.getXLength();
+		double yLength = currentFrame.getYLength();
 
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
 			boolean validDipole = currentFrame.allLipids[currentLipid].checkForDipole(false);	//Check to see if it has a valid dipole
@@ -133,15 +141,76 @@ public class Process implements Serializable {
 				if (!(validDipole)){
 					currentFrame.allLipids[currentLipid].setDipoleVector();
 				}	//Ends if statement
-
-
 			}	//Ends if statemetn
+		}	//Ends for loop
 
+		
+		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
+			boolean validDipole = currentFrame.allLipids[currentLipid].checkForDipole(false);
 
+			if (validDipole){
+				int lipid1 = Mathematics.LipidToInt(lipidNames, currentFrame.allLipids[currentLipid].getName());
+				int Leaflet1 = Mathematics.LeafletToInt(currentFrame.allLipids[currentLipid].getLeaflet());
+	
+				double x1 = currentFrame.allLipids[currentLipid].X;
+				double y1 = currentFrame.allLipids[currentLipid].Y;
+				double[] dipole1 = currentFrame.allLipids[currentLipid].getDipole();
+
+				int shiftX = Mathematics.checkBoundary(x1, xLength, searchRadius, canLengthBeNegative);
+				int shiftY = Mathematics.checkBoundary(y1, yLength, searchRadius, canLengthBeNegative);
+
+				for (int compLipid = 0; compLipid < totalLipids; compLipid++){ 
+					validDipole = currentFrame.allLipids[compLipid].checkForDipole(false);	
+					if (validDipole){
+						int Leaflet2 = Mathematics.LeafletToInt(currentFrame.allLipids[currentLipid].getLeaflet());
+						if (Leaflet1 == Leaflet2){
+							int lipid2 = Mathematics.LipidToInt(lipidNames, currentFrame.allLipids[compLipid].getName());
+							double x2 = currentFrame.allLipids[compLipid].X;
+							double y2 = currentFrame.allLipids[compLipid].Y;
+							double[] dipole2 = currentFrame.allLipids[compLipid].getDipole();
+
+							x2 = Mathematics.applyPBC(x2, shiftX, xLength, canLengthBeNegative);
+							y2 = Mathematics.applyPBC(y2, shiftY, yLength, canLengthBeNegative);
+
+							double radius = Mathematics.calculateRadius(x1, y1, x2, y2);
+
+							if (radius <= searchRadius) {
+								if (radius != 0) {
+									double dotProduct = Mathematics.calculateDotProduct(dipole1, dipole2);
+									int radialIndex = (int) (radius / Spacing);
+								
+									frameDipoleField[0][Leaflet1][lipid1][lipid2][radialIndex]++;
+									frameDipoleField[1][Leaflet1][lipid1][lipid2][radialIndex] = frameDipoleField[1][Leaflet1][lipid1][lipid2][radialIndex] + dotProduct;
+								}	//Ends if statemnet
+							}	//Ends if statement
+						}	//Ends if statement
+					}	//Ends if statement
+				}	//Ends for loop
+			}	//Ends if statement
+		}	//Ends for loop
+
+		//Now go through the frame speciifc dipoleField and average to add across the entire system for an accurate Std. Deviation
+		for (int Leaflet = 0; Leaflet < 2; Leaflet++){
+			for (int lipid = 0; lipid < totalLipidTypes; lipid++){
+				for (int compLipid = 0; compLipid < totalLipidTypes; compLipid++){
+					for (int radial = 0; radial < totalSpaces; radial++){
+						double count = frameDipoleField[0][Leaflet][lipid][compLipid][radial];
+						double dipole = frameDipoleField[1][Leaflet][lipid][compLipid][radial];
+	
+						if (count == 0) { count = 1; }	//Prevent NaN from occuring, instead return 0.
+						double dipoleAvg = dipole / count;
+
+						DipoleField[0][Leaflet][lipid][compLipid][radial] = DipoleField[0][Leaflet][lipid][compLipid][radial] + count;
+						DipoleField[1][Leaflet][lipid][compLipid][radial] = DipoleField[1][Leaflet][lipid][compLipid][radial] + dipoleAvg;
+						DipoleField[2][Leaflet][lipid][compLipid][radial] = DipoleField[2][Leaflet][lipid][compLipid][radial] + (dipoleAvg * dipoleAvg);
+					}	//Ends for loop
+				}	//Ends for loop
+			}	//Ends for loop
 		}	//Ends for loop
 
 		return DipoleField;
 	}	//Ends generateDipoleField Method
+
 
 
 	//Use the method setOP_CosTheta to average the OP of all Atoms
@@ -645,7 +714,10 @@ public class Process implements Serializable {
 		boolean userResponse = false;
 		String coordinateFile = "Coordinates.dat";
 
-
+		double dipoleSearchModifier = 5;
+		double dipoleSearchRadius = searchRadius * dipoleSearchModifier;
+		double dipoleSpacing = 0.5;
+		int dipoleSpaces = (int) (dipoleSearchRadius * (1 / dipoleSpacing));
 
 
 		//Determine if there is a specific set number of frames to use.
@@ -761,9 +833,8 @@ public class Process implements Serializable {
 			double[][][][] CosTheta_Histogram = new double[2][totalLipids][3][4001];
 			//CosTheta_Histogram[ Leaflet ][ Lipid ][ Chain 1,2,Avg ][ Bin Spot ]
 
-			double[] DipoleField = new double[1];
-			//DipoleField[ invalid ]
-
+			double[][][][][] DipoleField = new double[3][2][totalLipids][totalLipids][dipoleSpaces];
+			//DipoleField[ Count / Dipole / Dipole^2 ][ Leaflet ][ Lipid ][ Comparting Lipid ][ Radial Distance ]
 
 			int[] Angle_Histogram_AA = new int[3601];
 			//Angle_Histogram_AA[ Bin Spot ]
@@ -803,8 +874,7 @@ public class Process implements Serializable {
 					CosTheta_Histogram = generateCosThetaHistogram(currentFrame, CosTheta_Histogram, lipidNames);	//Bin all Cos(Theta) values
 					Angle_Histogram_AA = generateAngleHistogram(currentFrame, Angle_Histogram_AA, "PSM", true, 3);	//Bin all Angle Values
 					Registration = generateRegistration(currentFrame, Registration, lipidNames, (searchRadius / 2), true);	//Bin Registration
-					DipoleField = generateDipoleField(currentFrame, DipoleField, lipidNames);			//Bin all Dipoles
-
+					DipoleField = generateDipoleField(currentFrame, DipoleField, lipidNames, dipoleSearchRadius, true, dipoleSpacing); 	//Bin all Dipoles
 
 				}	//Ends else statement
 
@@ -855,6 +925,7 @@ public class Process implements Serializable {
 				Readin.createCosThetaHistogramFiles(CosTheta_Histogram, lipidNames, coarseGrained);
 				Readin.createAngleHistogramFile(Angle_Histogram_AA, "PSM", true, 3);		//This needs to be set manually. (Too ambiguous)
 				Readin.createRegistrationFiles(Registration, lipidNames);
+				Readin.createDipoleFiles(DipoleField, dipoleSpacing, lipidNames, totalReadFrames);
 			}	//Ends else statement
 
 			time = progressStatement(time, "End_Output");

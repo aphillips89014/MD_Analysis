@@ -184,9 +184,6 @@ public class Lipid implements java.io.Serializable {
 			this.dipoleVector = dipoleVector;
 
 		}	//Ends if statement
-
-
-
 	}	//Ends setDipoleVector method
 
 	//Average the Order Parameter for the first Chain and the seocnd chain.
@@ -428,6 +425,10 @@ public class Lipid implements java.io.Serializable {
 	public int getID(){
 		return this.ID;
 	}	//Ends getID Method
+
+	public double[] getDipole(){
+		return this.dipoleVector;
+	}	//ends getDipoleMethod
 
 	public double getFirstCosTheta(){
 		return this.firstCosTheta;

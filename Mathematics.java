@@ -28,6 +28,27 @@ public class Mathematics{
 		return vector;
 	}	//Ends normalizeVector method
 
+	public static double calculateDotProduct(double[] vector1, double[] vector2){
+		double dotProduct = -5;
+		int length1 = vector1.length;
+		int length2 = vector2.length;
+		if (length1 == length2){
+			dotProduct = 0;
+			for (int index = 0; index < length1; index++){
+				dotProduct = dotProduct + (vector1[index] * vector2[index]);
+
+			}	//Ends for loop
+		}	//Ends if statement
+		else{
+			System.out.println("Coordinate Systems do not match up...");
+			System.out.println("Failed Calculating Dot Product.");
+		}	//Ends else statement
+	
+
+		return dotProduct;
+	}	//Ends calculateDotProduct Method
+
+
 
 	//Find the length (radius) between two points
 	public static double calculateRadius(double firstX, double firstY, double secondX, double secondY){
