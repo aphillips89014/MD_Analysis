@@ -1,7 +1,7 @@
 Leaflet = ARG1
 lipid_1 = ARG2
 
-set xrange [0:19]
+set xrange [0:]
 
 first_File_Chain = "SN1"
 second_File_Chain = "SN2"

@@ -18,6 +18,8 @@ set title full_Title
 set xlabel "Carbon Index"
 set ylabel "Order Parameter"
 
+set arrow from 0,0 to 200,0
+
 fileName_1 = "Data/".leaflet."_".lipid_1."_chain_0_OP_H.dat"
 fileName_2 = "Data/".leaflet."_".lipid_1."_chain_1_OP_H.dat"
 fileName_3 = "Data/".leaflet."_".lipid_1."_chain_0_OP.dat"
