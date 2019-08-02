@@ -104,7 +104,7 @@ w.write("	rm Graphs/*\n")
 w.write("Graph:\n")
 
 baseStatement = "	gnuplot -e \"set terminal png size 960,720; set output 'Graphs/"
-GraphNames = ["CosTheta_Histogram.plot ", "NN_Histogram.plot ", "OP.plot ", "OPvNN.plot ", "PCL.plot ", "Probability.plot ", "Thickness.plot ", "Registration.plot ", "Dipole.plot "]
+GraphNames = ["CosTheta_Histogram.plot ", "NN_Histogram.plot ", "OP.plot ", "OPvNN.plot ", "PCL.plot ", "Probability.plot ", "Thickness.plot ", "Registration.plot ", "Dipole.plot ", "Angles.plot "]
 
 Pairs = getPairs()
 
@@ -117,4 +117,4 @@ addLines(w, baseStatement, Pairs, GraphNames[5], "Pairs", "True")
 addLines(w, baseStatement, Pairs, GraphNames[6], "Lipid", "False")
 addLines(w, baseStatement, Pairs, GraphNames[7], "Maximum_Lipids L1 ... LN", "False")
 addLines(w, baseStatement, Pairs, GraphNames[8], "L1 L2", "True")
-
+addLines(w, baseStatement, Pairs, GraphNames[9], "", "False")
