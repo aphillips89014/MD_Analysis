@@ -238,6 +238,18 @@ public class Mathematics{
 		return OP;
 	}       //Ends calculateOP method
 
+	public static int sumArray(int[] array){
+		int length = array.length;
+		int sum = 0;
+
+		for (int index = 0; index < length; index++){
+			sum = sum + array[index];
+
+		}	//Ends for loop
+
+		return sum;
+	}	//Ends average array method
+	
 	public static double sumArray(double[] array){
 		int length = array.length;
 		double sum = 0;

@@ -9,12 +9,11 @@ import java.lang.Math;
 
 public class Readin implements Serializable{
 
-	//Save an object to the Disk so that it can be accessed at a later dat.
+	//Save an object to the Disk so that it can be accessed at a later date.
 	public static void serializeFrame(String fileName, int frameNumber, Frame Frame){
 
-		//Setup a method of assigning fileNames based off an integer instead of a pre-processed fileName
-		if (frameNumber < 8888){
-			//Choose an arbitrarily large value such as 2000.
+		//Setup a method of assigning fileNames based off an integer instead of a manually chosen fileName
+		if (frameNumber < 8888){		//8888 Means nothing, just choosing a very large number.
 			String frameNumberString = Integer.toString(frameNumber);
 			fileName = "Frames/frame_" + frameNumberString + ".ser";
 		}	//Ends if statement
@@ -67,14 +66,14 @@ public class Readin implements Serializable{
 	}	//Ends unserializeFrame
 
 	public static int findTotalFrames(int seperator){
-		int totalFiles = new File("Frames/").list().length;
-		int lastFile = (totalFiles*seperator) - seperator;
+		int totalFiles = new File("Frames/").list().length;	//Find the total number of files in the Frames/ directory
+		int lastFile = (totalFiles*seperator) - seperator;	//Find that total number and based off the seperator given figure out the total # of objects
 	
-		Frame currentFrame = Readin.unserializeFrame(lastFile);	
+		Frame currentFrame = Readin.unserializeFrame(lastFile);	//Unserialize the last file.
 
-		while (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }
+		while (currentFrame.nextFrame != null) { currentFrame = currentFrame.nextFrame; }	//Go to the last object in the Linked List
 		
-		int finalFrame = currentFrame.getFrameNumber();
+		int finalFrame = currentFrame.getFrameNumber();						//Get the last object's number
 
 		return finalFrame;
 	}	//Ends findTotalFrames
@@ -94,7 +93,7 @@ public class Readin implements Serializable{
 
 	//This method will determine if we are looking at an Atomistic, or a Coarse-Grained Simulation.
 		//There should never be an occurance of a Hydrogen in a CG simulation.
-		//There is a potential that a simulation of Cholesterol only could break this.
+		//There is a potential that a simulation of Atomistic Cholesterol only could break this.
 	public static boolean determineSimulationMethod(){
 		Frame currentFrame = unserializeFrame(0);
 		//Choose the first frame available.
@@ -286,6 +285,7 @@ public class Readin implements Serializable{
 	}	//Ends if statement
 
 
+	//Create files to output Order Parameters
 	public static void createOPFiles(double[][][][][][] OP, String[] lipidNames, double totalFiles){
 		PrintStream console = System.out;
 	
@@ -299,12 +299,12 @@ public class Readin implements Serializable{
 					//Check to see if there is valid data.
 					double sum = 0;
 					int length = OP[0][Leaflet][currentLipid][currentChain][0].length;
+
 					for (int i = 0; i < length; i++){
 						sum = sum + OP[0][Leaflet][currentLipid][currentChain][0][i];
-
 					}	//ends for loop
 
-					if (sum > 0){
+					if (sum > 0){		//If the given OP is valid.
 						String fileName = "Graphing/Data/" + Leaflet_Name + "_" + lipidNames[currentLipid] + "_chain_" + currentChain + "_OP.dat";
 
 						try{
@@ -344,7 +344,6 @@ public class Readin implements Serializable{
 									}	//Ends if statement
 								}	//Ends for loop
 							}	//Ends for loop
-
 						}	//Ends try statement
 
 						catch (IOException e){
@@ -388,6 +387,7 @@ public class Readin implements Serializable{
 						for (int radial = 0; radial < totalRadialSpaces; radial++){
 							double radius = radial * Spacing; 					
 							double count = DipoleField[0][Leaflet][Lipid][compLipid][radial];
+
 							double dipole = DipoleField[1][Leaflet][Lipid][compLipid][radial] / totalFrames;
 							double dipoleSquared = DipoleField[2][Leaflet][Lipid][compLipid][radial] / totalFrames;
 
@@ -417,7 +417,6 @@ public class Readin implements Serializable{
 		for (int Lipid = 0; Lipid < totalLipids; Lipid++){
 
 			String LipidName = lipidNames[Lipid];
-
 			String fileName = "Graphing/Data/" + LipidName + "_Registration.dat";
 
 			try{
@@ -443,8 +442,6 @@ public class Readin implements Serializable{
 			}	//Ends catch
 		}	//Ends for loop	
 
-
-
 		System.setOut(console);
 	}	//Ends createRegistrationFiles
 
@@ -461,24 +458,24 @@ public class Readin implements Serializable{
 		for (int Leaflet = 0; Leaflet < totalLeaflets; Leaflet++){
 			String LeafletName = Mathematics.IntToLeaflet_STR(Leaflet);
 
-			for (int i = 0; i < totalLipids; i++){
+			for (int Lipid = 0; Lipid < totalLipids; Lipid++){
 				for (int chain = 0; chain < 3; chain++){
 					sum = 0;
 					for (int j = 0; j < length; j++){
-						sum = sum + CosTheta_Histogram[Leaflet][i][chain][j];
+						sum = sum + CosTheta_Histogram[Leaflet][Lipid][chain][j];
 					}	//Ends for loop
 
-					if (sum > 1){
-						String fileName = "Graphing/Data/" + LeafletName + "_Leaflet_" + lipidNames[i] + "_chain_" + (chain+1) + "_CosTheta_Histogram.dat";
+					if (sum > 1){		//If the value is valid.
+						String fileName = "Graphing/Data/" + LeafletName + "_Leaflet_" + lipidNames[Lipid] + "_chain_" + (chain+1) + "_CosTheta_Histogram.dat";
 						try{
 							PrintStream output = new PrintStream(new File(fileName));
 							System.setOut(output);
 
 							for (int j = 0; j < length; j++){
 								double binSpot = (double) j;
-								binSpot = (binSpot / 2000) - 1;
+								binSpot = (binSpot / 2000) - 1;		//Special Equation to find the indexed spot and what it means.
 								
-								double count = CosTheta_Histogram[Leaflet][i][chain][j];
+								double count = CosTheta_Histogram[Leaflet][Lipid][chain][j];
 								String firstValue = String.format("%.0005f", binSpot);
 								System.out.println(firstValue + " " + count);
 
@@ -505,26 +502,26 @@ public class Readin implements Serializable{
 		PrintStream console = System.out;
 		
 		int totalLipids = lipidNames.length;
-		int length = Thickness[0].length;
+		int totalBinSpots = Thickness[0].length;
 		int sum = 0;
 
-		for (int i = 0; i < totalLipids; i++){
-			for (int j = 0; j < length; j++){
-				sum = sum + Thickness[i][j];
+		for (int Lipid = 0; Lipid < totalLipids; Lipid++){
+			for (int currentBinSpot = 0; currentBinSpot < totalBinSpots; currentBinSpot++){
+				sum = sum + Thickness[Lipid][currentBinSpot];
 			}	//Ends for loop
 
 			//Now we ignore lipids without phosphates.
 			if (sum > 1){
-				String fileName = "Graphing/Data/" + lipidNames[i] + "_Thickness.dat";
+				String fileName = "Graphing/Data/" + lipidNames[Lipid] + "_Thickness.dat";
 
 				try{
 					PrintStream output = new PrintStream(new File(fileName));
 					System.setOut(output);
 
-					for (int j = 0; j < length; j++){
-						float binSpot = (float) j;
+					for (int currentBinSpot = 0; currentBinSpot < totalBinSpots; currentBinSpot++){
+						float binSpot = (float) currentBinSpot;
 						binSpot = (binSpot/10) - 100;
-						int count = Thickness[i][j];
+						int count = Thickness[Lipid][currentBinSpot];
 						String firstValue = String.format("%.1f", binSpot);
 						System.out.println(firstValue + " " + count);
 
@@ -575,9 +572,8 @@ public class Readin implements Serializable{
 									if (carbonIndex != 0) {
 										double carbonLength = PCL[1][Leaflet][currentLipid][chainCount][carbonIndex] / totalFiles;
 										double squaredLength = PCL[2][Leaflet][currentLipid][chainCount][carbonIndex] / totalFiles;
-			
 										double deviation = Mathematics.calculateDeviation(carbonLength, squaredLength);
-											
+
 										System.setOut(output);
 										System.out.println(carbonIndex + " " + carbonLength + " " + deviation);
 									}	//Ends if statement
@@ -887,7 +883,7 @@ public class Readin implements Serializable{
 		Scan.useDelimiter(" ");
 
 		file = new File(fileName);
-		Scanner Scout = new Scanner(file);
+		Scanner Scout = new Scanner(file);	//Going to use this to help find out important information for the future, such as how many more IDs or Frames we need to expect.
 		Scout.useDelimiter(" ");
 
 
@@ -906,12 +902,10 @@ public class Readin implements Serializable{
 		double X;
 		double Y; 
 		double Z;
-	
 		int totalFiles = 0;
+		boolean keepGoing = true;
 
 		int maximumID = findMaximumID(Scout, 0);	//Probe forward, find maximum ID
-
-		boolean keepGoing = true;
 
 		//Now read the entire file.
 		while (keepGoing){

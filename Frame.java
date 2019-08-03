@@ -10,13 +10,13 @@ public class Frame implements java.io.Serializable {
 	private static final long serialVersionUID = 2;
 	//This variable allows this class to actually be Serialziable. Won't be used directly.
 
-	int frameNumber = 0;
-	Lipid[] allLipids;
-	int totalLipids = 0;
-	double xLength = 0;
-	double yLength = 0;
-	double BilayerCenter = 0;
-	int nextAvailableLipid = 0;
+	int frameNumber = 0;				// The Time Frame, this will always be a unique value
+	Lipid[] allLipids;				// An Array that hold every lipid we will want
+	int totalLipids = 0;				// A count of the total Lipids in a system (aka the length of the allLipids array)
+	double xLength = 0;				// The Length of the Frame in the X Direction
+	double yLength = 0;				// The Length of the Frame in the Y Direction
+	double BilayerCenter = 0;			// The Center of the bilayer in terms of the Z Direction
+	int nextAvailableLipid = 0;			// The Next spot in the allLipids array that can be filled.
 	
 	//Frame is a 2 directional LL, it is 2 Directional because the programmer wanted to be lazy.
 	Frame nextFrame = null;
@@ -37,18 +37,6 @@ public class Frame implements java.io.Serializable {
 		this.allLipids[this.nextAvailableLipid] = new Lipid(Name, ID, X, Y, Z, Leaflet, FlipFloppable, lipidNames);
 		this.nextAvailableLipid++;
 	}	//Ends createLipid Method
-
-	//Return the given String of lipids
-	public void getSpecificLipids(String givenLipid){
-		int totalLipids = this.allLipids.length;
-
-		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-			if ((this.allLipids[currentLipid].Name).equals(givenLipid)){
-				this.allLipids[currentLipid].getInformation();
-
-			}	//Ends if statement
-		}	//Ends for loop
-	}	//Ends getSpecificLipids Method
 
 	public double getBilayerCenter(){
 		return this.BilayerCenter;
@@ -132,8 +120,9 @@ public class Frame implements java.io.Serializable {
 		
 	}	//Ends findBilayerCenter Method
 
+
+	//Return the first item in the LL.
 	public Frame setFirstFrame(){
-		//Return the first item in the LL.
 		Frame firstFrame = this;
 		if (this.prevFrame != null) {
 			firstFrame = this.prevFrame.setFirstFrame();

@@ -10,32 +10,33 @@ public class Lipid implements java.io.Serializable {
 	private static final long serialVersionUID = 1;
 		//This variable is to help with serialization, won't be used specifically.
 
-	String Name;
-	int ID;
-	double X;
+	String Name;				// Name of the Lipid
+	int ID;					// Numeric ID, this is unique and only 1 lipid at a time can have a single ID.
+	double X;				// X, Y, Z Coordinates.
 	double Y;
 	double Z;
-	String firstChainIdentifier = "null";
+	String firstChainIdentifier = "null";	// Each chain has a unique name, such as 1 and 2, or A and B. Save those two unqiue names here
 	String secondChainIdentifier = "null";
 
-	boolean Leaflet;		//True Leaflet implies upper leaflet, false implies Lower
-	boolean FlipFloppable;	
+	boolean Leaflet;			//True Leaflet implies upper leaflet, false implies Lower
+	boolean FlipFloppable;			// Can the given lipid Flip-Flop?
 
-	double firstOP = -2;
-	double secondOP = -2;
+	double firstOP = -2;			// Avg OP of the first chain
+	double secondOP = -2;			// Avg OP of the second chain
 
-	double firstCosTheta = -2;
-	double secondCosTheta = -2;
+	double firstCosTheta = -2;		// Avg Cos Theta value of the first chain
+	double secondCosTheta = -2;		// "" of the second chain
 
-	int[] Neighbors;
+	int[] Neighbors;			// Array of the # of neighbors a lipid has. The indexes in the array implies which lipid the Neighbors refer to
+						// 	 The indexes are kept consistent throughout the entire program and are determined from reading the file.
 
-	double[] dipoleVector = {0,0,0};
+	double[] dipoleVector = {0,0,0};	// Vector that determines the vector between the Phosphourous and Nitrogen atoms/bead equivalents. Some lipids dont have this.
 
-	Atom firstChain;
-	Atom secondChain;
+	Atom firstChain;			// Head of a Linked List for the First Chain of atoms
+	Atom secondChain;			// Head of a linked list for the second chain of atoms
 
 	//Special atoms such as Phosphourous, Nitrogen
-	Atom specialAtoms;
+	Atom specialAtoms;			// Head of a Linked List for every 'other' atoms.
 
 	//Assign some attributes
 	public Lipid(String Name, int ID, double X, double Y, double Z, String Leaflet, String FlipFloppable, String[] lipidNames){
@@ -59,11 +60,11 @@ public class Lipid implements java.io.Serializable {
 			this.FlipFloppable = false;
 		}	//Ends else statement
 
-		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
+		this.firstChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);		// Initialize all the atoms with Heads.
 		this.secondChain = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 		this.specialAtoms = new Atom(ID, "head", 0, 0, "head", 0, 0, 0);
 
-		int length = lipidNames.length;
+		int length = lipidNames.length;						// The # of unique lipids in a sample.
 		this.Neighbors = new int[length];
 
 	}	//Ends Constructor
@@ -71,14 +72,10 @@ public class Lipid implements java.io.Serializable {
 
 	//Checks if Neighbors has been calculated yet.
 	public boolean checkForNN(){
+		// ** Lives under that assumption that any lipid species will have at least one of any type of neighbor.
 
-		int sum = 0;
-		int length = this.Neighbors.length;
 		boolean result = false;
-
-		for (int i = 0; i < length; i++){
-			sum = sum + this.Neighbors[i];
-		}	//Ends for loop
+		int sum = Mathematics.sumArray(this.Neighbors);
 
 		if (sum > 0){
 			result = true;
@@ -86,6 +83,8 @@ public class Lipid implements java.io.Serializable {
 
 		return result;
 	}	//Ends checkForNN Method
+
+
 
 	public boolean checkForDipole(boolean numeric){
 		//Check to see if special atoms has a P and an N atom.
@@ -96,26 +95,26 @@ public class Lipid implements java.io.Serializable {
 		if (!(numeric)){
 			Atom head = this.specialAtoms;
 
-			boolean N = false;
-			boolean P = false;
+			boolean N = false;		// Nitrogen
+			boolean P = false;		// Phosphourous
 
-			while (head != null){
-				if ((head.Name.equals("N") || (head.Name.equals("NC3")))){
+			while (head != null){				// Iterate through the entire Linked List
+				if ((head.Name.equals("N") || (head.Name.equals("NC3")))){		// If we have seen a Nitrogen, let us know.
 					N = true;
 				}	//Ends if statement
 				
-				else if ((head.Name.equals("P") || (head.Name.equals("PO4")))){
+				else if ((head.Name.equals("P") || (head.Name.equals("PO4")))){		// If we have seen a Phosphourous, let us know.
 					P = true;
 				}	//ends if statement
 
-				head = head.next;
+				head = head.next;			// Go to next Node in the Linked List
 			}	//Ends while loop
 
-			if (P && N) { result = true; }
+			if (P && N) { result = true; }			// If we have a Phosphorous and a Nitrogen, then we can calculate a dipole, so return true.
 
 		}	//Ends if statement
 
-		else if (numeric){
+		else if (numeric){		// If we want to know if we have calculated a dipole (not if we legally can but rather have we at all)
 			double sum = Mathematics.sumArray(this.dipoleVector);
 	
 			if (sum == 0) { result = false; }
@@ -131,8 +130,8 @@ public class Lipid implements java.io.Serializable {
 	public boolean checkForOP(){
 		boolean result = false;
 
-		if (this.firstOP != -2){
-			result = true;
+		if (this.firstOP != -2){		// If there is an OP for the second chain, there MUST be one for the first.
+			result = true;			// 	If the OP is -2 this implies it is still the default value.
 		}	//Ends if statement
 
 		return result;
@@ -154,6 +153,8 @@ public class Lipid implements java.io.Serializable {
 			double x2 = 0;
 			double y2 = 0;
 			double z2 = 0;
+
+			// We want to subtract phosphorous from nitrogen ideally. But there is no guarntee the order they will appear in the Linked List (rules aren't too strict here.)
 			while (head != null){
 				if ((head.Name.equals("N")) || (head.Name.equals("NC3"))){ 
 					x1 = head.X;
@@ -190,7 +191,7 @@ public class Lipid implements java.io.Serializable {
 	//averageOP is  recursive so it calls itself until its iterated through each lipid.
 	public void setOP_CosTheta(double xLength, double yLength){
 
-		double[] first_CosTheta = new double[2];
+		double[] first_CosTheta = new double[2];		// We are going to use this array as a way to count the # of times we have caluclated CosTheta and the sum of each of those values. Then we will take the Sum and divide it by the #.
 		double[] first_OP = new double[2];
 	
 		//The orientation is mathematically flipped if a lipid is in the lower leaflet.
@@ -200,12 +201,11 @@ public class Lipid implements java.io.Serializable {
 		if (this.Leaflet == false) { modifier = -1; }
 		
 
-
 		firstChain.determineOP(0, 0, 0, xLength, yLength);
 		first_OP = firstChain.averageOP(first_OP);		
 		first_CosTheta = firstChain.averageCosTheta(first_CosTheta);
 
-		if (first_CosTheta[0] > 0){
+		if (first_CosTheta[0] > 0){		// If we actually have a valid # of occurances ( basically we want to avoid division by zero. )
 			this.firstOP = (first_OP[1] / first_OP[0]);
 			this.firstCosTheta = (first_CosTheta[1] / first_CosTheta[0]) * modifier;
 
@@ -226,16 +226,14 @@ public class Lipid implements java.io.Serializable {
 
 	}	//Ends average OP method
 
-
-	//Assigns a specific attribute.
 	public void setNN(int index, int value){
-		this.Neighbors[index] = value;
+		this.Neighbors[index] = value;		// Assign the given index the given value.
 
 	}	//Ends setNN
 
 
 	//Return Various Information
-	public void getInformation(){
+	public void getInformation(){					// For Debugging purposes only, pay no attention to the man behind the curtain.
 		System.out.println("");
 //		System.out.println("Get Info:");
 
@@ -282,7 +280,9 @@ public class Lipid implements java.io.Serializable {
 
 	//Creates a specific atom on a specific chain.
 	public void createAtom(String Chain, int Member, int Hydrogen, String Name, double X, double Y, double Z){
+
 		Atom thisChain = null;
+
 		if (Chain.equals(this.firstChainIdentifier)){
 			thisChain = this.firstChain;
 		}	//Ends if statement
@@ -300,9 +300,14 @@ public class Lipid implements java.io.Serializable {
 			//This shouldn't ever happen.
 		}	//Ends else statement
 
+
+
 		//Create new Atom
 		Atom newAtom = new Atom(this.ID, Chain, Member, Hydrogen, Name, X, Y, Z);
 	
+
+		// Now based off the name of the given atom, choose where to place it.
+		// 	 Some of these if statements may be able to be grouped up, but being redundant is a bit more clear at times.
 		if (Name.equals("C")){
 			//Add it to a linked list.
 
@@ -331,19 +336,19 @@ public class Lipid implements java.io.Serializable {
 		}	//Ends else statement
 	}	//Ends createAtom method
 
+
+
 	public static void addHydrogen(Atom head, Atom newAtom){
 		
 		if (head == null){
 			System.out.println("Add Hydrogen has been passed a null head");
 		}	//Ends if statement
 
-		//Make sure we are looking at the correct carbon
-		if ((head.getMember()) != newAtom.getMember()){
+		if ((head.getMember()) != newAtom.getMember()){		// Make sure we are looking at the correct carbon on the chain.
 			addHydrogen(head.next, newAtom);
 		}	//ends addHydrogen
 
-		else{
-			//We found the correct Carbon
+		else{							// We found the correct Carbon
 			head.setNextHydrogen(newAtom);
 		}	//Ends else statement
 	}	//ends addHydrogen
@@ -401,8 +406,11 @@ public class Lipid implements java.io.Serializable {
 
 		result = tempAtom.Z;
 
-		//If its invalid, return an absurd value
-		if (tempAtom.getMember() == 0) { result = 5000; }
+		//If its invalid, return an absurd value, there may be a better way to do this.
+		if (tempAtom.getMember() == 0) { 
+			result = 5000; 
+			System.out.println("ERROR in finding Terminal Carbon Height");
+		}	// Ends if statement
 
 
 		return result;

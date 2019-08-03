@@ -8,20 +8,20 @@ import java.lang.Math;
 
 public class Atom implements Serializable{
 	
-	String Chain;
-	String Name;
-	int Member;
-	int Hydrogen;
-	double X;
+	String Chain;				// The Unique Chain that the atom given belongs to
+	String Name;				// Unique Name of the current Atom
+	int Member;				// Position in the Linked List
+	int Hydrogen;				// Position in the Hydrogen Linked List
+	double X;				// X, Y, Z Coordinate
 	double Y;
 	double Z;
-	double OP = -2;
-	double cosTheta = -2;
-	int ID;
+	double OP = -2;				// OP for this specific Atom
+	double cosTheta = -2;			// Cos Theta for this specific Atom
+	int ID;					// Unique ID associated with the Lipid associated with this Atom
 
 	//Atom is a Node in a Linked List.
-	Atom next = null;
-	Atom nextHydrogen = null;
+	Atom next = null;			// Linked List for the Chain
+	Atom nextHydrogen = null;		// Linked List for Hydrogens Only
 
 	//Assings some attributes
 	public Atom(int ID, String Chain, int Member, int Hydrogen, String Name, double X, double Y, double Z){
@@ -61,9 +61,9 @@ public class Atom implements Serializable{
 		//These first couple of if statements are for Atomistic Simulations only.
 		
 		if ((this.Name.equals("C"))) {
-			this.nextHydrogen.determineOP(this.X, this.Y, this.Z, 0, 0);
+			this.nextHydrogen.determineOP(this.X, this.Y, this.Z, 0, 0);			// Find OP for the hydrogen
 
-			double[] OParray = new double[2];
+			double[] OParray = new double[2];						// Quick and dirty array for a quick and dirty Average
 			double[] cosThetaArray = new double[2];
 			OParray = this.nextHydrogen.averageHydrogenOP(OParray);
 			cosThetaArray = this.nextHydrogen.averageHydrogenCosTheta(cosThetaArray);
@@ -72,17 +72,17 @@ public class Atom implements Serializable{
 
 
 			if (this.next != null){
-				this.next.determineOP(0,0,0,0,0);
+				this.next.determineOP(0,0,0,0,0);					// Continue calculating OP on the next item in the chain
 			}	//Ends if statement
 		}	//Ends if statement
 
 
 		else if (this.Name.equals("H")) {
-			this.cosTheta = Mathematics.calculateCosTheta(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);
-			this.OP = Mathematics.calculateOP(this.cosTheta);
+			this.cosTheta = Mathematics.calculateCosTheta(carbonX, carbonY, carbonZ, this.X, this.Y, this.Z);	// Literally calculate cosTheta
+			this.OP = Mathematics.calculateOP(this.cosTheta);							// Literally calculate OP
 
 			if (this.nextHydrogen != null){
-				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ, 0, 0);
+				this.nextHydrogen.determineOP(carbonX, carbonY, carbonZ, 0, 0);					// Continue on the Hydrogen Linked List
 			}	//Ends if statement
 		}	//Ends if statement
 		
@@ -123,8 +123,8 @@ public class Atom implements Serializable{
 				double nextY = this.next.Y;
 				double nextZ = this.next.Z;
 
-				int shiftX = Mathematics.checkBoundary(currentX, xLength, 10, false);
-				int shiftY = Mathematics.checkBoundary(currentY, yLength, 10, false);
+				int shiftX = Mathematics.checkBoundary(currentX, xLength, 10, false);		// Account for PBC
+				int shiftY = Mathematics.checkBoundary(currentY, yLength, 10, false);		// Account for PBC
 
 				nextX = Mathematics.applyPBC(nextX, shiftX, xLength, false);
 				nextY = Mathematics.applyPBC(nextY, shiftY, yLength, false);
@@ -159,7 +159,9 @@ public class Atom implements Serializable{
 	}	//Ends determineOP
 	
 
-
+	// Method for a quick and dirty way to average something
+		// The first index counts how many times it iterates, the second index sums the values
+		//	 The second index will then be divided by the first to get an average.
 	public double[] averageHydrogenCosTheta(double[] array){
 		if (this.cosTheta >= -1) {
 			array[0]++;
@@ -243,8 +245,7 @@ public class Atom implements Serializable{
 	}	//Ends getPhosphateThickness	
 
 
-	//System for checking debugging
-	public void printAllAtoms(){
+	public void printAllAtoms(){				// Function for debugging, ALL WHO ENTER HEED THE WARNING " please dont."
 		System.out.println(this.ID + " " + this.Chain + " " + this.Name + " " + this.X + " " + this.Y + " " + this.Z);
 	
 		if (this.next != null){
