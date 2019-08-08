@@ -24,26 +24,26 @@ set maximumID 1350
 set middleID 500
 
 set Beads {
-	{ "GL1" "C1A" "C3A" "C1B" "C3B" }
-	{ "GL1" "D1A" "D3A" "C1B" "C3B" }
+	{ "GL1" "C1A" "C3A" "C1B" "C3B" "NC3" "PO4" }
+	{ "GL1" "D1A" "D3A" "C1B" "C3B" "NC3" "PO4" }
 	{ "R3" "R3" "ROH" }
 }
 
 set BeadNames {
-	{ "null" "C-Bead" "C-Bead" "C-Bead" "C-Bead" }
-	{ "null" "C-Bead" "C-Bead" "C-Bead" "C-Bead" }
+	{ "null" "C-Bead" "C-Bead" "C-Bead" "C-Bead" "NC3" "PO4" }
+	{ "null" "C-Bead" "C-Bead" "C-Bead" "C-Bead" "NC3" "PO4" }
 	{ "null" "R3" "ROH" }
 }
 
 set chainNames {
-	{ "null" "A" "A" "B" "B" }
-	{ "null" "A" "A" "B" "B" }
+	{ "null" "A" "A" "B" "B" "null" "null" }
+	{ "null" "A" "A" "B" "B" "null" "null" }
 	{ "null" "1" "1" }
 }
 
 set members {
-	{ "-1" "1" "3" "1" "3" }
-	{ "-1" "1" "3" "1" "3" }
+	{ "-1" "1" "3" "1" "3" "-1" "-1" }
+	{ "-1" "1" "3" "1" "3" "-1" "-1" }
 	{ "-1" "1" "1" }
 }
 
@@ -125,7 +125,7 @@ proc determineLipid { mol currentFrame currentResID LipidNames } {
 
 proc determineLeaflet { mol currentFrame lipidName resID middleID FlipFloppable } {
 
-	set Leaflets "Upper"
+	set Leaflet "Upper"
 
 	if { $FlipFloppable == "Yes" } {
 	      
@@ -140,7 +140,7 @@ proc determineLeaflet { mol currentFrame lipidName resID middleID FlipFloppable 
 		set Leaflet [validateID $mainList $middleID 0]
 
 	} else {
-		if { $resID > $middleID } { set Leaflets "Lower" }
+		if { $resID > $middleID } { set Leaflet "Lower" }
 	}	
 
         return $Leaflet

@@ -11,29 +11,27 @@ set overrideTotalFrames 0
 
 ############## BEGIN SYSTEM INFO #####################
 
-set totalFiles 1
-set filePath "/N/dc2/scratch/aqphilli/TCLScript/Anton/"
-set psfName "step5_assembly.xplor_ext.psf"
+set totalFiles 2
+set filePath "/N/dc2/scratch/aqphilli/TCLScript/PDPC/325/"
+set psfName "step5_assembly.psf"
 
-set LipidNames { "PSM" "PDPC" "CHL1" }
-set LipidType { "Normal" "Normal" "Special" }
+set LipidNames { "PDOPC" "CHL1" }
+set LipidType { "Normal" "Special" }
 
-set totalResID 1056
-set middleResID 555
+set totalResID 142
+set middleResID 71
 #Everything above the middleResID is in the Lower Leaflet
 
 #Bead info is organized as the following:
 #	First Chain Identifier, First Member, Last Member, H1, H2, H3, Second Chain Identifier, ...
 # 	For special Atoms just make a list of the specific beads selected.
 set BeadInformation {
-	{ "F" "2" "16" "F" "G" "H" "S" "2" "18" "S" "T" "U" }
-	{ "3" "2" "16" "X" "Y" "Z" "2" "3" "22" "R" "S" "T" }
+	{ "3" "2" "16" "X" "Y" "Z" "2" "2" "22" "R" "S" "T" }
 	{ "C3" "H3" }
 }
 
 set CoMBeads {
-	{ "P" "C3S" "C4S" "C2F" "C3F" }
-	{ "P" "C22" "C23" "C32" "C33" }
+	{ "P" "C23" "C24" "C33" "C34" }
 	{ "C16" "C10" "C13" "C8" "C3" }
 }
 
@@ -49,24 +47,22 @@ proc resetSelection {lipid element member suffix args} {
 	#Changes system to system
 	set selection ""
 
-	if {$lipid == "PSM"} {
+	if {$lipid == "PDOPC"} {
 		set selection $element
-		append selection $member $suffix
-
-	} elseif {$lipid == "PDPC"} {
-
 		if {$element == "C"} {
-			set selection $element
-			append selection $suffix $member
+			append selection $suffix
+			append selection $member	
 
 		} elseif {$element == "H"} {
-
-			set selection $element
-			append selection $member $suffix
+			append selection $member
+			append selection $suffix
+		} elseif {$element == "Special"} {
+			set selection "H"
+			append selection $member
+			append selection $suffix
 		}
 
 	} elseif {$lipid == "CHL1"} {
-
 
 	}
 
@@ -80,9 +76,8 @@ proc resetSelection {lipid element member suffix args} {
 
 set psfFinal $filePath$psfName
 
-set outputPath "/N/dc2/scratch/aqphilli/TCLScript/Anton/"
 set output "Coordinates.dat"
-set outputFinal $outputPath$output
+set outputFinal $filePath$output
 set File [open $outputFinal w]
 
 set currentFrame 0
@@ -128,6 +123,7 @@ proc determineLeaflet { resID middleResID } {
 }
 
 proc whichLipid { resID mol currentFrame lipidNames args } {
+	# Determine What lipid we are looking at.
 	set output ""
 
 	set totalLipids [llength $lipidNames]
@@ -209,7 +205,7 @@ while {$currentFile < $totalFiles} {
 			
 			set LipidIndex [whichLipid $currentResID $mol $currentFrame $LipidNames 0]
 
-			set Leaflet [detmineLeaflet $currentResID $middleResID]			
+			set Leaflet [determineLeaflet $currentResID $middleResID]			
 
 			set Type [lindex $LipidType $LipidIndex]
 			set Name [lindex $LipidNames $LipidIndex]
@@ -240,12 +236,16 @@ while {$currentFile < $totalFiles} {
 
 				#Find the XYZ for the Phosphate
 				set phosphateSel [atomselect $mol "resname $lipid and resid $currentResID and name eq P" frame $currentFrame]
-
 				set xyz [getCoordinates $phosphateSel 0]
 				createOutput $writingFrame $lipid $currentResID $Leaflet "No" "null" "P" "-1" "-1" $xyz $File 0
-
 				$phosphateSel delete
 
+
+				#Find the XYZ for the Nitrogen
+				set nitrogenSel [atomselect $mol "resname $lipid and resid $currentResID and name eq N" frame $currentFrame]
+				set xyz [getCoordinates $nitrogenSel 0]
+				createOutput $writingFrame $lipid $currentResID $Leaflet "No" "null" "N" "-1" "-1" $xyz $File 0
+				$nitrogenSel delete
 
 
 				set currentChain $firstChain
@@ -289,6 +289,14 @@ while {$currentFile < $totalFiles} {
 							#get First Hydrogen
 							set currentHydrogen [resetSelection $lipid "H" $currentMember $firstHydrogen 0]
 							set hydrogenSel [atomselect $mol "resname $lipid and resid $currentResID and name $currentHydrogen" frame $currentFrame]
+							set checkIfValid [$hydrogenSel get {x}]
+							if {$checkIfValid == ""} {
+								set specialHydrogen "1"
+								set currentHydrogen [resetSelection $lipid "Special" $currentMember $specialHydrogen 0]
+								$hydrogenSel delete
+								set hydrogenSel [atomselect $mol "resname $lipid and resid $currentResID and name $currentHydrogen" frame $currentFrame]
+							}
+
 							set xyz [getCoordinates $hydrogenSel 0]
 							createOutput $writingFrame $lipid $currentResID $Leaflet "No" $currentChain "H" $currentMember "0" $xyz $File 0
 							$hydrogenSel delete
