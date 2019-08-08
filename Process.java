@@ -775,6 +775,7 @@ public class Process implements Serializable {
 			}	//Ends if statement
 
 			else{
+				frameSeperator = Readin.findFrameSeperator();
 				totalFiles = Readin.findTotalFrames(frameSeperator);	
 			}	//Ends if statement
 

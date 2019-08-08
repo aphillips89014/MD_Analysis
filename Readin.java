@@ -65,6 +65,27 @@ public class Readin implements Serializable{
 		return newFrame;
 	}	//Ends unserializeFrame
 
+	public static int findFrameSeperator(){
+		String[] FileArray = new File("Frames/").list();
+		int totalFiles = FileArray.length;
+		int maxFrame = 0;
+
+		for (int currentFile = 0; currentFile < totalFiles; currentFile++){
+			int FileStringLength = FileArray[currentFile].length();
+			FileArray[currentFile] = FileArray[currentFile].substring(6, (FileStringLength - 4));
+	
+			int currentFrame = Integer.parseInt(FileArray[currentFile]);
+			
+			if (currentFrame > maxFrame){
+				maxFrame = currentFrame;
+			}	//Ends if statement
+		}	//Ends for loop
+
+		int result = maxFrame / (totalFiles - 1);
+
+		return result;
+	}	//Ends findFrameSeperator
+
 	public static int findTotalFrames(int seperator){
 		int totalFiles = new File("Frames/").list().length;	//Find the total number of files in the Frames/ directory
 		int lastFile = (totalFiles*seperator) - seperator;	//Find that total number and based off the seperator given figure out the total # of objects
