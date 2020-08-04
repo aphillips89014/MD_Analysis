@@ -99,14 +99,18 @@ public class Frame implements java.io.Serializable {
 
 	//Find the cetner of the bilayer by averaging all lipids terminal carbon Z location. 
 	public void findBilayerCenter(){
-		double currentZ = 0;
 		int totalLipids = this.allLipids.length;		
 		double sum = 0;
 		double validPoints = 0;
 
 		for (int currentLipid = 0; currentLipid < totalLipids; currentLipid++){
-			currentZ = this.allLipids[currentLipid].getTerminalCarbonHeight();
+			double currentZ = 4001;
 			
+			if (this.allLipids[currentLipid].secondChain.next != null){			// Only look at valid lipids
+													// Cholesterol specifically will be ignored.
+				currentZ = this.allLipids[currentLipid].getTerminalCarbonHeight();
+			}	//Ends if statement			
+
 			if (currentZ < 4000) {
 			//If it is a valid height
 

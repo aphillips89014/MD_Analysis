@@ -3,6 +3,8 @@ Leaflet = ARG1
 lipid_1 = ARG2
 chain = ARG3
 
+set xrange[0:90]
+
 set style line 1 \
     linecolor rgb '#0060ad' \
     linetype 1 linewidth 2 \
@@ -26,6 +28,8 @@ fileName = "Data/".Leaflet."_Leaflet_".lipid_1."_chain_".chain."_CosTheta_Histog
 
 key_1 = lipid_1." Cos Theta"
 
-plot fileName with linespoints linestyle 2 t key_1
+set angles degrees
 
+plot fileName u (acos($1)):2 with linespoints linestyle 2 t key_1
+#plot fileName with linespoints linestyle 2 t key_1
 

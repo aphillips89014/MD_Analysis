@@ -22,6 +22,9 @@ public class Process implements Serializable {
 		else{
 			int totalLipids = currentFrame.allLipids.length;		//Total Lipids in the sample
 
+			double[][][][] NN = new double[3][2][totalLipids][totalLipids];  // This is a temporary array that will be used to determine the standard deviation of NN.	
+			//  [ Count / Mean / # of Neighbors ][ Leaflet ][ Lipid ][ Comparing Lipid ]
+
 			//Find the X and Y for a single point, compare it to every other point.
 				//If it is within a given radius of the first point then it can be defined as a Neighbor, so add 1 to a counter.
 			for (int lipid1 = 0; lipid1 < totalLipids; lipid1++){			//Iterate over all Lipids
@@ -57,6 +60,7 @@ public class Process implements Serializable {
 
 						if ((radius <= searchRadius) && (radius != 0)){		//If it is within the search radius, and not itself.
 							lipidCount[lipidType]++;			//Add one to a counter.
+
 						}	//Ends if statement
 					}	//Ends if statement
 				}	//Ends for loop
@@ -620,6 +624,15 @@ public class Process implements Serializable {
 		return PCL;
 	}	//Ends calculate PCL
 
+	public static double[] generateTest(double[] test){
+		// Use this if you need to test something.
+
+	
+		return test;
+	}	// Ends generateTest
+
+
+
 	//Prints out the progress of the System.
 	public static long progressStatement(long givenTime, String Step){
 		long totalTime = 0;		
@@ -702,7 +715,7 @@ public class Process implements Serializable {
 	public static void main(String[] args){
 
 		//Some starter variables
-		int frameSeperator = 10;	//Set to be 10 by default, different numbers could bring better results based of the Hard Drive Specs.
+		int frameSeperator = 1;	//Set to be 10 by default, different numbers could bring better results based of the Hard Drive/RAM Specs.
 		double searchRadius = 10; 	//Set to be 10 by default, can change in the future.
 		int Neighbors = 20;		//Also set to be 20 by default
 
@@ -751,6 +764,8 @@ public class Process implements Serializable {
 		//Now we will read an Input File and begin the program
 		time = progressStatement(time, "Start_Read");	//This function will be used intermittenly to aide in console output
 								//Could be removed, is purely for visual effects so if the program crashes it can be seen when.
+
+
 		String[] lipidNames = Readin.findLipidNames(coordinateFile);	//The default names in the coordinate file for each lipid
 		int totalLipids = lipidNames.length;				//The total number of unique lipids in the system
 
@@ -848,6 +863,9 @@ public class Process implements Serializable {
 
 			double[][][][][] PCL = new double[3][2][totalLipids][2][30];
 			// PCL[ Count / PCL / PCL^2 ][ Leaflet ][ Lipid ][ Chain ][ Carbon Index ]
+
+//			double[] test = new double[1];					// If you want to test something specific use this.
+			// test[ ] 
 
 			int FrameTracker = (startingFrame / frameSeperator) * frameSeperator;	//Little equation that forces Java to return a whole rounded number.
 			Frame currentFrame = Readin.unserializeFrame(FrameTracker);		//Use that number to unserialze an object associated with that number.

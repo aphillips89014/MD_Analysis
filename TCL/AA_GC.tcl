@@ -87,8 +87,8 @@ proc createOutput { currentFrame lipid resID Leaflet FlipFloppable chain atom me
         #currentFrame == Current Frame
         #lipid == name of the lipid we want.
         #resID == Residue ID
- 	#Leaflet == Upper or Lower Leaflet
-	#FlipFloppable == Can it FlipFlop		(Always no in AA)
+	 	#Leaflet == Upper or Lower Leaflet
+		#FlipFloppable == Can it FlipFlop		(Always no in AA)
         #chain == string for the chain we reside on
         #atom == string for identifying atoms
         #member == current member along a chain

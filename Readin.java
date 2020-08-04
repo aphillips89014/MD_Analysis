@@ -305,6 +305,29 @@ public class Readin implements Serializable{
 		return lipidNames;
 	}	//Ends if statement
 
+	public static void createTestFiles(double[] test, String[] lipidNames){
+		PrintStream console = System.out;			// Save the current output device so we can revert anything done later
+		int totalLipids = lipidNames.length;		// Total number of lipids
+
+		String fileName = "Graphing/Data/test.dat";			// Name of our new file. We can get creative and make more but this is an example
+
+		try{			// Use a try catch when we attempt to make a new file
+			PrintStream output = new PrintStream(new File(fileName));			// Might as well imbed our new file inside our new printstream, both have to work.
+
+
+
+
+		}
+		catch(IOException e){			// Example Catch, really don't have to change this.
+			System.setOut(console);
+			System.out.println("Error in openning " + fileName);
+			System.out.println(e);
+		}
+
+		System.setOut(console);			// Set the output of text back to what it was at the beginning.
+	}	// Ends createTestFiles
+
+
 
 	//Create files to output Order Parameters
 	public static void createOPFiles(double[][][][][][] OP, String[] lipidNames, double totalFiles){
@@ -1007,7 +1030,7 @@ public class Readin implements Serializable{
 
 			else if ( (Hydrogen == -1) ){
 				//This implies that it is either a standard Element, or Special Element
-				String[] standardElements = new String[]{ "C", "C3", "H3", "C-Bead", "R3", "ROH", "C1" };
+				String[] standardElements = new String[]{ "C", "C3", "H3", "C-Bead", "R3", "ROH", "C1", "C10", "C13" };
 				String[] nonStandardElements = new String[]{ "P", "N", "PO4", "NC3" };
 
 				if (Mathematics.isValidLipid(Element, standardElements)) {

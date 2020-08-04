@@ -97,6 +97,16 @@ public class Atom implements Serializable{
 
 		//Now we have some "Special" Order parameters
 
+		//First the OP for Cholesterol in Atomistic Simualations
+			//Its the OP between C3 and H3
+		else if (this.Name.equals("C13")) {
+			//Next item is always C3
+			this.cosTheta = Mathematics.calculateCosTheta(this.next.X, this.next.Y, this.next.Z, this.X, this.Y, this.Z);
+			this.OP = Mathematics.calculateOP(this.cosTheta);
+
+		}	//Ends if statement
+
+
 
 		//First the OP for Cholesterol in Atomistic Simualations
 			//Its the OP between C3 and H3

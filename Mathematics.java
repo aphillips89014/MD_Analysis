@@ -68,6 +68,8 @@ public class Mathematics{
 
 	public static int checkBoundary(double point, double length, double searchRadius, boolean LengthCanBeNegative){
 		//Two Scenarios, those being if Length can be Negative
+		// Typically if your origin is in the bottom left corner of your simulation length can NOT be negative.
+		//		If it's in the center, length can be negative
 
 		int result = 0;
 		//If result is 0, then it is NOT near the boundary.

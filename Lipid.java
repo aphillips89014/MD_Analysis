@@ -246,14 +246,13 @@ public class Lipid implements java.io.Serializable {
 //		System.out.println("secondChain:");
 //		this.secondChain.printAllAtoms();
 
-		System.out.println("SpecialAtoms:");
-		this.specialAtoms.printAllAtoms();
+//		System.out.println("SpecialAtoms:");
+//		this.specialAtoms.printAllAtoms();
 
 //		System.out.println("CosTheta: " + this.firstCosTheta + " " + this.secondCosTheta);
 //		System.out.println("OP: " + this.firstOP + " " + this.secondOP);
 //		System.out.println(Arrays.toString(this.Neighbors));
-		System.out.println(Arrays.toString(this.dipoleVector));
-
+//		System.out.println(Arrays.toString(this.dipoleVector));
 
 		System.out.println("");
 	} //Ends getInformation method
@@ -409,6 +408,7 @@ public class Lipid implements java.io.Serializable {
 		//If its invalid, return an absurd value, there may be a better way to do this.
 		if (tempAtom.getMember() == 0) { 
 			result = 5000; 
+			tempAtom.printAllAtoms();
 			System.out.println("ERROR in finding Terminal Carbon Height");
 		}	// Ends if statement
 
